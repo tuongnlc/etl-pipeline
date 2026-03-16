@@ -1,8 +1,7 @@
-from templates.pipeline.base import BasePipeline
-from templates.etl.extract.postgre_db import PostgreDBExtractor
-from templates.etl.load.bq_loader import BigQueryLoader
-
-
+# market_data_etl.pyfrom src.templates.pipeline.base import BasePipeline
+from src.templates.etl.extract.postgre_db import PostgreDBExtractor
+from src.templates.etl.load.bq_loader import BigQueryLoader
+from src.templates.pipeline.base import BasePipeline
 
 class SilverMarketData(BasePipeline):
     """
