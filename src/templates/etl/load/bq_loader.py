@@ -1,4 +1,4 @@
-from templates.etl.load.base import BaseLoader
+from src.templates.etl.load.base import BaseLoader
 
 class BigQueryLoader(BaseLoader):
     def load(self) -> None:
