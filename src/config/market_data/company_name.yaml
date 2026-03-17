@@ -1,0 +1,18 @@
+---
+kind: DagDefinition
+metadata:
+  name: [market_data, company_name]
+spec:
+  dag_id: market_data__company_name
+  schedule: None
+  catchup: False
+  start_date: 2024-01-01
+  default_args:
+    owner: tuongnguyen
+    retries: 0
+  tags: ['market_data', 'company_name']
+  task_factoris:
+    - id: job
+      factory_type: SilverMarketDataFactory
+      args:
+        ...

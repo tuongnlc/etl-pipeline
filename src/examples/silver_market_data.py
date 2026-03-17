@@ -4,7 +4,7 @@ from src.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorW
 from src.infrastructure.polars.etl.load.bq_loader import BigQueryLoaderPolars
 import os
 
-uri = "postgresql://postgres:postgres@localhost:5432/market_data"
+uri = "postgresql://postgres:postgres@host.docker.internal:5432/market_data"
 query = """
     SELECT id::text AS id,
         stock_id,
