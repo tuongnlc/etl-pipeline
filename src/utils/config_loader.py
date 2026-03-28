@@ -5,6 +5,9 @@ from datetime import timedelta, datetime
 import yaml
 from typing import Any
 from src.models.example_config import ExampleConfig
+from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
+from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
+from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 
 
 from dacite import from_dict
@@ -12,6 +15,9 @@ from dacite import from_dict
 
 CONFIG_PARSER_MAP = {
     ExampleConfig.__name__: ExampleConfig,
+    PostgreDBExtractorWithPolarsConfig.__name__: PostgreDBExtractorWithPolarsConfig,
+    BigQueryLoaderPolarsConfig.__name__: BigQueryLoaderPolarsConfig,    
+    PostgreToBqSilverConfig.__name__: PostgreToBqSilverConfig,
 }
 
 def load_and_parse_config(
@@ -58,7 +64,6 @@ def load_yaml_config_from_path_as_str(path: str) -> str:
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             file_content = f.read()
-            print("Testing ", file_content)
             return file_content
     except Exception as e:
         raise e

@@ -1,12 +1,22 @@
 ---
 kind: PostgreToBqSilverConfig
 spec:
-  extractor: "PostgreDBExtractorWithPolars"
-    query: "SELECT * FROM market_data.company_name"
-    uri: "postgresql://postgres:postgres@localhost:5432/postgres"
-  loader: "BigQueryLoaderPolars"
-    gcp_credential_key: "gcp_sa_for_bq_data_append"
-    project: "rich-finance-2026"
-    dataset: "market_data"
-    table: "company_name"
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      query: |
+        SELECT id::text AS id,
+            stock_id,
+            company_name,
+            capitalization,
+            business_sector
+            FROM public.company_name
+  loader:
+    kind: BigQueryLoaderPolarsConfig
+    spec:
+      gcp_credential_key: gcp_sa_for_bq_data_append
+      project: rich-finance-2026
+      dataset: market_data
+      table: company_name
   

@@ -1,7 +1,7 @@
 import polars as pl
 import pyarrow as pa
 
-from templates.etl.extract.postgre_db import PostgreDBExtractor
+from src.templates.etl.extract.postgre_db import PostgreDBExtractor
 
 
 class PostgreDBExtractorWithPolars(PostgreDBExtractor):

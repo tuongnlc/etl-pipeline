@@ -58,7 +58,6 @@ def load_yaml_config_from_path_as_str(path: str) -> str:
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             file_content = f.read()
-            print("Testing ", file_content)
             return file_content
     except Exception as e:
         raise e

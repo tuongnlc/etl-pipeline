@@ -1,8 +1,9 @@
 from dataclasses import dataclass
+from typing import Any
+
 
 
 @dataclass
 class PostgreToBqSilverConfig:
-    query: str
-    loader: str
-    extractor: str
+    loader: Any #Update here
+    extractor: Any
