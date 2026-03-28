@@ -1,9 +1,10 @@
-from src.templates.etl.extract.base import BaseExtractor
 import polars as pl
 import pyarrow as pa
 
+from src.templates.etl.extract.postgre_db import PostgreDBExtractor
 
-class PostgreDBExtractorWithPolars(BaseExtractor):
+
+class PostgreDBExtractorWithPolars(PostgreDBExtractor):
     """
         Extract data from postgresql database using polars
 
