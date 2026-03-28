@@ -4,17 +4,14 @@ from jinja2 import Template
 from datetime import timedelta, datetime
 import yaml
 from typing import Any
-from spark.configlib.parser.delta import DeltaTableConfig
-from spark.configlib.parser.example import ExampleConfig
-from spark.configlib.parser.silver_job import SilverJobConfig
+from src.models.example_config import ExampleConfig
+
 
 from dacite import from_dict
 
 
 CONFIG_PARSER_MAP = {
-    DeltaTableConfig.__name__: DeltaTableConfig,
     ExampleConfig.__name__: ExampleConfig,
-    SilverJobConfig.__name__: SilverJobConfig,
 }
 
 def load_and_parse_config(
