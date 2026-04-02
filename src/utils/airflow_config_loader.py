@@ -230,5 +230,3 @@ def load_config(path: str) -> list[dict[str, Any]]:
             raise ConfigReadError(f"Error reading config file {resource}: {e}")
 
     return configs
-    
-   
