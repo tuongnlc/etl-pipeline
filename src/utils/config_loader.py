@@ -24,6 +24,9 @@ def load_and_parse_config(
     config_path: str,
     runtime_args: Namespace #Update here
 ):
+    """
+        Load and parse config from path for etl process
+    """
     config_str = load_yaml_config_from_path_as_str(config_path) #RETURN CONFIG STRING
 
     jinja_template = Template(config_str) # Use when we need to import library and allow jinja template do parser
