@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from airflow.sdk import DAG
-from airflow.utils.task_group import TaskGroup
+from airflow.sdk import TaskGroup
 
 
 class TaskFactoryBase(ABC):

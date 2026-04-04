@@ -1,4 +1,4 @@
-from models.orchestration.task_factory import TaskFactoryBase
+from src.models.orchestration.task_factory import TaskFactoryBase
 
 
 class TaskFactoryRegistry:
@@ -8,13 +8,11 @@ class TaskFactoryRegistry:
     def __init__(self):
         self._factories: dict[str, TaskFactoryBase] = {}
 
-    def register(self, factory_type: str, factory: TaskFactoryBase) -> TaskFactoryBase:
+    def register(self, factory: TaskFactoryBase, factory_type: str | None = None) -> None:
         """
             Register a task factory with the registry.
         """
-        if factory_type not in self._factories:
-            return
-        return self._factories[factory_type]
+        self._factories[factory_type or factory.__class__.__name__] = factory
 
     def get(self, factory_type: str) -> TaskFactoryBase:
         """

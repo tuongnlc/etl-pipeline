@@ -1,6 +1,7 @@
 import re
 from typing import Any
 from pydantic import BaseModel, field_validator
+from src.templates.core.orchestration.task_factories.base import TaskFactoryBase
 
 
 class TaskFactoryConfig(BaseModel):
