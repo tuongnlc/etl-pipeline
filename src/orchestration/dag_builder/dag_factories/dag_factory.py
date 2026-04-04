@@ -89,7 +89,11 @@ class SingletonDagFactory:
         }
 
         if "retry_delay" in default_args:
-            default_args["retry_delay"] = timedelta(**default_args["retry_delay"])
+            retry_delay = default_args["retry_delay"]
+            if isinstance(retry_delay, dict):
+                default_args["retry_delay"] = timedelta(**retry_delay)
+            else:
+                default_args["retry_delay"] = timedelta(seconds=retry_delay)
                
         if "on_failure_slack_channels" in default_args:
             list_of_failure_callbacks = list[Callable[[Context], None]]()
