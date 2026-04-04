@@ -1,14 +1,14 @@
 import logging
-from src.orchestration.task_factories.task_factory_registry import TaskFactoryRegistry
-from models.orchestration.airflow_dag import DagDefinition, DagDefinitionSpec, DagDefaultArgs
+from src.orchestration.dag_builder.task_factories.task_factory_registry import TaskFactoryRegistry
+from src.models.orchestration.airflow_dag import DagDefinition, DagDefinitionSpec, DagDefaultArgs
 from airflow import DAG
 from datetime import datetime
 from typing import Any
 from datetime import timedelta
-from airflow.sdk.definition.context import Context
+from airflow.utils.context import Context
 from typing import Callable
 import yaml
-from models.orchestration.airflow_dag import TaskFactoryConfig
+from src.models.orchestration.airflow_dag import TaskFactoryConfig
 
 
 
@@ -32,7 +32,7 @@ class SingletonDagFactory:
             Create DAG from definition
         """
         # Create DAG from definition
-        spec = dag_definition.spec.model_dump()
+        spec = dag_definition.spec
         
         dag = self._create_dag_instance(spec)
         task_map = self._create_tasks(dag, spec.task_factories)
@@ -44,7 +44,7 @@ class SingletonDagFactory:
         """
             Create DAG instance from spec
         """
-        start_date = datetime.strptime(spec.start_date, "%Y-%m-%d")
+        start_date = datetime.strptime(str(spec.start_date), "%Y-%m-%d")
         default_args = (
             self._build_default_args(spec.default_args if spec.default_args else None)
             ) or {}
