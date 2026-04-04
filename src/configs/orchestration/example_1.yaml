@@ -14,7 +14,7 @@ spec:
   tags: ["example_1"]
   task_factories:
     - id: job
-      factory_type: JobTaskFactory
+      factory_type: DummyTaskFactory
       args:
         job_config: ...
         cluster_type: "example1"

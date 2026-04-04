@@ -31,11 +31,11 @@ class DagBuilder:
         return failed_dag
         
     def build_all(self):
-        dag_definitions = Sequence[DagDefinition] = (
+        dag_definitions: Sequence[DagDefinition] = (
             self.config_registry.get_all_config_by_kind("DagDefinition")
         )
 
-        logger.info(f"Build {len(dag_definition)} DAGs")
+        logger.info(f"Build {len(dag_definitions)} DAGs")
 
         dags = {}
 
