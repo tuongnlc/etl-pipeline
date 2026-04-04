@@ -1,6 +1,8 @@
 import re
 from pydantic import BaseModel, field_validator
 from .task_factory import TaskFactoryConfig
+from .base_config import BaseConfig
+
 
 
 class DagDefaultArgs(BaseModel):
@@ -90,7 +92,7 @@ class DagDefinitionSpec(BaseModel):
                         raise ValueError(f"Invalid task dependency: {dep}")
         return self
 
-class DagDefinition():
+class DagDefinition(BaseConfig):
     """
         Configuration for a single Airflow DAG
     """
