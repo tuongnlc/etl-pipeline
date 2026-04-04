@@ -1,7 +1,8 @@
 import re
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from .task_factory import TaskFactoryConfig
 from .base_config import BaseConfig
+from datetime import date
 
 
 
@@ -18,7 +19,7 @@ class DagDefaultArgs(BaseModel):
     owner: str
     retries: int = 0
     retry_delay: int = 0
-    on_failure_callback: str = None
+    on_failure_callback: list = None
 
 
 class DagDefinitionSpec(BaseModel):
@@ -37,7 +38,7 @@ class DagDefinitionSpec(BaseModel):
     """
     dag_id: str
     schedule: str
-    start_date: str
+    start_date: date
     task_factories: list[TaskFactoryConfig]
     catchup: bool = False
     default_args: DagDefaultArgs = None
@@ -76,7 +77,7 @@ class DagDefinitionSpec(BaseModel):
             raise ValueError(f"Invalid schedule: {v}")
         return v
     
-    @field_validator(mode="after")
+    @model_validator(mode="after")
     def validate_task_dependencies(self) -> "DagDefinitionSpec":
         """
             Ensure all task dependencies reference existing task 

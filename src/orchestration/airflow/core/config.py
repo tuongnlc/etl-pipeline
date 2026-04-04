@@ -8,7 +8,7 @@ from typing import Literal, Sequence
 from src.models.orchestration.task_factory import TaskFactoryConfig
 
 
-MODEL_MAPPING = dict[str, Type[BaseConfig]] = {
+MODEL_MAPPING: dict[str, Type[BaseConfig]] = {
     "DagDefinition": DagDefinition,
 }
 
@@ -20,7 +20,10 @@ class ConfigRegistry:
         Steps:
             1. Load raw config data from file
             2. Go through each config and transform it to model object base on kind
-            3. Register model object to registry
+            3. Register model object to registry 
+
+        Output:
+            Config registry with all config objects saving in configs
     """
     def __init__(self):
         self.configs: dict[str, BaseConfig] = {}
@@ -33,6 +36,7 @@ class ConfigRegistry:
             kind: Any | None = data.get("kind")
             if not kind:
                 continue
+            config_name = (data.get("metadata") or {}).get("name", "<unknown>")
 
             try:
                 model_class: type[BaseConfig] = MODEL_MAPPING[kind]
@@ -41,11 +45,11 @@ class ConfigRegistry:
                 if name in self.configs:
                     raise ValueError(f"Duplicate config name: {name}")
                 logging.info(f"Populate config: {name}")
-                self.configs[name] = config_model
+                self.configs[name] = config_model # Store config object in registry
             except KeyError:
                 logging.warning(f"Invalid config kind: {kind}")
             except Exception as e:
-                logging.error(f"Error populating config: {name}, error: {e}")
+                logging.error(f"Error populating config: {config_name}, error: {e}")
 
     # @overload # Update here
     # def get_all_config_by_kind(
@@ -65,7 +69,7 @@ class ConfigRegistry:
         """
             Get all config with given kind
         """
-        return [config for config in self.configs.items() if config.kind == kind]
+        return [config for config in self.configs.values() if config.kind == kind]
 
     def get_model_for_kind(self, kind: str) -> type[BaseConfig]:
         """
