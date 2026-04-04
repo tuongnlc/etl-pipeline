@@ -32,7 +32,7 @@ class DummyTaskFactory(TaskFactoryBase):
                 raise ValueError(f"Invalid custom_dummy_arg1 value: {arg1}")
         
         known_args = ["custom_dummy_arg1", "custom_dummy_arg2"]
-        unknown_args = set(args.keys()) - known_args
+        unknown_args = set(args.keys()) - set(known_args)
         if unknown_args:
             logger.warning(f"Unknown arguments: {unknown_args}")
 
@@ -49,7 +49,7 @@ class DummyTaskFactory(TaskFactoryBase):
             logger.debug(f"custom_dummy_arg1: {args['custom_dummy_arg1']}")
         if "custom_dummy_arg2" in args:
             logger.debug(f"custom_dummy_arg2: {args['custom_dummy_arg2']}")
-        with TaskGroup(dag=dag, task_group_id=task_group_id) as task_group:
+        with TaskGroup(dag=dag, group_id=task_group_id) as task_group:
             task_1 = EmptyOperator(
                 dag=dag,
                 task_id="task_1",
