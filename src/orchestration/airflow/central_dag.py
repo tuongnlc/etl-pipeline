@@ -19,8 +19,6 @@ task_factory_registry: TaskFactoryRegistry = TaskFactoryRegistry()
 task_factory_registry.register(DummyTaskFactory())
 task_factory_registry.register(SilverMarketDataTaskFactory())
 
-
-
 dag_builder = DagBuilder(config_registry=config_registry, task_factory_registry=task_factory_registry)
 
 try:
