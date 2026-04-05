@@ -15,16 +15,8 @@ from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
 import os
-from src.utils.jobargs import etl_job_args_utils
 from src.utils.config_loader import load_and_parse_config, parse_config
-from airflow.hooks.base import BaseHook
-
-polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
-uri = polars_connection.password
-
-bq_connectyion = BaseHook.get_connection('gcp_sa_for_bq_data_append')
-json_credentials = json.loads(bq_connectyion.password)
-credentials = service_account.Credentials.from_service_account_info(json_credentials)
+from airflow.sdk.bases.hook import BaseHook
 
 def main(
     job_config_path: str = None,
@@ -44,6 +36,14 @@ def main(
         raise ValueError("extractor must be of type PostgreDBExtractorWithPolarsConfig")
     if not isinstance(args.job_config.loader, BigQueryLoaderPolarsConfig):
         raise ValueError("loader must be of type BigQueryLoaderPolarsConfig")
+
+    # Get connections inside the function (not at import time)
+    polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
+    uri = polars_connection.password
+    
+    bq_connectyion = BaseHook.get_connection('gcp_sa_for_bq_data_append')
+    json_credentials = json.loads(bq_connectyion.password)
+    credentials = service_account.Credentials.from_service_account_info(json_credentials)
 
     extractor = PostgreDBExtractorWithPolars(
         query=args.job_config.extractor.query,

@@ -6,5 +6,5 @@ class SilverMarketDataTaskModel(BaseModel):
     """
     Model validation cho silver market data task.
     """
-    valid_args: ClassVar[list[str]] = ["job_config", "cluster_type"]
+    valid_args: ClassVar[list[str]] = ["task_id", "job_config_path"]
     model_config = ConfigDict(extra='allow')

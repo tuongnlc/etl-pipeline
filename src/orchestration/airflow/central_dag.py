@@ -6,6 +6,7 @@ from src.orchestration.config.config_registry import ConfigRegistry
 from src.orchestration.dag_builder.task_factories.task_factory_registry import TaskFactoryRegistry
 from src.orchestration.dag_builder.task_factories.dummy_factory import DummyTaskFactory
 from src.orchestration.dag_builder.dag_builder import DagBuilder
+from src.orchestration.dag_builder.task_factories.silver_market_data_factory import SilverMarketDataTaskFactory
 
 
 
@@ -16,6 +17,9 @@ config_registry.populate(raw_configs)
 
 task_factory_registry: TaskFactoryRegistry = TaskFactoryRegistry()
 task_factory_registry.register(DummyTaskFactory())
+task_factory_registry.register(SilverMarketDataTaskFactory())
+
+
 
 dag_builder = DagBuilder(config_registry=config_registry, task_factory_registry=task_factory_registry)
 

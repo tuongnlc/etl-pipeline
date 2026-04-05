@@ -3,8 +3,9 @@ from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from typing import Any
 from airflow.sdk import TaskGroup
 from airflow.sdk import Asset
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
+from src.orchestration.airflow.python_script.postgre_to_bq import main
 
 
 logger = logging.getLogger(__name__)
@@ -39,10 +40,12 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
             )
 
             task_2 = PythonOperator(
+                dag=dag,
                 task_id=task_id,
-                python_callable=self._run_task,
-                op_kwargs=args,
-                provide_context=True,
+                python_callable=main,
+                op_kwargs={
+                    "job_config_path": args["job_config_path"]
+                }
             )
             task_1 >> task_2
             return task_group
