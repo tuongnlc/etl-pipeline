@@ -1,6 +1,6 @@
 import re
 from pydantic import BaseModel, field_validator, model_validator
-from .task_factory import TaskFactoryConfig
+from .task_factories.task_factory import TaskFactoryConfig
 from .base_config import BaseConfig
 from datetime import date
 

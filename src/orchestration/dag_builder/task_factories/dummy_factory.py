@@ -1,5 +1,5 @@
 import logging
-from src.models.orchestration.task_factory import TaskFactoryBase
+from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from typing import Any
 from airflow.sdk import TaskGroup
 from airflow.providers.standard.operators.empty import EmptyOperator
@@ -13,28 +13,8 @@ class DummyTaskFactory(TaskFactoryBase):
     """
         Dummy task factory to be used for testing.
     """
-    def create_task(
-        self, task_group_id: str, dag: Any, args: dict[str, Any]
-    ) -> TaskGroup:
-        """
-            Create a task group for the given task group ID
-        """
-        self.validate_args(args)
-        return self._create_task_impl(task_group_id, dag, args)
-
-    def validate_args(self, args: dict[str, Any]) -> None:
-        """
-            Validate the arguments passed to the task factory.
-        """
-        if "custom_dummy_arg1" in args:
-            arg1 = args["custom_dummy_arg1"]
-            if arg1 not in self.VALID_ARG1_VALUES:
-                raise ValueError(f"Invalid custom_dummy_arg1 value: {arg1}")
-        
-        known_args = ["custom_dummy_arg1", "custom_dummy_arg2"]
-        unknown_args = set(args.keys()) - set(known_args)
-        if unknown_args:
-            logger.warning(f"Unknown arguments: {unknown_args}")
+    from src.models.orchestration.task_factories.dummy_factory import DummyTaskModel
+    model_class = DummyTaskModel
 
     def _create_task_impl(
         self,
