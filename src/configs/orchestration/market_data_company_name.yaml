@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: market_data_company_name_dag_example
+spec:
+  dag_id: market_data_company_name_dag_example
+  schedule: "0 0 * * *"
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["market_data", "company_name"]
+  task_factories:
+    - id: job
+      factory_type: DummyTaskFactory
+      args:
+        job_config: ...
+        cluster_type: "example1"

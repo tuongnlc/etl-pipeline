@@ -10,8 +10,7 @@ from src.jobs.silver_market_data import SilverMarketData
 
 
 from argparse import Namespace
-# from pyspark.sql import SparkSession
-# from spark.configlib.parser.silver_job import SilverJobConfig
+
 from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
@@ -20,11 +19,9 @@ from src.utils.jobargs import etl_job_args_utils
 from src.utils.config_loader import load_and_parse_config, parse_config
 from airflow.hooks.base import BaseHook
 
-# Get credentials for extractor
 polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
 uri = polars_connection.password
 
-# Get credentials for loader
 bq_connectyion = BaseHook.get_connection('gcp_sa_for_bq_data_append')
 json_credentials = json.loads(bq_connectyion.password)
 credentials = service_account.Credentials.from_service_account_info(json_credentials)

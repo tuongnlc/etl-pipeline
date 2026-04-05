@@ -17,7 +17,6 @@ class TaskFactoryBase(ABC):
         Output:
             The created TaskGroup.
     """
-    @abstractmethod
     def create_task(self, task_group_id: str, dag: DAG, args: dict[str, Any]) -> TaskGroup:
         """
             Create a task group for the given DAG

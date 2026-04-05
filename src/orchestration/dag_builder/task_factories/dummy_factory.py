@@ -13,15 +13,6 @@ class DummyTaskFactory(TaskFactoryBase):
     """
         Dummy task factory to be used for testing.
     """
-    def create_task(
-        self, task_group_id: str, dag: Any, args: dict[str, Any]
-    ) -> TaskGroup:
-        """
-            Create a task group for the given task group ID
-        """
-        self.validate_args(args)
-        return self._create_task_impl(task_group_id, dag, args)
-
     def validate_args(self, args: dict[str, Any]) -> None:
         """
             Validate the arguments passed to the task factory.
@@ -31,6 +22,7 @@ class DummyTaskFactory(TaskFactoryBase):
             if arg1 not in self.VALID_ARG1_VALUES:
                 raise ValueError(f"Invalid custom_dummy_arg1 value: {arg1}")
         
+        # Define valid arguments
         known_args = ["custom_dummy_arg1", "custom_dummy_arg2"]
         unknown_args = set(args.keys()) - set(known_args)
         if unknown_args:
