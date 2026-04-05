@@ -13,22 +13,8 @@ class DummyTaskFactory(TaskFactoryBase):
     """
         Dummy task factory to be used for testing.
     """
-    def validate_args(self, args: dict[str, Any]) -> None:
-        """
-            Validate the arguments passed to the task factory using the new model.
-        """
-        from src.models.orchestration.task_factories.dummy_factory import DummyTaskModel
-
-        # Pydantic validation
-        model = DummyTaskModel(**args) 
-        
-        # Check for unknown arguments - if user put unknown arguments, raise error
-        unknown_args = set(args.keys()) - set(DummyTaskModel.valid_args)
-        if unknown_args:
-            logger.error(f"Unknown arguments: {unknown_args}")
-            raise ValueError(f"Unknown arguments: {unknown_args}")
-
-
+    from src.models.orchestration.task_factories.dummy_factory import DummyTaskModel
+    model_class = DummyTaskModel
 
     def _create_task_impl(
         self,
