@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: market_data_company_name
+  name: market_data_foreign_trade
 spec:
-  dag_id: market_data_company_name
+  dag_id: market_data_foreign_trade
   schedule: "0 0 * * *"
   start_date: 2023-01-01
   catchup: False
@@ -11,10 +11,10 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["market_data", "company_name"]
+  tags: ["market_data", "foreign_trade"]
   task_factories:
     - id: job
       factory_type: SilverMarketDataTaskFactory
       args:
-        task_id: "market_data_company_name"
-        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_bq/market_data/company_name.yaml
+        task_id: "market_data_foreign_trade"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_bq/market_data/foreign_trade.yaml
