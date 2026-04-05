@@ -16,5 +16,5 @@ spec:
     - id: job
       factory_type: DummyTaskFactory
       args:
-        job_config: ...
-        cluster_type: "example1"
+        task_id: "market_data_company_name_task"
+        job_config_path: "configs/postgre_to_bq/market_data/company_name.yaml"
