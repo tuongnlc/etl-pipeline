@@ -1,4 +1,4 @@
-from src.models.orchestration.task_factory import TaskFactoryBase
+from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 
 
 class TaskFactoryRegistry:

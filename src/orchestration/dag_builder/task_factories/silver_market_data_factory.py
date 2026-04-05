@@ -1,5 +1,5 @@
 import logging
-from src.models.orchestration.task_factory import TaskFactoryBase
+from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from typing import Any
 from airflow.sdk import TaskGroup
 from airflow.sdk import Asset

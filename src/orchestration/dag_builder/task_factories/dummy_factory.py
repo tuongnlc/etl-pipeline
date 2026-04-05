@@ -1,5 +1,5 @@
 import logging
-from src.models.orchestration.task_factory import TaskFactoryBase
+from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from typing import Any
 from airflow.sdk import TaskGroup
 from airflow.providers.standard.operators.empty import EmptyOperator
@@ -15,18 +15,20 @@ class DummyTaskFactory(TaskFactoryBase):
     """
     def validate_args(self, args: dict[str, Any]) -> None:
         """
-            Validate the arguments passed to the task factory.
+            Validate the arguments passed to the task factory using the new model.
         """
-        if "custom_dummy_arg1" in args:
-            arg1 = args["custom_dummy_arg1"]
-            if arg1 not in self.VALID_ARG1_VALUES:
-                raise ValueError(f"Invalid custom_dummy_arg1 value: {arg1}")
+        from src.models.orchestration.task_factories.dummy_factory import DummyTaskModel
+
+        # Pydantic validation
+        model = DummyTaskModel(**args) 
         
-        # Define valid arguments
-        known_args = ["custom_dummy_arg1", "custom_dummy_arg2"]
-        unknown_args = set(args.keys()) - set(known_args)
+        # Check for unknown arguments - if user put unknown arguments, raise error
+        unknown_args = set(args.keys()) - set(DummyTaskModel.valid_args)
         if unknown_args:
-            logger.warning(f"Unknown arguments: {unknown_args}")
+            logger.error(f"Unknown arguments: {unknown_args}")
+            raise ValueError(f"Unknown arguments: {unknown_args}")
+
+
 
     def _create_task_impl(
         self,

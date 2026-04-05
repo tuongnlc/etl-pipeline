@@ -5,7 +5,7 @@ from src.models.orchestration.airflow_dag import DagDefinition
 from typing import Any
 import logging
 from typing import Literal, Sequence
-from src.models.orchestration.task_factory import TaskFactoryConfig
+from src.models.orchestration.task_factories.task_factory import TaskFactoryConfig
 
 
 MODEL_MAPPING: dict[str, Type[BaseConfig]] = {
