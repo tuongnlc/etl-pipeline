@@ -1,5 +1,3 @@
-# test/unit/models/etl/extractor/test_postgres_extractor_config.py
-import pytest
 from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 
 
