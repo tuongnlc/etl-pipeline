@@ -1,0 +1,25 @@
+---
+kind: PostgreToBqSilverConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      query: |
+        SELECT 
+          id::text AS id,
+          trading_date,
+          open_index_value,
+          highest_index_value,
+          lowest_index_value,
+          close_index_value,
+          volume
+        FROM public.vn_index
+  loader:
+    kind: BigQueryLoaderPolarsConfig
+    spec:
+      gcp_credential_key: gcp_sa_for_bq_data_append
+      project: rich-finance-2026
+      dataset: market_data
+      table: vn_index
+  
