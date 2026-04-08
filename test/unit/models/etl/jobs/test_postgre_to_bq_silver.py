@@ -31,7 +31,7 @@ class TestPostgreToBqSilverConfig:
             ("string_loader", "string_extractor"),
             (123, 456),
             ({"loader": "dict"}, {"extractor": "dict"}),
-            (None, None),  # Có thể cần validation cho trường hợp này
+            (None, None),  
             ([1, 2, 3], {"key": "value"})
         ]
         
