@@ -13,6 +13,7 @@ spec:
           buy_volume,
           sell_volume
         FROM public.foreign_trade
+        -- WHERE DATE(trading_date) >= CURRENT_DATE - INTERVAL '7 days';
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:

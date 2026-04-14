@@ -6,7 +6,7 @@ from airflow.sdk import Asset
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
 from src.orchestration.airflow.python_script.postgre_to_bq import main
-
+# from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,15 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                 """,
             )
 
-            task_2 = PythonOperator(
+            # task_2 = BigQueryExecuteQueryOperator(
+            #     dag=dag,
+            #     task_id="delete_before_load",
+            #     query="SELECT 1 AS a",
+            #     project="rich-finance-2026",
+            #     use_legacy_sql=False,
+            # )
+
+            task_3 = PythonOperator(
                 dag=dag,
                 task_id=task_id,
                 python_callable=main,
@@ -47,6 +55,6 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                     "job_config_path": args["job_config_path"]
                 }
             )
-            task_1 >> task_2
+            task_1 >> task_3
             return task_group
               
