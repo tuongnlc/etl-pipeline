@@ -55,6 +55,7 @@ def main(
         project=args.job_config.loader.project,
         dataset=args.job_config.loader.dataset,
         table=args.job_config.loader.table,
+        write_disposition=args.job_config.loader.write_disposition,
     )
 
     silver_market_data_jobs = SilverMarketData(
