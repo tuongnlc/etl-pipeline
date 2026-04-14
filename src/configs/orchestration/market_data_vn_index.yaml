@@ -1,7 +1,7 @@
 ---
 kind: DagDefinition
 metadata:
-  name: market_data_stock_price
+  name: market_data_vn_index
 spec:
   dag_id: market_data_vn_index
   schedule: "0 0 * * *"
