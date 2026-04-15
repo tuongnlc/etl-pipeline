@@ -5,13 +5,8 @@ spec:
     kind: PostgreDBExtractorWithPolarsConfig
     spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
-      query: |
-        SELECT id::text AS id,
-            stock_id,
-            company_name,
-            capitalization,
-            business_sector
-            FROM public.company_name
+      source_table_name: public.company_name
+      execution_date: null
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:
@@ -19,4 +14,6 @@ spec:
       project: rich-finance-2026
       dataset: market_data
       table: company_name
+      write_disposition: WRITE_TRUNCATE
+      enable_delete_before_load: false
   

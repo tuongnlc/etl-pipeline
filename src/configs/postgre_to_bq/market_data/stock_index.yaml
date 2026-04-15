@@ -5,17 +5,7 @@ spec:
     kind: PostgreDBExtractorWithPolarsConfig
     spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
-      query: |
-        SELECT 
-          id::text AS id,
-          trading_date,
-          open_index_value,
-          highest_index_value,
-          lowest_index_value,
-          close_index_value,
-          volume,
-          index_type
-        FROM public.stock_index
+      source_table_name: public.stock_index
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:
@@ -23,4 +13,5 @@ spec:
       project: rich-finance-2026
       dataset: market_data
       table: stock_index
-  
+      write_disposition: WRITE_APPEND
+      enable_delete_before_load: true

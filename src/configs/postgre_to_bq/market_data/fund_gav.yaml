@@ -4,20 +4,15 @@ spec:
   extractor: 
     kind: PostgreDBExtractorWithPolarsConfig
     spec:
-      query: 
-        SELECT id::text AS id,
-          fund_id,
-          stock_id,
-          business_sector,
-          gav,
-          month
-        FROM public.fund_gav
-      uri: "postgresql://postgres:postgres@localhost:5432/postgres" #Update here
+      source_table_name: public.fund_gav
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      execution_date: null
   loader: 
     kind: BigQueryLoaderPolarsConfig
     spec:
-      gcp_credential_key: ""
-      project: "rich-finance-2026"
-      dataset: "market_data"
-      table: "fund_gav"
-  
+      gcp_credential_key: gcp_sa_for_bq_data_append
+      project: rich-finance-2026
+      dataset: market_data
+      table: fund_gav
+      write_disposition: WRITE_TRUNCATE
+      enable_delete_before_load: false

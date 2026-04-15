@@ -19,10 +19,13 @@ from src.utils.config_loader import load_and_parse_config, parse_config
 from airflow.sdk.bases.hook import BaseHook
 
 def main(
-    job_config_path: str = None,
+    # job_config_path: str = None,
+    job_config: PostgreToBqSilverConfig = None,
+    execution_date: str = None,
 ):
-    runtime_args = Namespace(job_config=job_config_path)
-    job_config = load_and_parse_config(job_config_path, runtime_args)
+    # runtime_args = Namespace(job_config=job_config_path)
+    # job_config = load_and_parse_config(job_config_path, runtime_args)
+    
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
     if job_config.loader is not None:
@@ -46,8 +49,10 @@ def main(
     credentials = service_account.Credentials.from_service_account_info(json_credentials)
 
     extractor = PostgreDBExtractorWithPolars(
-        query=args.job_config.extractor.query,
+        # query=args.job_config.extractor.query,
+        source_table_name=args.job_config.extractor.source_table_name,
         uri=uri,
+        execution_date=execution_date, # Get from {{ ds }}
     )
 
     loader = BigQueryLoaderPolars(
@@ -55,6 +60,7 @@ def main(
         project=args.job_config.loader.project,
         dataset=args.job_config.loader.dataset,
         table=args.job_config.loader.table,
+        write_disposition=args.job_config.loader.write_disposition,
     )
 
     silver_market_data_jobs = SilverMarketData(
