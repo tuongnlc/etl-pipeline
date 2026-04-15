@@ -34,12 +34,6 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
         job_config_path = args["job_config_path"]
         job_config = load_and_parse_config(job_config_path, None)
         logger.info(f"Job config loaded from: {job_config_path}")
-        
-        logger.info(job_config.loader.get('spec'))
-        logger.info(job_config.loader.get('spec').get('enable_delete_before_load'))
-        logger.info(job_config.loader.get('spec').get('dataset'))
-        logger.info(job_config.loader.get('spec').get('table'))
-        logger.info(job_config.loader.get('spec').get('project'))
 
         with TaskGroup(task_group_id, dag=dag) as task_group:
             hello_world_task = EmptyOperator(
