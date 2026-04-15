@@ -25,4 +25,5 @@ spec:
       dataset: market_data
       table: stock_price
       write_disposition: WRITE_TRUNCATE
+      enable_delete_before_load: true
   
