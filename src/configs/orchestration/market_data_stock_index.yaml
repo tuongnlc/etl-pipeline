@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: market_data_vn_index
+  name: market_data_stock_index
 spec:
-  dag_id: market_data_vn_index
+  dag_id: market_data_stock_index
   schedule: "0 0 * * *"
   start_date: 2023-01-01
   catchup: False
@@ -11,10 +11,10 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["market_data", "vn_index"]
+  tags: ["market_data", "stock_index"]
   task_factories:
     - id: job
       factory_type: SilverMarketDataTaskFactory
       args:
-        task_id: "market_data_vn_index"
-        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_bq/market_data/vn_index.yaml
+        task_id: "market_data_stock_index"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_bq/market_data/stock_index.yaml
