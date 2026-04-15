@@ -1,12 +1,15 @@
 import logging
-from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from typing import Any
+import json
+from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from airflow.sdk import TaskGroup
 from airflow.sdk import Asset
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
 from src.orchestration.airflow.python_script.postgre_to_bq import main
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from src.utils.config_loader import load_and_parse_config, parse_config
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,16 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
         task_id = args["task_id"]
         logger.info(f"Create silver market data task groups")
 
+        job_config_path = args["job_config_path"]
+        job_config = load_and_parse_config(job_config_path, None)
+        logger.info(f"Job config loaded from: {job_config_path}")
+        
+        logger.info(job_config.loader.get('spec'))
+        logger.info(job_config.loader.get('spec').get('enable_delete_before_load'))
+        logger.info(job_config.loader.get('spec').get('dataset'))
+        logger.info(job_config.loader.get('spec').get('table'))
+        logger.info(job_config.loader.get('spec').get('project'))
+
         with TaskGroup(task_group_id, dag=dag) as task_group:
             hello_world_task = EmptyOperator(
                 dag=dag,
@@ -44,20 +57,27 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                 task_id=task_id,
                 python_callable=main,
                 op_kwargs={
-                    "job_config_path": args["job_config_path"]
+                    "job_config": job_config
                 }
             )
             # Build task pipeline - using proper Airflow SDK pattern
             # For Airflow SDK, we use conditional task creation with clear branching
             
-            if args.get("enable_delete_before_load", False):
+            if job_config.loader.get('spec').get('enable_delete_before_load') == True:
                 # Branch with delete_before_load task
                 delete_task = BigQueryInsertJobOperator(
                     dag=dag,
                     task_id="delete_before_load",
-                    query="SELECT * FROM `rich-finance-2026.market_data.stock_index`",
-                    project="rich-finance-2026",
-                    use_legacy_sql=False,
+                    configuration={
+                        "query": {
+                            "query": f"""
+                                DELETE FROM `{job_config.loader.get('spec').get('dataset')}.{job_config.loader.get('spec').get('table')}` 
+                                WHERE DATE(trading_date) >= DATE_ADD(CURRENT_DATE(), INTERVAL -7 DAY)
+                                # SELECT * FROM `rich-finance-2026.market_data.company_name`
+                            """,
+                            "useLegacySql": False,
+                        }
+                    }
                 )
                 hello_world_task >> delete_task >> load_to_bq_task
             else:

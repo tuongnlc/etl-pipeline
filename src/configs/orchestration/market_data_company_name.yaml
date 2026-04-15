@@ -4,7 +4,7 @@ metadata:
   name: market_data_company_name
 spec:
   dag_id: market_data_company_name
-  schedule: "0 0 * * *"
+  schedule: None
   start_date: 2023-01-01
   catchup: False
   default_args:

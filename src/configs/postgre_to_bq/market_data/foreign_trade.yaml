@@ -13,10 +13,11 @@ spec:
           buy_volume,
           sell_volume
         FROM public.foreign_trade
-        -- WHERE DATE(trading_date) >= CURRENT_DATE - INTERVAL '7 days';
+        WHERE DATE(trading_date) >= CURRENT_DATE - INTERVAL '7 days'
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:
+      enable_delete_before_load: true
       gcp_credential_key: gcp_sa_for_bq_data_append
       project: rich-finance-2026
       dataset: market_data

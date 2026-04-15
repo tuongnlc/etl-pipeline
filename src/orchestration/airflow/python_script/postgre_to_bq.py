@@ -19,10 +19,12 @@ from src.utils.config_loader import load_and_parse_config, parse_config
 from airflow.sdk.bases.hook import BaseHook
 
 def main(
-    job_config_path: str = None,
+    # job_config_path: str = None,
+    job_config: PostgreToBqSilverConfig = None,
 ):
-    runtime_args = Namespace(job_config=job_config_path)
-    job_config = load_and_parse_config(job_config_path, runtime_args)
+    # runtime_args = Namespace(job_config=job_config_path)
+    # job_config = load_and_parse_config(job_config_path, runtime_args)
+    
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
     if job_config.loader is not None:
