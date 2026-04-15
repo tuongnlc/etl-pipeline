@@ -14,4 +14,4 @@ spec:
       dataset: market_data
       table: stock_index
       write_disposition: WRITE_APPEND
-      enable_delete_before_load: false
+      enable_delete_before_load: true
