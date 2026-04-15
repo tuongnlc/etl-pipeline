@@ -49,7 +49,8 @@ def main(
     credentials = service_account.Credentials.from_service_account_info(json_credentials)
 
     extractor = PostgreDBExtractorWithPolars(
-        query=args.job_config.extractor.query,
+        # query=args.job_config.extractor.query,
+        source_table_name=args.job_config.extractor.source_table_name,
         uri=uri,
         execution_date=execution_date, # Get from {{ ds }}
     )

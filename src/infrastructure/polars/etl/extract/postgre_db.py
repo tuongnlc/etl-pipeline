@@ -17,27 +17,38 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
             ArrowTable: Extracted data as an Arrow table
     """
     def __init__(self, 
-            query: str, 
+            # query: str, 
+            source_table_name: str,
             uri: str, 
             execution_date: str = None, 
             **kwargs
         ) -> None:
-        self.query = query
+        # self.query = query
+        self.source_table_name = source_table_name
         self.uri = uri
         self.execution_date = execution_date
         # self.enable_execution_date_filter = True
         self.kwargs = kwargs
 
     def extract(self) -> pa.Table:
-        #Build query
+        #Build query query will be select * with filter by date if execution_date is not None
+        # query_pa
+        
+        query = f"""
+            SELECT 
+                *
+            FROM {self.source_table_name}
+        """
+
         if self.execution_date:
             import logging
             logger = logging.getLogger(__name__)
             
             logger.info(f"Execution date: {self.execution_date}")
-            self.query += f" WHERE DATE(trading_date) >= DATE('{self.execution_date}') - INTERVAL '7 days'"
-            logger.info(f"Original query: {self.query}")
+            query += f" WHERE DATE(trading_date) >= DATE('{self.execution_date}') - INTERVAL '7 days'"
+            logger.info(f"Original query: {query}")
 
-        df = pl.read_database_uri(query=self.query, uri=self.uri, engine="adbc", **self.kwargs)
+        df = pl.read_database_uri(query=query, uri=self.uri, engine="adbc", **self.kwargs)
+        df = df.with_columns(pl.col("id").bin.encode("hex").alias("id"))
         arrow_table = df.to_arrow()
         return arrow_table
