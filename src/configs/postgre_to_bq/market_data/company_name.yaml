@@ -12,6 +12,7 @@ spec:
             capitalization,
             business_sector
             FROM public.company_name
+      execution_date: null
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:
@@ -20,5 +21,5 @@ spec:
       dataset: market_data
       table: company_name
       write_disposition: WRITE_TRUNCATE
-      enable_delete_before_load: true
+      enable_delete_before_load: false
   

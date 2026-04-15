@@ -21,6 +21,7 @@ from airflow.sdk.bases.hook import BaseHook
 def main(
     # job_config_path: str = None,
     job_config: PostgreToBqSilverConfig = None,
+    execution_date: str = None,
 ):
     # runtime_args = Namespace(job_config=job_config_path)
     # job_config = load_and_parse_config(job_config_path, runtime_args)
@@ -50,6 +51,7 @@ def main(
     extractor = PostgreDBExtractorWithPolars(
         query=args.job_config.extractor.query,
         uri=uri,
+        execution_date=execution_date, # Get from {{ ds }}
     )
 
     loader = BigQueryLoaderPolars(

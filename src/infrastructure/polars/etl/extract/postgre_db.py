@@ -16,12 +16,28 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
         Returns:
             ArrowTable: Extracted data as an Arrow table
     """
-    def __init__(self, query: str, uri: str, **kwargs) -> None:
+    def __init__(self, 
+            query: str, 
+            uri: str, 
+            execution_date: str = None, 
+            **kwargs
+        ) -> None:
         self.query = query
         self.uri = uri
+        self.execution_date = execution_date
+        # self.enable_execution_date_filter = True
         self.kwargs = kwargs
 
     def extract(self) -> pa.Table:
+        #Build query
+        if self.execution_date:
+            import logging
+            logger = logging.getLogger(__name__)
+            
+            logger.info(f"Execution date: {self.execution_date}")
+            self.query += f" WHERE DATE(trading_date) >= DATE('{self.execution_date}') - INTERVAL '7 days'"
+            logger.info(f"Original query: {self.query}")
+
         df = pl.read_database_uri(query=self.query, uri=self.uri, engine="adbc", **self.kwargs)
         arrow_table = df.to_arrow()
         return arrow_table

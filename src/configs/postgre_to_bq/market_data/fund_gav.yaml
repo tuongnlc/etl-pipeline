@@ -13,6 +13,7 @@ spec:
           month
         FROM public.fund_gav
       uri: "postgresql://postgres:postgres@localhost:5432/postgres" #Update here
+      execution_date: null
   loader: 
     kind: BigQueryLoaderPolarsConfig
     spec:

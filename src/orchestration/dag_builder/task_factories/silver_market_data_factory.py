@@ -1,6 +1,5 @@
 import logging
 from typing import Any
-import json
 from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
 from airflow.sdk import TaskGroup
 from airflow.sdk import Asset
@@ -8,7 +7,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
 from src.orchestration.airflow.python_script.postgre_to_bq import main
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-from src.utils.config_loader import load_and_parse_config, parse_config
+from src.utils.config_loader import load_and_parse_config
 
 
 logger = logging.getLogger(__name__)
@@ -51,7 +50,8 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                 task_id=task_id,
                 python_callable=main,
                 op_kwargs={
-                    "job_config": job_config
+                    "job_config": job_config,
+                    "execution_date": "{{ ds }}" if job_config.extractor.get('spec').get('execution_date') is not None else None
                 }
             )
             # Build task pipeline - using proper Airflow SDK pattern
@@ -66,8 +66,7 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                         "query": {
                             "query": f"""
                                 DELETE FROM `{job_config.loader.get('spec').get('dataset')}.{job_config.loader.get('spec').get('table')}` 
-                                WHERE DATE(trading_date) >= DATE_ADD(CURRENT_DATE(), INTERVAL -7 DAY)
-                                # SELECT * FROM `rich-finance-2026.market_data.company_name`
+                                WHERE DATE(trading_date) >= DATE_ADD(DATE('{{{{ ds }}}}'), INTERVAL -7 DAY)
                             """,
                             "useLegacySql": False,
                         }

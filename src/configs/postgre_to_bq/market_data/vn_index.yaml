@@ -16,7 +16,6 @@ spec:
           volume,
           index_type
         FROM public.stock_index
-        -- WHERE DATE(trading_date) >= CURRENT_DATE - INTERVAL '7 days';
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:

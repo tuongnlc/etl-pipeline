@@ -35,6 +35,7 @@ def load_and_parse_config(
         "timedelta": timedelta,
         "str": str,
         "datetime": datetime,
+        # "execution_date": runtime_args.execution_date
     }
     rendered_config = jinja_template.render(allow_jinja_context) #string type
 
