@@ -6,6 +6,7 @@ spec:
     spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.stock_price
+      enable_execution_date: true
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:

@@ -6,7 +6,7 @@ spec:
     spec:
       source_table_name: public.fund_gav
       uri: postgresql://postgres:postgres@localhost:5432/market_data
-      execution_date: null
+      enable_execution_date: false
   loader: 
     kind: BigQueryLoaderPolarsConfig
     spec:

@@ -51,7 +51,7 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                 python_callable=main,
                 op_kwargs={
                     "job_config": job_config,
-                    "execution_date": "{{ ds }}" if job_config.extractor.get('spec').get('execution_date') is not None else None
+                    "execution_date": "{{ ds }}" if job_config.extractor.get('spec').get('enable_execution_date') == True else None
                 }
             )
             # Build task pipeline - using proper Airflow SDK pattern
@@ -66,7 +66,7 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                         "query": {
                             "query": f"""
                                 DELETE FROM `{job_config.loader.get('spec').get('dataset')}.{job_config.loader.get('spec').get('table')}` 
-                                WHERE DATE(trading_date) >= DATE_ADD(DATE('{{{{ ds }}}}'), INTERVAL -7 DAY)
+                                WHERE DATE(trading_date) >= DATE_ADD(DATE('{{{{ ds }}}}'), INTERVAL -90 DAY)
                             """,
                             "useLegacySql": False,
                         }
