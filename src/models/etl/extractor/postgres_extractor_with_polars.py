@@ -7,4 +7,4 @@ from typing import Optional
 class PostgreDBExtractorWithPolarsConfig:
     uri: str
     source_table_name: str
-    execution_date: Optional[str] = None
+    enable_execution_date: bool = None
