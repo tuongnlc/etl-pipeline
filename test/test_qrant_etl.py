@@ -15,7 +15,7 @@ load_dotenv()
 loader = PostgreDBExtractorWithPolars(
     source_table_name="newspaper",
     uri="postgresql://postgres:postgres@localhost:5432/market_data",
-    extractor_column_filter="is_embedded",
+    extractor_column_filter="is_load_to_qdrant",
     filter_value="0",
 )
 
