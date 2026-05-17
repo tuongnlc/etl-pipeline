@@ -20,7 +20,7 @@ raw_data_list = [
     # Giả sử có hàng ngàn bản ghi nữa ở đây...
 ]
 
-batch_size = 2
+# batch_size = 2
 
 client = QdrantClient(url="http://localhost:6333")
 collection_name = "market_signals"
@@ -49,7 +49,7 @@ points = [
 
 client.upload_points(
     collection_name=collection_name,
-            points=points,
+    points=points,
     wait=False, # Set False để tăng tốc độ nếu không cần đọc ngay lập tức
-    batch_size=batch_size,
+    batch_size=2,
 )
