@@ -35,6 +35,7 @@ class NewspaperPayload(BaseModel):
 
 raw_data_list = df.to_pylist()
 print(raw_data_list)
+print(type(raw_data_list))
 
 client = QdrantClient(url="http://localhost:6333")
 collection_name = "collection_with_no_vector"

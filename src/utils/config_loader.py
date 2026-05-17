@@ -9,9 +9,7 @@ from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExt
 from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
 from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from src.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
-
-
-
+from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 
 
@@ -21,6 +19,7 @@ CONFIG_PARSER_MAP = {
     BigQueryLoaderPolarsConfig.__name__: BigQueryLoaderPolarsConfig,    
     PostgreToBqSilverConfig.__name__: PostgreToBqSilverConfig,
     PostgreToQdrantBronzeConfig.__name__: PostgreToQdrantBronzeConfig,
+    QdrantLoaderConfig.__name__: QdrantLoaderConfig,
 }
 
 def load_and_parse_config(
