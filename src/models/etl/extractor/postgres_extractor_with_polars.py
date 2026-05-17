@@ -8,3 +8,4 @@ class PostgreDBExtractorWithPolarsConfig:
     uri: str
     source_table_name: str
     enable_execution_date: bool = None
+    extractor_column_filter: Optional[str] = None
