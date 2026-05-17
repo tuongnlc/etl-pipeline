@@ -18,6 +18,9 @@ from src.utils.jobargs import etl_job_args_utils
 from src.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
 from src.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
+from src.utils.qdrant_payload_config_loader import build_payload_model
+
+
 def main(
     args: Namespace
 ):
@@ -41,20 +44,25 @@ def main(
 
     print(df)
 
-    class NewspaperPayload(BaseModel):
-        id: str
-        newspaper_title: str
-        newspaper_url: str
-        publish_date: Optional[date]    
-        newspaper_content: str
-        newspaper_summary: str
-        is_load_to_qdrant: int
-        created_at: date
+    # class NewspaperPayload(BaseModel):
+    #     id: str
+    #     newspaper_title: str
+    #     newspaper_url: str
+    #     publish_date: Optional[date]    
+    #     newspaper_content: str
+    #     newspaper_summary: str
+    #     is_load_to_qdrant: int
+    #     created_at: date
+
+    payload_model = build_payload_model(
+        model_name="NewspaperPayload",
+        payload_config=args.job_config.loader.qrant_payload,
+    )
 
     loader = QdrantLoader(
         qrant_url=args.job_config.loader.qrant_url,
         collection_name=args.job_config.loader.collection_name,
-        qrant_payload=NewspaperPayload
+        qrant_payload=payload_model
     )
 
     loader.load(df)

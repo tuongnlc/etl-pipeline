@@ -13,5 +13,13 @@ spec:
     spec:
       qrant_url: http://localhost:6333
       collection_name: newspaper
-      qrant_payload: NewspaperPayload
+      qrant_payload: 
+        id: str
+        newspaper_title: str
+        newspaper_url: str
+        publish_date: Optional[date]
+        newspaper_content: str
+        newspaper_summary: str
+        is_load_to_qdrant: int
+        created_at: date
   
