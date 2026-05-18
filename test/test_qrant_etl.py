@@ -15,7 +15,7 @@ load_dotenv()
 loader = PostgreDBExtractorWithPolars(
     source_table_name="newspaper",
     uri="postgresql://postgres:postgres@localhost:5432/market_data",
-    extractor_column_filter="is_embedded",
+    extractor_column_filter="is_load_to_qdrant",
     filter_value="0",
 )
 
@@ -35,6 +35,7 @@ class NewspaperPayload(BaseModel):
 
 raw_data_list = df.to_pylist()
 print(raw_data_list)
+print(type(raw_data_list))
 
 client = QdrantClient(url="http://localhost:6333")
 collection_name = "collection_with_no_vector"

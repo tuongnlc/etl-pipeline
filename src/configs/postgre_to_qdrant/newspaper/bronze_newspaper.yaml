@@ -1,0 +1,25 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.newspaper
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "0"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qrant_url: http://qdrant:6333
+      collection_name: newspaper
+      qrant_payload: 
+        id: str
+        newspaper_title: str
+        newspaper_url: str
+        publish_date: Optional[date]
+        newspaper_content: str
+        newspaper_summary: str
+        is_load_to_qdrant: int
+        created_at: date
+  
