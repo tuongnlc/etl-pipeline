@@ -28,3 +28,4 @@ class BronzeNewspaper(BasePipeline):
     def run(self) -> None:
         data_ = self.extract()
         self.load(data_)
+        

@@ -45,4 +45,7 @@ class BronzeNewspaperTaskFactory(TaskFactoryBase):
             )
             bronze_newspaper_etl_task.set_upstream(hello_world_task)
 
+            # upsert postgresql table here
+            
+
             return task_group
