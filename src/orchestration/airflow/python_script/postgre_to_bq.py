@@ -74,4 +74,4 @@ if __name__ == "__main__":
     if os.getenv("ENV", "") == "local":
         main()
     else:
-        main()   
+        main()

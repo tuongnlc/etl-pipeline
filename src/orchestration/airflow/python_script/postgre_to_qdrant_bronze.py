@@ -1,4 +1,4 @@
-from models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
+from src.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
 from src.utils.config_loader import parse_config
 from argparse import Namespace
 from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
@@ -7,6 +7,9 @@ from src.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorW
 from src.utils.qdrant_payload_config_loader import build_payload_model
 from src.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from src.jobs.bronze_newspaper import BronzeNewspaper
+import os
+from airflow.sdk.bases.hook import BaseHook
+
 
 def main(
     job_config: PostgreToQdrantBronzeConfig = None,
@@ -27,9 +30,12 @@ def main(
     if not isinstance(args.job_config.loader, QdrantLoaderConfig):
         raise ValueError("loader must be of type QdrantLoaderConfig")
 
+    polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
+    uri = polars_connection.password
+
     extractor = PostgreDBExtractorWithPolars(
         source_table_name=args.job_config.extractor.source_table_name,
-        uri=args.job_config.extractor.uri,
+        uri=uri,
         extractor_column_filter=args.job_config.extractor.extractor_column_filter,
         filter_value=args.job_config.extractor.filter_value,
     )
@@ -50,3 +56,10 @@ def main(
         loader=loader,
     )
     bronze_newspaper_jopb.run()
+
+
+if __name__ == "__main__":
+    if os.getenv("ENV", "") == "local":
+        main()
+    else:
+        main()

@@ -11,7 +11,7 @@ spec:
   loader:
     kind: QdrantLoaderConfig
     spec:
-      qrant_url: http://localhost:6333
+      qrant_url: http://qdrant:6333
       collection_name: newspaper
       qrant_payload: 
         id: str

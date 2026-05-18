@@ -19,16 +19,16 @@ class DagBuilder:
         self.config_registry = config_registry
         self.dag_factory = SingletonDagFactory(task_factory_registry)
 
-    def _create_failed_dag(self, dag_id: str, error_msg: str) -> None:
-        """
-            Create a failed DAG with given ID
-        """
-        failed_dag = DAG(
-            dag_id=dag_id,
-            doc_md=error_msg,
-            tags=["dag_creation_error"],
-        )
-        return failed_dag
+    # def _create_failed_dag(self, dag_id: str, error_msg: str) -> None:
+    #     """
+    #         Create a failed DAG with given ID
+    #     """
+    #     failed_dag = DAG(
+    #         dag_id=dag_id,
+    #         doc_md=error_msg,
+    #         tags=["dag_creation_error"],
+    #     )
+    #     return failed_dag
         
     def build_all(self):
         dag_definitions: Sequence[DagDefinition] = (
@@ -48,15 +48,15 @@ class DagBuilder:
 
             if current_dag_id and dag_id != current_dag_id:
                 continue
-            try:
-                dags[dag_id] = self.dag_factory.create_dag(dag_definition)
-                logger.debug(f"Create DAG: {dag_id}")
-            except Exception as e:
-                failed_count += 1
-                logger.error(f"Error creating DAG: {dag_id}, error: {e}")
-                error_dag_id = f"{dag_id}_error"
-                dags[error_dag_id] = self._create_failed_dag(error_dag_id, str(e))
-                continue
+            # try:
+            dags[dag_id] = self.dag_factory.create_dag(dag_definition)
+            logger.debug(f"Create DAG: {dag_id}")
+            # except Exception as e:
+            #     failed_count += 1
+            #     logger.error(f"Error creating DAG: {dag_id}, error: {e}")
+            #     # error_dag_id = f"{dag_id}_error"
+            #     # dags[error_dag_id] = self._create_failed_dag(error_dag_id, str(e))
+            #     # continue
         
         return dags
        

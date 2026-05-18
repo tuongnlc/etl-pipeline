@@ -12,7 +12,6 @@ class BronzeNewspaper(BasePipeline):
             extractor: PostgreDBExtractor, 
             loader: QdrantLoader
         ):
-        super().__init__(extractor, loader)
         self.extractor = extractor
         self.loader = loader
     
@@ -20,7 +19,7 @@ class BronzeNewspaper(BasePipeline):
         data_from_postgres = self.extractor.extract()
         return data_from_postgres
 
-    def transform():
+    def transform(self):
         pass
 
     def load(self, transformed_data):
