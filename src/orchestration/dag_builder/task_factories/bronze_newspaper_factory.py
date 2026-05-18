@@ -7,7 +7,7 @@ from airflow.sdk import Asset
 from src.orchestration.airflow.python_script.postgre_to_qdrant_bronze import main
 from airflow.providers.standard.operators.python import PythonOperator
 from src.models.orchestration.task_factories.task_factory import TaskFactoryBase
-
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,7 +45,17 @@ class BronzeNewspaperTaskFactory(TaskFactoryBase):
             )
             bronze_newspaper_etl_task.set_upstream(hello_world_task)
 
-            # upsert postgresql table here
-            
+            update_newspaper_postgre_table = SQLExecuteQueryOperator(
+                dag=dag,
+                task_id="update_newspaper_postgre_table",
+                conn_id="postgres_market_data",
+                parameters={},
+                sql=f"""
+                        UPDATE {job_config.extractor.get('spec').get('source_table_name')}
+                        SET is_load_to_qdrant = 1
+                        WHERE is_load_to_qdrant = 0;
+                """,
+            )
 
+            update_newspaper_postgre_table.set_upstream(bronze_newspaper_etl_task)
             return task_group
