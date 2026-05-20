@@ -1,28 +1,24 @@
-#qrant_extractor
-from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+# /Users/tuongnguyen/Desktop/projects/etl-pipeline/src/infrastructure/polars/etl/extract/qdrant_extractor.py
+from src.infrastructure.polars.etl.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+from src.infrastructure.polars.etl.transform.example import ExampleTransformStep
+from src.infrastructure.polars.etl.transform.clean_text import CleanTextPolars
 
+extract = QdrantExtractorWithPayloadFilter(
+    qrant_url="http://localhost:6333",
+    collection_name="newspaper",
+    payload_filter={
+        "is_load_to_qdrant": 0
+    }
+)   
+df = extract.extract()
 
-client = QdrantClient(url="http://localhost:6333")
+transform_steps = [
+    ("example", ExampleTransformStep(), (), {}),
+    ("clean_text", CleanTextPolars(), ("newspaper_content",), {}),
+]
 
-COLLECTION_NAME = 'newspaper'
+for _, transformer, args, kwargs in transform_steps:
+    df = transformer.transform(df, *args, **kwargs)
 
-query_filter = Filter(
-    must=[
-        FieldCondition(
-            key="is_load_to_qdrant",  # Tên trường trong payload
-            match=MatchValue(value=0)  # Khớp chính xác giá trị
-        ),
-    ]
-)
+print(df)
 
-# Trường hợp 1: Chỉ lọc dữ liệu thuần túy (không dùng vector search)
-response = client.scroll(
-    collection_name=COLLECTION_NAME,
-    scroll_filter=query_filter,
-    limit=10,  # Số lượng kết quả muốn lấy
-    with_payload=True,  # Trả về kèm dữ liệu payload
-    with_vectors=False  # Không cần trả về chuỗi vector nếu không dùng tới
-)
-
-response_ = response[0]
