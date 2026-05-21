@@ -1,6 +1,7 @@
 from src.templates.etl.extract.postgre_db import PostgreDBExtractor
 from src.templates.etl.load.qdrant_loader import QdrantLoader
 from src.templates.pipeline.base import BasePipeline
+import polars as pl
 
 
 class BronzeNewspaper(BasePipeline):
@@ -19,7 +20,7 @@ class BronzeNewspaper(BasePipeline):
         data_from_postgres = self.extractor.extract()
         return data_from_postgres
 
-    def transform(self):
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
         pass
 
     def load(self, transformed_data):

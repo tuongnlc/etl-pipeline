@@ -18,4 +18,4 @@ spec:
       args:
         task_id: "newspaper"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/newspaper/bronze_newspaper.yaml
-       
+      

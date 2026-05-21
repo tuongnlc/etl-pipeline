@@ -51,11 +51,11 @@ def main(
         qrant_payload=payload_model
     )
 
-    bronze_newspaper_jopb = BronzeNewspaper(
+    bronze_newspaper_job = BronzeNewspaper(
         extractor=extractor,
         loader=loader,
     )
-    bronze_newspaper_jopb.run()
+    bronze_newspaper_job.run()
 
 
 if __name__ == "__main__":

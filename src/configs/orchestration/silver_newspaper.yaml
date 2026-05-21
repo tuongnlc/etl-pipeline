@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: silver_newspaper
+spec:
+  dag_id: silver_newspaper
+  schedule: None
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["silver_newspaper"]
+  task_factories:
+    - id: job
+      factory_type: SilverNewspaperTaskFactory
+      args:
+        task_id: "silver_newspaper"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/newspaper/silver_newspaper.yaml
