@@ -1,10 +1,12 @@
 from argparse import Namespace
-from dataclasses import is_dataclass
 from pathlib import Path
 from jinja2 import Template
 from datetime import timedelta, datetime
 import yaml
 from typing import Any
+from dataclasses import is_dataclass
+import importlib
+import inspect
 from src.models.example_config import ExampleConfig
 from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
@@ -15,8 +17,6 @@ from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 from src.models.etl.transform.qdrant_transform import QdrantTransformConfig
 from src.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
-from src.infrastructure.polars.etl.transform.example import ExampleTransformStep
-from src.infrastructure.polars.etl.transform.clean_text import CleanTextPolars
 
 
 CONFIG_PARSER_MAP = {
@@ -29,9 +29,18 @@ CONFIG_PARSER_MAP = {
     QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
     QdrantExtractorWithPayloadConfig.__name__: QdrantExtractorWithPayloadConfig,
     QdrantTransformConfig.__name__: QdrantTransformConfig,
-    ExampleTransformStep.__name__: ExampleTransformStep,
-    CleanTextPolars.__name__: CleanTextPolars,
 }
+
+def _import_class_from_path(kind: str) -> type[Any]:
+    module_path, _, class_name = kind.rpartition(".")
+    if not module_path or not class_name:
+        raise ValueError(f"Invalid class path: {kind}")
+
+    module = importlib.import_module(module_path)
+    cls = getattr(module, class_name, None)
+    if cls is None or not inspect.isclass(cls):
+        raise ValueError(f"Class not found: {kind}")
+    return cls
 
 def load_and_parse_config(
     config_path: str,
@@ -57,23 +66,33 @@ def load_and_parse_config(
     return parse_render_config
 
 def parse_config(config_dict: dict[str, Any]) -> Any:
+    if not isinstance(config_dict, dict):
+        raise ValueError(f"Config must be a dict, got: {type(config_dict)}")
+
     if "kind" not in config_dict:
         raise ValueError("Config kind is required.")
         
-    if config_dict["kind"] not in CONFIG_PARSER_MAP:
-        raise ValueError(f"Unknown config kind: {config_dict['kind']}")
-    
-    # Get type of config class
-    config_class = CONFIG_PARSER_MAP[config_dict["kind"]]
+    kind = config_dict["kind"]
+
+    config_class = CONFIG_PARSER_MAP.get(kind)
+    if config_class is None and "." in kind:
+        config_class = _import_class_from_path(kind)
+
+    if config_class is None:
+        raise ValueError(f"Unknown config kind: {kind}")
 
     spec = config_dict.get("spec") or {}
-    if not isinstance(spec, dict):
-        raise ValueError(f"Config spec must be a dict. Got: {type(spec)}")
 
     if is_dataclass(config_class):
         return from_dict(data_class=config_class, data=spec)
 
-    return config_class(**spec) if spec else config_class()
+    if isinstance(spec, dict):
+        try:
+            return config_class(**spec)
+        except TypeError:
+            return config_class()
+
+    return config_class(spec)
 
 def load_yaml_config_from_path_as_str(path: str) -> str:
     """

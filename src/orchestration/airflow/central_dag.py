@@ -8,6 +8,8 @@ from src.orchestration.dag_builder.task_factories.dummy_factory import DummyTask
 from src.orchestration.dag_builder.dag_builder import DagBuilder
 from src.orchestration.dag_builder.task_factories.silver_market_data_factory import SilverMarketDataTaskFactory
 from src.orchestration.dag_builder.task_factories.bronze_newspaper_factory import BronzeNewspaperTaskFactory
+from src.orchestration.dag_builder.task_factories.silver_newspaper_factory import SilverNewspaperTaskFactory
+
 
 
 configs_path = f"local://{Path(airflow_config_loader.__file__).resolve().parents[1] / 'configs' / 'orchestration'}"
@@ -19,6 +21,9 @@ task_factory_registry: TaskFactoryRegistry = TaskFactoryRegistry()
 task_factory_registry.register(DummyTaskFactory())
 task_factory_registry.register(SilverMarketDataTaskFactory())
 task_factory_registry.register(BronzeNewspaperTaskFactory())
+task_factory_registry.register(SilverNewspaperTaskFactory())
+
+
 
 dag_builder = DagBuilder(config_registry=config_registry, task_factory_registry=task_factory_registry)
 

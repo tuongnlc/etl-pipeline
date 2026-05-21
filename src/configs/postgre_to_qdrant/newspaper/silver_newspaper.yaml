@@ -4,7 +4,7 @@ spec:
   loader:
     kind: QdrantExtractorWithPayloadConfig
     spec:
-      qrant_url: localhost:6333
+      qrant_url: http://qdrant:6333
       collection_name: newspaper
       payload_filter: 
         is_load_to_qdrant: 0
@@ -12,8 +12,8 @@ spec:
     kind: QdrantTransformConfig
     spec:
       transform_steps:
-        - kind: ExampleTransformStep
-        - kind: CleanTextPolars
+        - kind: src.infrastructure.polars.etl.transform.example.ExampleTransformStep
+        - kind: src.infrastructure.polars.etl.transform.clean_text.CleanTextPolars
   extractor:
     kind: QdrantExtractorWithPayloadConfig
     spec:
