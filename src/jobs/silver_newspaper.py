@@ -38,5 +38,6 @@ class SilverNewspaper(BasePipeline):
     
     def run(self) -> None:
         data_ = self.extract()
-        self.transform(data_, self.transform_steps)
+        df = self.transform(data_, self.transform_steps)
+        return df
         # self.load(data_)

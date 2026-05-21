@@ -1,17 +1,42 @@
-# from langchain_google_genai import ChatGoogleGenerativeAI
+import polars as pl
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-# #Test call gemini
-# model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=api_key)
-# response = model.invoke("Hello")
-# print(response.content)
+def chunk_articles_df(
+    df: pl.DataFrame,
+    *,
+    id_col: str,
+    text_col: str,
+    chunk_size: int = 1200,
+    chunk_overlap: int = 300,
+    separators: list[str] | None = None,
+) -> pl.DataFrame:
+    if separators is None:
+        separators = ["\n\n", "\n", " ", ""]
 
-# #Test call embedding
-# from langchain_google_genai import GoogleGenerativeAIEmbeddings
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=separators,
+    )
 
-# embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview", api_key=api_key)
-# embedding = embeddings.embed_query("What's our Q1 revenue?")
-# print(embedding)
+    rows: list[dict] = []
+    for article_id, text in df.select([id_col, text_col]).iter_rows():
+        text = text or ""
+        chunks = splitter.split_text(text)
+        num_chunks = len(chunks)
+
+        for chunk_index, chunk_text in enumerate(chunks):
+            rows.append(
+                {
+                    id_col: article_id,
+                    "chunk_index": chunk_index,
+                    "num_chunks": num_chunks,
+                    "chunk_text": chunk_text,
+                }
+            )
+
+    return pl.DataFrame(rows)
 
 
 text_ = """
@@ -75,25 +100,8 @@ FILI
 
 - 17:43 15/05/2026
 """
-print(len(text_))
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=300, separators=["\n\n", "\n", " ", ""])
-
-text_split = splitter.split_text(text_)
-print(len(text_split))
-print(type(text_split))
-
-# #Test call embedding
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-
-api_key = 'AIzaSyBQ16PAYQ8uQjRdL4r27ZO08oRLqQZiW1s'
-
-embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001", api_key=api_key)
-# embedding = embeddings.embed_query("What's our Q1 revenue?")
-# print(embedding)
-embeddings_list = embeddings.embed_documents(text_split)
-print(len(embeddings_list))
-
-# print(len(embeddings_list[0]))
+df_in = pl.DataFrame({"article_id": [1], "text": [text_]})
+df_chunks = chunk_articles_df(df_in, id_col="article_id", text_col="text")
+print(df_chunks.shape)
+print(df_chunks)
