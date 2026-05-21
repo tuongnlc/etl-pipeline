@@ -1,4 +1,5 @@
 from argparse import Namespace
+from dataclasses import is_dataclass
 from pathlib import Path
 from jinja2 import Template
 from datetime import timedelta, datetime
@@ -9,8 +10,13 @@ from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExt
 from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
 from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from src.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
+from src.models.etl.jobs.qdrant_to_qdrant_silver import QdrantToQdrantSilverConfig
 from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
+from src.models.etl.transform.qdrant_transform import QdrantTransformConfig
+from src.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
+from src.infrastructure.polars.etl.transform.example import ExampleTransformStep
+from src.infrastructure.polars.etl.transform.clean_text import CleanTextPolars
 
 
 CONFIG_PARSER_MAP = {
@@ -20,6 +26,11 @@ CONFIG_PARSER_MAP = {
     PostgreToBqSilverConfig.__name__: PostgreToBqSilverConfig,
     PostgreToQdrantBronzeConfig.__name__: PostgreToQdrantBronzeConfig,
     QdrantLoaderConfig.__name__: QdrantLoaderConfig,
+    QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
+    QdrantExtractorWithPayloadConfig.__name__: QdrantExtractorWithPayloadConfig,
+    QdrantTransformConfig.__name__: QdrantTransformConfig,
+    ExampleTransformStep.__name__: ExampleTransformStep,
+    CleanTextPolars.__name__: CleanTextPolars,
 }
 
 def load_and_parse_config(
@@ -45,7 +56,7 @@ def load_and_parse_config(
     parse_render_config = parse_config(config_dict)
     return parse_render_config
 
-def parse_config(config_dict: str) -> Any:
+def parse_config(config_dict: dict[str, Any]) -> Any:
     if "kind" not in config_dict:
         raise ValueError("Config kind is required.")
         
@@ -55,9 +66,14 @@ def parse_config(config_dict: str) -> Any:
     # Get type of config class
     config_class = CONFIG_PARSER_MAP[config_dict["kind"]]
 
-    # Convert dict to data_class
-    parsed_config = from_dict(data_class=config_class, data=config_dict["spec"])
-    return parsed_config
+    spec = config_dict.get("spec") or {}
+    if not isinstance(spec, dict):
+        raise ValueError(f"Config spec must be a dict. Got: {type(spec)}")
+
+    if is_dataclass(config_class):
+        return from_dict(data_class=config_class, data=spec)
+
+    return config_class(**spec) if spec else config_class()
 
 def load_yaml_config_from_path_as_str(path: str) -> str:
     """

@@ -3,6 +3,7 @@ from typing import Any
 
 
 @dataclass
-class PostgreToQdrantBronzeConfig:
+class QdrantToQdrantSilverConfig:
     loader: Any 
+    transformer: Any
     extractor: Any

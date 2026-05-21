@@ -9,7 +9,7 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
         Extract data from qdrant database with payload filter
 
         Parameters:
-            qrant_url (str): Qdrant database URL
+            qdrant_url (str): Qdrant database URL
             collection_name (str): Collection name to extract data from
 
         Returns:
@@ -17,11 +17,11 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
     """
     def __init__(
         self,
-        qrant_url: str,
+        qdrant_url: str,
         collection_name: str,
         payload_filter: dict,
     ):
-        self.qrant_client = QdrantClient(url=qrant_url)
+        self.qdrant_client = QdrantClient(url=qdrant_url)
         self.collection_name = collection_name
         self.payload_filter = payload_filter
 
@@ -56,7 +56,7 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
             Returns:
                 polars.DataFrame: DataFrame containing the extracted data from qdrant database
         """
-        records, _ = self.qrant_client.scroll(
+        records, _ = self.qdrant_client.scroll(
             collection_name=self.collection_name,
             scroll_filter=query_filter,
             limit=100,
