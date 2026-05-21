@@ -1,14 +1,5 @@
 import os
-
-
 from src.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
-from qdrant_client import QdrantClient
-from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime, date
-
-
-
 from argparse import Namespace
 # from pyspark.sql import SparkSession
 # from spark.configlib.parser.silver_job import SilverJobConfig

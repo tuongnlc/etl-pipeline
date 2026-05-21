@@ -4,7 +4,10 @@ from src.templates.etl.transform.base import TransformStep
 
 
 class CleanTextPolars(TransformStep):
-    def transform(self, df: pl.DataFrame, col_name: str) -> pl.DataFrame:
+    def __init__(self, col_name: str = "newspaper_content") -> None:
+        self.col_name = col_name
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
         """
             Remove footer metadata from the article text.
             Normalize tabs into single spaces.
@@ -18,6 +21,8 @@ class CleanTextPolars(TransformStep):
         """
         
         footer_pattern = r"[^\n]+\n+FILI\n+- \d{2}:\d{2} \d{2}/\d{2}/\d{4}"
+
+        col_name = self.col_name
 
         return df.with_columns(
             pl.col(col_name)

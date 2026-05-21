@@ -12,7 +12,6 @@ class TransformStep(ABC):
 
 
 class BaseTransform:
+    @abstractmethod
     def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]) -> pl.DataFrame:
-        for step in transform_steps:
-            df = step.transform(df)
-        return df
+        raise NotImplementedError("transform method must be implemented")
