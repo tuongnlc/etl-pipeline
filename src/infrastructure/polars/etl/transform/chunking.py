@@ -1,23 +1,22 @@
 import polars as pl
 from src.templates.etl.transform.base import TransformStep
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import Any
 import uuid
+from src.infrastructure.polars.etl.transform.text_processing.chunk_factory import text_splitter_factory
 
-
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1200,       
-    chunk_overlap=200,     
-    length_function=len, 
-)
 
 class ChunkPolars(TransformStep):
     def __init__(self, 
-            text_splitter: Any,
             document_col_name: str,
-            chunk_col_name: str = "chunk_content"
+            chunk_col_name: str = "chunk_content",
+            splitter_type: str = "recursive_character", #Default splitter type for simple text chunking
+            chunk_size: int = None,
+            chunk_overlap: int = None,
         ) -> None:
-        self.text_splitter = text_splitter
+        if chunk_size and chunk_overlap:
+            self.text_splitter = text_splitter_factory(splitter_type, chunk_size, chunk_overlap)
+        else:
+            self.text_splitter = text_splitter_factory(splitter_type) 
         self.document_col_name = document_col_name
         self.chunk_col_name = chunk_col_name
 
@@ -47,35 +46,4 @@ class ChunkPolars(TransformStep):
             )
             .select(["id", "document_id", self.chunk_col_name, "chunk_index"])
         )
-
         return chunked
-
-#import QdrantExtractorWithPayloadFilter
-from src.infrastructure.polars.etl.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
-
-qdrant_url = 'http://localhost:6333'
-collection_name = 'newspaper'
-payload_filter = {
-    "is_load_to_qdrant": 0
-}
-
-extractor = QdrantExtractorWithPayloadFilter(
-    qdrant_url = qdrant_url,
-    collection_name=collection_name,
-    payload_filter=payload_filter,
-)
-
-df = extractor.extract()
-# print(df)
-
-# #select column
-df = df.select(pl.col("id"), pl.col("newspaper_content"))
-
-# # do chunk
-chunk_polars = ChunkPolars(text_splitter, document_col_name="newspaper_content")
-df = chunk_polars.transform(df)
-
-df = df.filter(pl.col("document_id") == '1437310cad924556a96fd4882af0d473')
-print(df.head())
-# print(df)
-# print(len(df))
