@@ -19,6 +19,9 @@ spec:
               - id
               - newspaper_content
         - kind: src.infrastructure.polars.etl.transform.clean_text.CleanTextPolars
+          spec:
+            col_name: newspaper_content
+
         
   extractor:
     kind: QdrantExtractorWithPayloadConfig
