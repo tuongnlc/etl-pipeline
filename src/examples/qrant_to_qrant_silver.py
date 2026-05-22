@@ -28,7 +28,7 @@ def main(
         transform_steps=args.job_config.transformer.transform_steps,
     )
 
-    silver_newspaper_job.run()
+    df = silver_newspaper_job.run()
 
     
 if __name__ == "__main__":
