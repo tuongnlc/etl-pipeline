@@ -4,7 +4,7 @@ from src.templates.etl.transform.base import TransformStep
 
 
 class CleanTextPolars(TransformStep):
-    def __init__(self, col_name: str = "newspaper_content") -> None:
+    def __init__(self, col_name: str) -> None:
         self.col_name = col_name
 
     def transform(self, df: pl.DataFrame) -> pl.DataFrame:

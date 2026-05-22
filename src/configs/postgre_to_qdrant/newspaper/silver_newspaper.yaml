@@ -13,7 +13,21 @@ spec:
     spec:
       transform_steps:
         - kind: src.infrastructure.polars.etl.transform.example.ExampleTransformStep
+        - kind: src.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - newspaper_content
         - kind: src.infrastructure.polars.etl.transform.clean_text.CleanTextPolars
+          spec:
+            col_name: newspaper_content
+        - kind: src.infrastructure.polars.etl.transform.chunking.ChunkPolars
+          spec:
+            document_col_name: newspaper_content
+            chunk_col_name: chunk_content
+            splitter_type: recursive_character
+            chunk_size: 1200
+            chunk_overlap: 300
   extractor:
     kind: QdrantExtractorWithPayloadConfig
     spec:

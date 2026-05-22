@@ -29,7 +29,6 @@ class SilverNewspaper(BasePipeline):
         
     def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]):
         df = self.transformer.transform(df, transform_steps)
-        print(df)
         return df
     
     def load(self, transformed_data):
@@ -38,5 +37,6 @@ class SilverNewspaper(BasePipeline):
     
     def run(self) -> None:
         data_ = self.extract()
-        self.transform(data_, self.transform_steps)
+        df = self.transform(data_, self.transform_steps)
+        return df
         # self.load(data_)
