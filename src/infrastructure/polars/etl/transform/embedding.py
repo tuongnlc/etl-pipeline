@@ -32,10 +32,6 @@ class TextEmbedding(TransformStep):
         if self.embedding_type == "google_embedding":
             connection = BaseHook.get_connection("google_gemini_api_key")
             extra_data = connection.get_extra_dejson()
-            print(extra_data)
-            # print(connection)
-            # api_key = connection.get('password')
-            # return api_key
             api_key = extra_data.get("client_secret")
             return api_key
 

@@ -22,6 +22,7 @@ def main(
     )
 
     qdrant_transform = QdrantTransform()
+
     silver_newspaper_job = SilverNewspaper(
         extractor=extract,
         transform=qdrant_transform,
