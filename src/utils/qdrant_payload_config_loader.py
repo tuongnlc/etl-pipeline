@@ -6,9 +6,13 @@ TYPE_MAP = {
     "str": str,
     "int": int,
     "date": date,
+    "float": float,
+    "bool": bool,
     "datetime": datetime,
     "Optional[date]": Optional[date],
     "Optional[datetime]": Optional[datetime],
+    "Optional[float]": Optional[float],
+    "Optional[bool]": Optional[bool],
 }
 
 def build_payload_model(model_name: str, payload_config: dict) -> type[BaseModel]:

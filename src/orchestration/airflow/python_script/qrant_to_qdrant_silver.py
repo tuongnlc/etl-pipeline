@@ -40,10 +40,17 @@ def main(
         payload_config=args.job_config.loader.qrant_payload,
     )
 
+    payload_for_source_table = args.job_config.loader.qrant_payload_for_source_table
+    payload_filter_for_source_table = args.job_config.loader.payload_filter_for_source_table
+
     loader = QdrantLoader(
         qrant_url=args.job_config.loader.qrant_url,
-        collection_name=args.job_config.loader.collection_name,
-        qrant_payload=payload_model
+        destination_collection_name=args.job_config.loader.destination_collection_name,
+        qrant_payload=payload_model,
+        is_upsert_source_table=args.job_config.loader.is_upsert_source_table,
+        source_name=args.job_config.loader.source_name,
+        qrant_payload_for_source_table=payload_for_source_table,
+        payload_filter_for_source_table=payload_filter_for_source_table,
     )
 
     silver_newspaper_job = SilverNewspaper(

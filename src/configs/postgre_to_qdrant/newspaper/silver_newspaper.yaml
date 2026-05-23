@@ -42,9 +42,15 @@ spec:
     kind: QdrantLoaderConfig
     spec:
       qrant_url: http://qdrant:6333
-      collection_name: newspaper_embedded
+      destination_collection_name: newspaper_embedded
       qrant_payload: 
         id: str
         document_id: str
         chunk_content: str
         chunk_index: int
+      is_upsert_source_table: true
+      source_name: newspaper
+      qrant_payload_for_source_table:
+        is_embedded: 1
+      payload_filter_for_source_table:
+        is_embedded: 0

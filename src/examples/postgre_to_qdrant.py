@@ -38,16 +38,6 @@ def main(
 
     print(df)
 
-    # class NewspaperPayload(BaseModel):
-    #     id: str
-    #     newspaper_title: str
-    #     newspaper_url: str
-    #     publish_date: Optional[date]    
-    #     newspaper_content: str
-    #     newspaper_summary: str
-    #     is_load_to_qdrant: int
-    #     created_at: date
-
     payload_model = build_payload_model(
         model_name="NewspaperPayload",
         payload_config=args.job_config.loader.qrant_payload,
