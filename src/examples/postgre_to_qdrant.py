@@ -10,6 +10,7 @@ from src.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeCo
 from src.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from src.utils.qdrant_payload_config_loader import build_payload_model
+import polars as pl
 
 
 def main(
@@ -32,6 +33,8 @@ def main(
     )
     
     df = extractor.extract()
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_arrow(df)
 
     print(df)
 

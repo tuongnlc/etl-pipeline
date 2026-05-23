@@ -59,7 +59,6 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
         records, _ = self.qdrant_client.scroll(
             collection_name=self.collection_name,
             scroll_filter=query_filter,
-            limit=100,
             with_payload=True,
             with_vectors=False,
         )
@@ -82,5 +81,6 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
                 polars.DataFrame: DataFrame containing the extracted data from qdrant database
         """
         query_filter = self._build_payload_filter()
+        print(f"Query to qdrant: {query_filter}")
         return self._extract_with_payload_filter(query_filter)
         

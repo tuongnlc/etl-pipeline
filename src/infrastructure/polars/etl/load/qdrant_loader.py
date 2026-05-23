@@ -5,7 +5,7 @@ from qdrant_client import QdrantClient
 from pydantic import BaseModel
 from typing import List
 from pydantic import TypeAdapter
-import pyarrow as pa
+import polars as pl
 from qdrant_client.models import PointStruct
 from src.templates.etl.load.qdrant_loader import QdrantLoader
 
@@ -41,11 +41,17 @@ class QdrantLoader(QdrantLoader):
         
         return validated_payloads
 
-    def load(self, records: pa.Table):
+    def load(self, records: pl.DataFrame, vector_column: str = "chunk_embedded"):
         """
             Load arrow table to qdrant database
         """
-        raw_data_list = records.to_pylist()
+        if records.height == 0:
+            return
+
+        raw_data_list = records.to_dicts()
+
+        if not raw_data_list:
+            return
         
         #Check schema of qrant payload
         validated_payloads = self._valid_schema(raw_data_list)
@@ -54,7 +60,7 @@ class QdrantLoader(QdrantLoader):
         points = [
             PointStruct(
                 id=item["id"],
-                vector={},
+                vector=item[vector_column],
                 payload=payload.model_dump(mode="json"),
             )
             for item, payload in zip(raw_data_list, validated_payloads)

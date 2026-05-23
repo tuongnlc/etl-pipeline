@@ -5,6 +5,8 @@ from src.infrastructure.polars.etl.extract.qdrant_extractor import QdrantExtract
 from src.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
 from src.jobs.silver_newspaper import SilverNewspaper
 import os
+from src.utils.qdrant_payload_config_loader import build_payload_model
+from src.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 
 
 def main(
@@ -26,17 +28,29 @@ def main(
     args = Namespace(job_config=job_config)
 
     extract = QdrantExtractorWithPayloadFilter(
-        qdrant_url = args.job_config.loader.qrant_url,
-        collection_name=args.job_config.loader.collection_name,
-        payload_filter=args.job_config.loader.payload_filter,
+        qdrant_url = args.job_config.extractor.qrant_url,
+        collection_name=args.job_config.extractor.collection_name,
+        payload_filter=args.job_config.extractor.payload_filter,
     )
 
     qdrant_transform = QdrantTransform()
+
+    payload_model = build_payload_model(
+        model_name="NewspaperPayload",
+        payload_config=args.job_config.loader.qrant_payload,
+    )
+
+    loader = QdrantLoader(
+        qrant_url=args.job_config.loader.qrant_url,
+        collection_name=args.job_config.loader.collection_name,
+        qrant_payload=payload_model
+    )
 
     silver_newspaper_job = SilverNewspaper(
         extractor=extract,
         transform=qdrant_transform,
         transform_steps=args.job_config.transform.transform_steps,
+        loader=loader,
     )
 
     silver_newspaper_job.run()
