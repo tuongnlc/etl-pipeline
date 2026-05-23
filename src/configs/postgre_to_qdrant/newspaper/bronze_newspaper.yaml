@@ -8,6 +8,17 @@ spec:
       source_table_name: public.newspaper
       extractor_column_filter: is_load_to_qdrant
       filter_value: "0"
+  transform: 
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: src.infrastructure.polars.etl.transform.columns.RemoveColumn
+          spec:
+            column: is_load_to_qdrant
+        - kind: src.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
   loader:
     kind: QdrantLoaderConfig
     spec:
@@ -20,6 +31,6 @@ spec:
         publish_date: Optional[date]
         newspaper_content: str
         newspaper_summary: str
-        is_load_to_qdrant: int
+        is_embedded: int
         created_at: date
   

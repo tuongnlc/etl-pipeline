@@ -13,11 +13,11 @@ def main(
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
 
-    if job_config.transformer is not None:
-        job_config.transformer = parse_config(job_config.transformer)
-        if getattr(job_config.transformer, "transform_steps", None) is not None:
-            job_config.transformer.transform_steps = [
-                parse_config(step) for step in job_config.transformer.transform_steps
+    if job_config.transform is not None:
+        job_config.transform = parse_config(job_config.transform)
+        if getattr(job_config.transform, "transform_steps", None) is not None:
+            job_config.transform.transform_steps = [
+                parse_config(step) for step in job_config.transform.transform_steps
             ]
 
     if job_config.loader is not None:
@@ -35,8 +35,8 @@ def main(
 
     silver_newspaper_job = SilverNewspaper(
         extractor=extract,
-        transformer=qdrant_transform,
-        transform_steps=args.job_config.transformer.transform_steps,
+        transform=qdrant_transform,
+        transform_steps=args.job_config.transform.transform_steps,
     )
 
     silver_newspaper_job.run()

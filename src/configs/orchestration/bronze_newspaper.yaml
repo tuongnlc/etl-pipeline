@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: newspaper
+  name: bronze_newspaper
 spec:
-  dag_id: newspaper
+  dag_id: bronze_newspaper
   schedule: None
   start_date: 2023-01-01
   catchup: False
@@ -11,11 +11,11 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["newspaper"]
+  tags: ["newspaper", "bronze_layer"]
   task_factories:
     - id: job
       factory_type: BronzeNewspaperTaskFactory
       args:
-        task_id: "newspaper"
+        task_id: "bronze_newspaper"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/newspaper/bronze_newspaper.yaml
       

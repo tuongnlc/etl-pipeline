@@ -24,8 +24,8 @@ def main(
     qdrant_transform = QdrantTransform()
     silver_newspaper_job = SilverNewspaper(
         extractor=extract,
-        transformer=qdrant_transform,
-        transform_steps=args.job_config.transformer.transform_steps,
+        transform=qdrant_transform,
+        transform_steps=args.job_config.transform.transform_steps,
     )
 
     df = silver_newspaper_job.run()

@@ -5,5 +5,5 @@ from typing import Any
 @dataclass
 class QdrantToQdrantSilverConfig:
     loader: Any 
-    transformer: Any
+    transform: Any
     extractor: Any
