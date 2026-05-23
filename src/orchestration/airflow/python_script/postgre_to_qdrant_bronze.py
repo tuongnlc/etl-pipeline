@@ -56,7 +56,7 @@ def main(
 
     loader = QdrantLoader(
         qrant_url=args.job_config.loader.qrant_url,
-        collection_name=args.job_config.loader.collection_name,
+        destination_collection_name=args.job_config.loader.destination_collection_name,
         qrant_payload=payload_model
     )
 

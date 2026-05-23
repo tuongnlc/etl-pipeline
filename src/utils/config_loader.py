@@ -17,6 +17,8 @@ from src.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 from src.models.etl.transform.qdrant_transform import QdrantTransformConfig
 from src.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
+from src.models.etl.jobs.trigger_dag import TriggerDagJobConfig
+
 
 
 CONFIG_PARSER_MAP = {
@@ -29,7 +31,10 @@ CONFIG_PARSER_MAP = {
     QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
     QdrantExtractorWithPayloadConfig.__name__: QdrantExtractorWithPayloadConfig,
     QdrantTransformConfig.__name__: QdrantTransformConfig,
+    TriggerDagJobConfig.__name__: TriggerDagJobConfig,
 }
+
+
 
 def _import_class_from_path(kind: str) -> type[Any]:
     module_path, _, class_name = kind.rpartition(".")

@@ -1,0 +1,6 @@
+---
+kind: TriggerDagJobConfig
+spec:
+  childs_dag_ids:
+    - bronze_newspaper
+    - silver_newspaper
