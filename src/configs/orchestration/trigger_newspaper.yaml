@@ -4,7 +4,7 @@ metadata:
   name: trigger_newspaper
 spec:
   dag_id: trigger_newspaper
-  schedule: None
+  schedule: "0 0 * * *"
   start_date: 2023-01-01
   catchup: False
   default_args:

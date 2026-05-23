@@ -3,6 +3,7 @@ import io
 import pyarrow.parquet as pq
 from src.templates.etl.load.bq_loader import BigQueryLoader
 import pyarrow as pa
+import polars as pl
 
 
 class BigQueryLoaderPolars(BigQueryLoader):
@@ -17,10 +18,11 @@ class BigQueryLoaderPolars(BigQueryLoader):
         self.write_disposition = write_disposition
         self.client = bigquery.Client(project=project, credentials=gcp_credential)
 
-    def load(self, arrow_table: pa.Table) -> None:
+    def load(self, records: pa.Table | pl.DataFrame) -> None:
         """
             Load arrow table to bigquery
         """
+        arrow_table = records.to_arrow() if isinstance(records, pl.DataFrame) else records
         job_config = bigquery.LoadJobConfig(
             write_disposition=self.write_disposition,
             create_disposition=bigquery.CreateDisposition.CREATE_NEVER, #never automate create table

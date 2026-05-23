@@ -1,5 +1,4 @@
 import polars as pl
-import pyarrow as pa
 
 from src.templates.etl.extract.postgre_db import PostgreDBExtractor
 # import logger
@@ -16,7 +15,7 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
             **kwargs: Additional keyword arguments for polars.read_database_uri
 
         Returns:
-            ArrowTable: Extracted data as an Arrow table
+            polars.DataFrame: Extracted data as a polars DataFrame
     """
     def __init__(self, 
             # query: str, 
@@ -35,7 +34,7 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
         self.filter_value = filter_value
         self.kwargs = kwargs
 
-    def extract(self) -> pa.Table:
+    def extract(self) -> pl.DataFrame:
         #Build query query will be select * with filter by date if execution_date is not None        
         query = f"""
             SELECT 
@@ -58,5 +57,4 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
 
         df = pl.read_database_uri(query=query, uri=self.uri, engine="adbc", **self.kwargs)
         df = df.with_columns(pl.col("id").bin.encode("hex").alias("id"))
-        arrow_table = df.to_arrow()
-        return arrow_table
+        return df
