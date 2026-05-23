@@ -52,8 +52,6 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
             query += f" WHERE DATE(trading_date) >= DATE('{self.execution_date}') - INTERVAL '90 days'"
 
         # Query for postgre_qrant etl
-        # if self.is_
-        # print(f"Query to postgresql: {query}")
         if self.extractor_column_filter:
             query += f" WHERE {self.extractor_column_filter} = {self.filter_value}"
         print(query)

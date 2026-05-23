@@ -9,6 +9,7 @@ from src.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from src.jobs.bronze_newspaper import BronzeNewspaper
 import os
 from airflow.sdk.bases.hook import BaseHook
+from src.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
 
 
 def main(
@@ -17,6 +18,12 @@ def main(
 ):
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
+    if job_config.transform is not None:
+        job_config.transform = parse_config(job_config.transform)
+        if getattr(job_config.transform, "transform_steps", None) is not None:
+            job_config.transform.transform_steps = [
+                parse_config(step) for step in job_config.transform.transform_steps
+            ]
     if job_config.loader is not None:
         job_config.loader = parse_config(job_config.loader)
     args = Namespace(job_config=job_config)
@@ -40,6 +47,8 @@ def main(
         filter_value=args.job_config.extractor.filter_value,
     )
 
+    qdrant_transform = QdrantTransform()
+
     payload_model = build_payload_model(
         model_name="NewspaperPayload",
         payload_config=args.job_config.loader.qrant_payload,
@@ -53,7 +62,10 @@ def main(
 
     bronze_newspaper_job = BronzeNewspaper(
         extractor=extractor,
+        transform=qdrant_transform,
+        transform_steps=args.job_config.transform.transform_steps,
         loader=loader,
+
     )
     bronze_newspaper_job.run()
 

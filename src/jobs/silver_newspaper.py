@@ -4,8 +4,6 @@ import polars as pl
 from src.templates.etl.transform.base import BaseTransform
 from src.templates.etl.transform.base import TransformStep
 
-from src.templates.etl.load.base import BaseLoader
-
 
 class SilverNewspaper(BasePipeline):
     """
@@ -14,12 +12,12 @@ class SilverNewspaper(BasePipeline):
     def __init__(
             self, 
             extractor: BaseExtractor,
-            transformer: BaseTransform,
-            transform_steps: list[TransformStep] | None = None,
+            transform: BaseTransform,
+            transform_steps: list[TransformStep],
             # loader: BaseLoader,
         ) -> None:
         self.extractor = extractor
-        self.transformer = transformer
+        self.transformer = transform
         self.transform_steps = transform_steps or []
         # self.loader = loader
 
@@ -39,4 +37,3 @@ class SilverNewspaper(BasePipeline):
         data_ = self.extract()
         df = self.transform(data_, self.transform_steps)
         return df
-        # self.load(data_)

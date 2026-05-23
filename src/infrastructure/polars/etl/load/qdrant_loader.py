@@ -9,6 +9,7 @@ import pyarrow as pa
 from qdrant_client.models import PointStruct
 from src.templates.etl.load.qdrant_loader import QdrantLoader
 
+
 class QdrantLoader(QdrantLoader):
     """
         Load arrow table to qdrant database
@@ -44,9 +45,7 @@ class QdrantLoader(QdrantLoader):
         """
             Load arrow table to qdrant database
         """
-        #Convert arrow table to python list
         raw_data_list = records.to_pylist()
-        print(raw_data_list)
         
         #Check schema of qrant payload
         validated_payloads = self._valid_schema(raw_data_list)
