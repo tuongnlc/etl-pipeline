@@ -28,6 +28,16 @@ spec:
             splitter_type: recursive_character
             chunk_size: 1200
             chunk_overlap: 300
+        - kind: src.infrastructure.polars.etl.transform.embedding.TextEmbedding
+          spec:
+            embedding_type: google_embedding
+            model: gemini-embedding-2
+            task_type_documents: RETRIEVAL_DOCUMENT
+            task_type_query: RETRIEVAL_QUERY
+            output_dimensionality: 768
+            batch_size: 100
+            text_column: chunk_content
+            output_column: chunk_embedded
   extractor:
     kind: QdrantExtractorWithPayloadConfig
     spec:

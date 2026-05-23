@@ -1,66 +1,14 @@
-from __future__ import annotations
-
-from typing import List, Optional
-
-import os
+from langchain_core.embeddings import Embeddings
+from typing import Optional, List, Dict, Type
+from google.genai import Client, types
+import polars as pl
+from google.genai.errors import ClientError
 import re
 import time
 
-import polars as pl
-from google.genai import Client, types
-from google.genai.errors import ClientError
-from langchain_core.embeddings import Embeddings
-from src.templates.etl.transform.base import TransformStep
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from typing import Any
-import uuid
 
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1200,       
-    chunk_overlap=200,     
-    length_function=len, 
-)
 
-class ChunkPolars(TransformStep):
-    def __init__(self, 
-            text_splitter: Any,
-            document_col_name: str,
-            chunk_col_name: str = "chunk_content"
-        ) -> None:
-        self.text_splitter = text_splitter
-        self.document_col_name = document_col_name
-        self.chunk_col_name = chunk_col_name
-
-    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
-        if "id" not in df.columns:
-            raise ValueError("Missing required column: id")
-
-        chunked = (
-            df.select(
-                pl.col("id").cast(pl.Utf8).alias("document_id"),
-                pl.col(self.document_col_name)
-                .fill_null("")
-                .cast(pl.Utf8)
-                .map_elements(
-                    lambda s: self.text_splitter.split_text(s),
-                    return_dtype=pl.List(pl.Utf8),
-                )
-                .alias(self.chunk_col_name),
-            )
-            .explode(self.chunk_col_name)
-            .with_columns(
-                chunk_index=pl.col("document_id").cum_count().over("document_id") - 1,
-                id=pl.int_range(0, pl.len()).map_elements(
-                    lambda _: str(uuid.uuid4()),
-                    return_dtype=pl.Utf8,
-                ),
-            )
-            .select(["id", "document_id", self.chunk_col_name, "chunk_index"])
-        )
-
-        return chunked
-
-class GeminiBatchEmbeddings(Embeddings):
+class GoogleGeminiEmbedding(Embeddings):
     """
         Send a batch with 100 request for gemini
     """
@@ -152,7 +100,9 @@ class GeminiBatchEmbeddings(Embeddings):
         for batch in self._batched(texts):
             all_embeddings.extend(self._embed_texts_one_request(batch, config))
 
-        return df.with_columns(pl.Series(output_column, all_embeddings))
+        df = df.with_columns(pl.Series(output_column, all_embeddings))
+        print(df)
+        return df
 
     def embed_query(
         self, text: str
@@ -167,49 +117,54 @@ class GeminiBatchEmbeddings(Embeddings):
 
         return list(result.embeddings[0].values)
 
-
-def _get_env(name: str) -> str:
-    value = os.getenv(name)
-    if value:
-        return value
-
-    env_path = os.path.join(os.getcwd(), ".env")
-    if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                k, v = line.split("=", 1)
-                if k.strip() == name:
-                    return v.strip().strip('"').strip("'")
-
-    raise KeyError(name)
-
-
-from src.infrastructure.polars.etl.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
-
-qdrant_url = 'http://localhost:6333'
-collection_name = 'newspaper'
-payload_filter = {
-    "is_load_to_qdrant": 0
+MAPPING_Embedding = {
+    "google_embedding": GoogleGeminiEmbedding,
 }
 
-extractor = QdrantExtractorWithPayloadFilter(
-    qdrant_url = qdrant_url,
-    collection_name=collection_name,
-    payload_filter=payload_filter,
-)
+class EmbeddingFactory:
+    _registry: Dict[str, Type[Embeddings]] = MAPPING_Embedding
 
-df = extractor.extract()
-df = df.select(pl.col("id"), pl.col("newspaper_content"))
+    @classmethod
+    def create(
+        cls,
+        embedding_type: str,
+        *,
+        api_key: str,
+        model: str = "gemini-embedding-2",
+        task_type_documents: str = "RETRIEVAL_DOCUMENT",
+        task_type_query: str = "RETRIEVAL_QUERY",
+        output_dimensionality: Optional[int] = None,
+        batch_size: int = 100,
+    ) -> Embeddings:
+        key = embedding_type.strip().lower()
+        embedding_cls = cls._registry.get(key)
+        if embedding_cls is None:
+            raise ValueError(f"Unknown embedding_type: {embedding_type}")
 
-chunk_polars = ChunkPolars(text_splitter, document_col_name="newspaper_content")
-df = chunk_polars.transform(df)
+        return embedding_cls(
+            api_key=api_key,
+            model=model,
+            task_type_documents=task_type_documents,
+            task_type_query=task_type_query,
+            output_dimensionality=output_dimensionality,
+            batch_size=batch_size,
+        )
 
-embedded_ = GeminiBatchEmbeddings(
-    api_key=_get_env("GEMINI_API_KEY"),
-    output_dimensionality=1536,
-)
-df = embedded_.embed_documents(df)
-print(df)
+def chunk_embedding_factory(
+    embedding_type: str,
+    api_key: str,
+    model: str = "gemini-embedding-2",
+    task_type_documents: str = "RETRIEVAL_DOCUMENT",
+    task_type_query: str = "RETRIEVAL_QUERY",
+    output_dimensionality: Optional[int] = None,
+    batch_size: int = 100,
+) -> Embeddings:
+    return EmbeddingFactory.create(
+        embedding_type,
+        api_key=api_key,
+        model=model,
+        task_type_documents=task_type_documents,
+        task_type_query=task_type_query,
+        output_dimensionality=output_dimensionality,
+        batch_size=batch_size,
+    )
