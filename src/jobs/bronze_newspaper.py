@@ -26,16 +26,13 @@ class BronzeNewspaper(BasePipeline):
         return data_from_postgres
 
     def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]):
-        if not isinstance(df, pl.DataFrame):
-            df = pl.from_arrow(df)
-
         df = self.transformer.transform(df, transform_steps)
 
         if isinstance(df, pl.DataFrame):
             return df
 
     def load(self, transformed_data):
-        self.loader.load(transformed_data)
+        self.loader.load(transformed_data, vector_column=None)
 
     def run(self) -> None:
         data_ = self.extract()

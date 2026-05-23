@@ -4,6 +4,8 @@ import polars as pl
 
 class QdrantTransform(BaseTransform):
     def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]) -> pl.DataFrame:
+        if not isinstance(df, pl.DataFrame):
+            df = pl.from_arrow(df)
         for step in transform_steps:
             df = step.transform(df)
         return df

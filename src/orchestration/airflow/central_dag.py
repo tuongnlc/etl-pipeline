@@ -9,6 +9,7 @@ from src.orchestration.dag_builder.dag_builder import DagBuilder
 from src.orchestration.dag_builder.task_factories.silver_market_data_factory import SilverMarketDataTaskFactory
 from src.orchestration.dag_builder.task_factories.bronze_newspaper_factory import BronzeNewspaperTaskFactory
 from src.orchestration.dag_builder.task_factories.silver_newspaper_factory import SilverNewspaperTaskFactory
+from src.orchestration.dag_builder.task_factories.trigger_dag_factory import TriggerDagsFactory
 
 
 
@@ -22,6 +23,7 @@ task_factory_registry.register(DummyTaskFactory())
 task_factory_registry.register(SilverMarketDataTaskFactory())
 task_factory_registry.register(BronzeNewspaperTaskFactory())
 task_factory_registry.register(SilverNewspaperTaskFactory())
+task_factory_registry.register(TriggerDagsFactory())
 
 
 

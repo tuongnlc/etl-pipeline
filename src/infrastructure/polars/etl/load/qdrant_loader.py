@@ -72,8 +72,13 @@ class QdrantLoader(QdrantLoader):
             raise ValueError(f"Payload validation failed: {e}") from e
         
         return validated_payloads
+    
+    def _payload_to_dict(self, payload: BaseModel) -> dict:
+        if hasattr(payload, "model_dump"):
+            return payload.model_dump(mode="json")
+        return payload.dict()
 
-    def load(self, records: pl.DataFrame, vector_column: str = "chunk_embedded"):
+    def load(self, records: pl.DataFrame, vector_column: str | None = "chunk_embedded"):
         """
             Load arrow table to qdrant database
         """
@@ -89,14 +94,31 @@ class QdrantLoader(QdrantLoader):
         validated_payloads = self._valid_schema(raw_data_list)
 
         # #Load data to qdrant database
-        points = [
-            PointStruct(
-                id=item["id"],
-                vector=item[vector_column],
-                payload=payload.model_dump(mode="json"),
+        if vector_column is not None and vector_column not in records.columns:
+            raise ValueError(
+                f"Missing vector column '{vector_column}'. Available columns: {records.columns}. "
+                "Pass vector_column=None to upsert payload-only points, or add an embedding transform step."
             )
-            for item, payload in zip(raw_data_list, validated_payloads)
-        ]
+
+        points = []
+        for item, payload in zip(raw_data_list, validated_payloads):
+            payload_dict = self._payload_to_dict(payload)
+            if vector_column is None:
+                points.append(
+                    PointStruct(
+                        id=item["id"],
+                        vector={},
+                        payload=payload_dict,
+                    )
+                )
+            else:
+                points.append(
+                    PointStruct(
+                        id=item["id"],
+                        vector=item[vector_column],
+                        payload=payload_dict,
+                    )
+                )
 
         self.qdrant_client.upload_points(
             collection_name=self.destination_collection_name,
