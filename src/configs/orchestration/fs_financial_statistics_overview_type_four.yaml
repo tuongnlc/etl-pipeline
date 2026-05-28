@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: fs_financial_statistics_overview_type_four
+spec:
+  dag_id: fs_financial_statistics_overview_type_four
+  schedule: None
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 1
+    on_failure_callback: []
+  tags: ["Finance Statement", "Financial Statistics Overview", "Load Data From Postgres to BigQuery"]
+  task_factories:
+    - id: job
+      factory_type: SilverMarketDataTaskFactory
+      args:
+        task_id: "fs_financial_statistics_overview_type_four"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_bq/finance_statement/fs_financial_statistics_overview_type_four.yaml
