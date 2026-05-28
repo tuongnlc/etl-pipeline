@@ -1,0 +1,19 @@
+---
+kind: PostgreToBqSilverConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_cash_flow_statement_type_one
+      enable_execution_date: false
+  loader:
+    kind: BigQueryLoaderPolarsConfig
+    spec:
+      gcp_credential_key: gcp_sa_for_bq_data_append
+      project: rich-finance-2026
+      dataset: financial_statement
+      table: fs_cash_flow_statement_type_one
+      write_disposition: WRITE_TRUNCATE
+      enable_delete_before_load: false
+  
