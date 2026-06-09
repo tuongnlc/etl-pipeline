@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: silver_newspaper
+  name: 2026_06_10_newspapers_silver
 spec:
-  dag_id: silver_newspaper
+  dag_id: 2026_06_10_newspapers_silver
   schedule: None
   start_date: 2023-01-01
   catchup: False
@@ -11,7 +11,7 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["silver_newspaper"]
+  tags: ["Silver", "Newspaper"]
   task_factories:
     - id: job
       factory_type: SilverNewspaperTaskFactory

@@ -1,17 +1,17 @@
 ---
 kind: DagDefinition
 metadata:
-  name: market_data_stock_price
+  name: 2026_06_09_stock_price_silver
 spec:
-  dag_id: market_data_stock_price
-  schedule: "0 0 * * *"
+  dag_id: 2026_06_09_stock_price_silver
+  schedule: None
   start_date: 2023-01-01
   catchup: False
   default_args:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["market_data", "stock_price"]
+  tags: ["Stock Price", "Silver"]
   task_factories:
     - id: job
       factory_type: SilverMarketDataTaskFactory
