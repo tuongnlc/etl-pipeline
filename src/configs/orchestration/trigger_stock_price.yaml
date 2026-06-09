@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: 2026_06_09_market_stock_price_trigger
+spec:
+  dag_id: 2026_06_09_market_stock_price_trigger
+  schedule: "0 0 * * *"
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["Stock Price", "Trigger"]
+  task_factories:
+    - id: job
+      factory_type: TriggerDagsFactory
+      args:
+        task_id: "trigger_stock_price"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/trigger_dag/trigger_stock_price.yaml
