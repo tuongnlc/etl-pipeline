@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: bronze_newspaper
+  name: 2026_06_10_newspapers_bronze
 spec:
-  dag_id: bronze_newspaper
+  dag_id: 2026_06_10_newspapers_bronze
   schedule: None
   start_date: 2023-01-01
   catchup: False
@@ -11,7 +11,7 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["newspaper", "bronze_layer"]
+  tags: ["Bronze", "Newspaper"]
   task_factories:
     - id: job
       factory_type: BronzeNewspaperTaskFactory

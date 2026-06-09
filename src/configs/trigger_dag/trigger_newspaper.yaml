@@ -2,6 +2,6 @@
 kind: TriggerDagJobConfig
 spec:
   childs_dag_ids:
-    - crawl_newspapers
-    - bronze_newspaper
-    - silver_newspaper
+    - 2026_06_10_newspapers_crawler
+    - 2026_06_10_newspapers_bronze
+    - 2026_06_10_newspapers_silver

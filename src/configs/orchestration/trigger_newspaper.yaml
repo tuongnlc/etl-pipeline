@@ -1,9 +1,9 @@
 ---
 kind: DagDefinition
 metadata:
-  name: trigger_newspaper
+  name: 2026_06_10_newspapers_trigger
 spec:
-  dag_id: trigger_newspaper
+  dag_id: 2026_06_10_newspapers_trigger
   schedule: "0 0 * * *"
   start_date: 2023-01-01
   catchup: False
@@ -11,10 +11,10 @@ spec:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["newspaper", "trigger"]
+  tags: ["Newspaper", "Trigger"]
   task_factories:
     - id: job
       factory_type: TriggerDagsFactory
       args:
-        task_id: "trigger_newspaper"
+        task_id: "newspapers_trigger"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/trigger_dag/trigger_newspaper.yaml
