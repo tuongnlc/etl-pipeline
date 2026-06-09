@@ -1,17 +1,17 @@
 ---
 kind: DagDefinition
 metadata:
-  name: market_data_foreign_trade
+  name: foreign_trade
 spec:
-  dag_id: market_data_foreign_trade
-  schedule: "0 0 * * *"
+  dag_id: 2026_09_06_foreign_trade_silver
+  schedule: None
   start_date: 2023-01-01
   catchup: False
   default_args:
     owner: tuongnguyen
     retries: 5
     on_failure_callback: []
-  tags: ["market_data", "foreign_trade"]
+  tags: ["Foreign Trade", "Market Data", "silver"]
   task_factories:
     - id: job
       factory_type: SilverMarketDataTaskFactory

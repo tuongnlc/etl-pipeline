@@ -1,0 +1,6 @@
+---
+kind: TriggerDagJobConfig
+spec:
+  childs_dag_ids:
+    - 2026_09_06_foreign_trade_crawler
+    - 2026_09_06_foreign_trade_silver

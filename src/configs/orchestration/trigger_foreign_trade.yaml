@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: 2026_09_06_foreign_trade_trigger
+spec:
+  dag_id: 2026_09_06_foreign_trade_trigger
+  schedule: "0 9 * * *"
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["Foreign Trade", "trigger"]
+  task_factories:
+    - id: job
+      factory_type: TriggerDagsFactory
+      args:
+        task_id: "trigger_foreign_trade"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/trigger_dag/trigger_foreign_trade.yaml
