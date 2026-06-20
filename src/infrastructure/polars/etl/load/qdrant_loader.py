@@ -85,6 +85,9 @@ class QdrantLoader(QdrantLoader):
         if records.height == 0:
             return
 
+        print("NUMBER of records to load:")
+        print(len(records))
+
         #update here to back fill to not reach quota
         records = records.head(50)
 
