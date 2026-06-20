@@ -17,6 +17,7 @@ spec:
           spec:
             columns:
               - id
+              - publish_date
               - newspaper_content
         - kind: src.infrastructure.polars.etl.transform.clean_text.CleanTextPolars
           spec:
@@ -46,6 +47,7 @@ spec:
       qrant_payload: 
         id: str
         document_id: str
+        publish_date: date
         chunk_content: str
         chunk_index: int
       is_upsert_source_table: true

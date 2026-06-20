@@ -85,6 +85,9 @@ class QdrantLoader(QdrantLoader):
         if records.height == 0:
             return
 
+        #update here to back fill to not reach quota
+        records = records.head(50)
+
         raw_data_list = records.to_dicts()
 
         if not raw_data_list:

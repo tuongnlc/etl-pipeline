@@ -24,9 +24,14 @@ class ChunkPolars(TransformStep):
         if "id" not in df.columns:
             raise ValueError("Missing required column: id")
 
+        passthrough_columns = [
+            c for c in df.columns if c not in ("id", self.document_col_name)
+        ]
+
         chunked = (
             df.select(
                 pl.col("id").cast(pl.Utf8).alias("document_id"),
+                *(pl.col(c) for c in passthrough_columns),
                 pl.col(self.document_col_name)
                 .fill_null("")
                 .cast(pl.Utf8)
@@ -44,6 +49,6 @@ class ChunkPolars(TransformStep):
                     return_dtype=pl.Utf8,
                 ),
             )
-            .select(["id", "document_id", self.chunk_col_name, "chunk_index"])
+            .select(["id", "document_id", *passthrough_columns, self.chunk_col_name, "chunk_index"])
         )
         return chunked
