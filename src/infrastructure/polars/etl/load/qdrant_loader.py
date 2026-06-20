@@ -85,13 +85,17 @@ class QdrantLoader(QdrantLoader):
         if records.height == 0:
             return
 
-        print("NUMBER of records to load:")
-        print(len(records))
+        # print("NUMBER of records to call gemini:")
+        # print(len(records))
 
         #update here to back fill to not reach quota
-        records = records.head(50)
+        # records = records.head(50)
 
         raw_data_list = records.to_dicts()
+        # update here to back fill to not reach quota
+        # records = records.head(50)
+        print("NUMBER of vector to write to qdrant:")
+        print(len(records))
 
         if not raw_data_list:
             return
