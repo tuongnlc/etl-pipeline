@@ -19,6 +19,10 @@ spec:
           spec:
             column: is_embedded
             value: 0
+        - kind: src.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_topic_tagging
+            value: 0
   loader:
     kind: QdrantLoaderConfig
     spec:
@@ -33,4 +37,5 @@ spec:
         newspaper_summary: str
         is_embedded: int
         created_at: date
+        is_topic_tagging: int
   
