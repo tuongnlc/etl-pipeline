@@ -1,4 +1,4 @@
-from src.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
+from etl_pipeline.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
 
 
 class TestBigQueryLoaderPolarsConfig:

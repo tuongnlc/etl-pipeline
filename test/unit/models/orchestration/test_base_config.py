@@ -1,4 +1,4 @@
-from src.models.orchestration.base_config import BaseConfig, Metadata
+from etl_pipeline.models.orchestration.base_config import BaseConfig, Metadata
 
 
 class TestBaseConfig:

@@ -1,6 +1,6 @@
 # conftest.py
 import pytest
-from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
+from etl_pipeline.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 
 
 @pytest.fixture(params=[
