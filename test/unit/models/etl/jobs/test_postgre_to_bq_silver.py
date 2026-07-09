@@ -1,5 +1,5 @@
 # test/unit/models/etl/jobs/test_postgre_to_bq_silver_config.py
-from src.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
+from etl_pipeline.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from unittest.mock import Mock
 
 

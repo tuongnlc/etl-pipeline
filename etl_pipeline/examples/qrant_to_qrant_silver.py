@@ -22,6 +22,7 @@ def main(
     )
 
     qdrant_transform = QdrantTransform()
+
     silver_newspaper_job = SilverNewspaper(
         extractor=extract,
         transform=qdrant_transform,
@@ -29,10 +30,6 @@ def main(
     )
 
     df = silver_newspaper_job.run()
-    
-    #do chunk
-    
-
 
     
 if __name__ == "__main__":

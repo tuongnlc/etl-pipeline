@@ -1,4 +1,4 @@
-from src.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
+from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 
 
 class TestPostgreDBExtractorWithPolarsConfig:
