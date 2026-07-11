@@ -4,7 +4,7 @@ metadata:
   name: 2026_09_06_foreign_trade_trigger
 spec:
   dag_id: 2026_09_06_foreign_trade_trigger
-  schedule: "0 9 * * *"
+  schedule: "0 9 * * 2"
   start_date: 2023-01-01
   catchup: False
   default_args:
