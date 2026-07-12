@@ -16,7 +16,7 @@ from dacite import from_dict
 
 def load_and_parse_config(
     config_path: str,
-    # runtime_args: Namespace #Update here
+    # runtime_args: Namespace
 ):
     config_str = load_yaml_config_from_path_as_str(config_path) #RETURN CONFIG STRING
 

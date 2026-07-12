@@ -39,6 +39,7 @@ spec:
             batch_size: 100
             text_column: chunk_content
             output_column: chunk_embedded
+            number_of_small_dataframes: 3
   loader:
     kind: QdrantLoaderConfig
     spec:

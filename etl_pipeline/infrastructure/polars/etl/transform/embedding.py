@@ -3,6 +3,7 @@ import os
 import polars as pl
 from etl_pipeline.infrastructure.polars.etl.transform.text_processing.embedded_factory import chunk_embedding_factory
 from airflow.hooks.base import BaseHook
+from etl_pipeline.utils.split_polar_df import split_dataframe
 
 
 class TextEmbedding(TransformStep):
@@ -14,7 +15,8 @@ class TextEmbedding(TransformStep):
         output_dimensionality: int = 768,
         batch_size: int = 100,
         text_column: str = "chunk_content",
-        output_column: str = "chunk_embedded",        
+        output_column: str = "chunk_embedded",  
+        number_of_small_dataframes: int = 3, #Split df into 3 to avoid quota limit
     ):
         self.embedding_type = embedding_type
         self.model = model
@@ -24,31 +26,59 @@ class TextEmbedding(TransformStep):
         self.batch_size = batch_size
         self.text_column = text_column
         self.output_column = output_column
+        self.number_of_small_dataframes = number_of_small_dataframes
+
+    def _extract_api_key(self, connection_name: str) -> str:
+        """
+            Get API from client secret in airflow connection
+        """
+        connection = BaseHook.get_connection(connection_name)
+        extra_data = connection.get_extra_dejson()
+        api_key = extra_data.get("client_secret")
+        return api_key
 
     def _resolve_api_key(self) -> str:
         """
             Get API from client secret in airflow connection
         """
+        api_keys = []
+
         if self.embedding_type == "google_embedding":
-            connection = BaseHook.get_connection("google_gemini_api_key")
-            extra_data = connection.get_extra_dejson()
-            api_key = extra_data.get("client_secret")
-            return api_key
+            api_key_1 = self._extract_api_key("google_gemini_embedding_key_1")
+            api_key_2 = self._extract_api_key("google_gemini_embedding_key_2")
+            api_key_3 = self._extract_api_key("google_gemini_embedding_key_3")
+            api_keys.append(api_key_1)
+            api_keys.append(api_key_2)
+            api_keys.append(api_key_3)
+        return api_keys
 
     def transform(self, df: pl.DataFrame,  **kwargs) -> pl.DataFrame:
-        api_key = self._resolve_api_key()
-        embedding = chunk_embedding_factory(
-            embedding_type=self.embedding_type, 
-            api_key=api_key,
-            model=self.model, 
-            task_type_documents=self.task_type_documents,
-            task_type_query=self.task_type_query,
-            output_dimensionality=self.output_dimensionality,
-            batch_size=self.batch_size,
-        )
+        dataframes = split_dataframe(df, n=self.number_of_small_dataframes)
 
-        return embedding.embed_documents(
-            df=df,
-            text_column=self.text_column, 
-            output_column=self.output_column
-        )
+        api_keys = self._resolve_api_key() 
+
+        #Cretae embedding configs
+        EMBEDDING_CONFIG = {
+            "embedding_type": self.embedding_type,
+            "model": self.model,
+            "task_type_documents": self.task_type_documents,
+            "task_type_query": self.task_type_query,
+            "output_dimensionality": self.output_dimensionality,
+            "batch_size": self.batch_size,
+        }
+
+        def embed_partition(df: pl.DataFrame, api_key: str) -> pl.DataFrame:
+            embedder = chunk_embedding_factory(api_key=api_key, **EMBEDDING_CONFIG)
+            return embedder.embed_documents(
+                df=df,
+                text_column="chunk_content",
+                output_column="chunk_embedded",
+            )
+
+        embedded_partitions = [
+            embed_partition(df, api_key) for df, api_key in zip(dataframes, api_keys)
+        ]
+
+        output_df = pl.concat(embedded_partitions, how="vertical")
+
+        return output_df

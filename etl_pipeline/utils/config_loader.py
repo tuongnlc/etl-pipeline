@@ -49,7 +49,7 @@ def _import_class_from_path(kind: str) -> type[Any]:
 
 def load_and_parse_config(
     config_path: str,
-    runtime_args: Namespace #Update here
+    runtime_args: Namespace
 ):
     """
         Load and parse config from path for etl process
