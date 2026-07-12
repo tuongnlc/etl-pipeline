@@ -4,5 +4,5 @@ from typing import Any
 
 @dataclass
 class PostgreToBqSilverConfig:
-    loader: Any #Update here
+    loader: Any 
     extractor: Any
