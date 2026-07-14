@@ -48,7 +48,7 @@ spec:
       qrant_payload: 
         id: str
         document_id: str
-        publish_date: date
+        publish_date: Optional[date]
         chunk_content: str
         chunk_index: int
       is_upsert_source_table: true
