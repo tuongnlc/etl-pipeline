@@ -40,13 +40,13 @@ def main(
 
     payload_model = build_payload_model(
         model_name="NewspaperPayload",
-        payload_config=args.job_config.loader.qrant_payload,
+        payload_config=args.job_config.loader.qdrant_payload,
     )
 
     loader = QdrantLoader(
-        qrant_url=args.job_config.loader.qrant_url,
+        qdrant_url=args.job_config.loader.qdrant_url,
         collection_name=args.job_config.loader.collection_name,
-        qrant_payload=payload_model
+        qdrant_payload=payload_model
     )
 
     loader.load(df)

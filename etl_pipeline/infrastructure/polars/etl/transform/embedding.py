@@ -15,7 +15,7 @@ class TextEmbedding(TransformStep):
         output_dimensionality: int = 768,
         batch_size: int = 100,
         text_column: str = "chunk_content",
-        output_column: str = "chunk_embedded",  
+        output_column: str = "dense_vector_embedded",  
         number_of_small_dataframes: int = 3, #Split df into 3 to avoid quota limit
     ):
         self.embedding_type = embedding_type
@@ -72,7 +72,7 @@ class TextEmbedding(TransformStep):
             return embedder.embed_documents(
                 df=df,
                 text_column="chunk_content",
-                output_column="chunk_embedded",
+                output_column="dense_vector_embedded",
             )
 
         embedded_partitions = [
@@ -82,3 +82,24 @@ class TextEmbedding(TransformStep):
         output_df = pl.concat(embedded_partitions, how="vertical")
 
         return output_df
+
+
+class SparseTextEmbedding(TextEmbedding):
+    def __init__(self, 
+            embedding_type="sparse_embedding",
+            model_name="Qdrant/bm25",
+            **kwargs):
+        super().__init__(**kwargs)
+        self.embedding_type = embedding_type
+        self.model_name = model_name
+
+    def transform(self, df: pl.DataFrame,  **kwargs) -> pl.DataFrame:
+        sparse_embedder = chunk_embedding_factory(
+            embedding_type=self.embedding_type,
+            model=self.model_name
+        )
+
+        sparse_embedded_df = sparse_embedder.embed_documents(df=df, text_column="chunk_content_vi_tokenized")
+
+        sparse_embedded_df = sparse_embedded_df.drop("chunk_content_vi_tokenized") #Drop tokenized column 
+        return sparse_embedded_df

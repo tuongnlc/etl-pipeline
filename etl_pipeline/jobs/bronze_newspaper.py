@@ -32,7 +32,7 @@ class BronzeNewspaper(BasePipeline):
             return df
 
     def load(self, transformed_data):
-        self.loader.load(transformed_data, vector_column=None)
+        self.loader.load(transformed_data, dense_vector_column=None)
 
     def run(self) -> None:
         data_ = self.extract()

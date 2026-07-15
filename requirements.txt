@@ -13,3 +13,5 @@ langchain-google-genai==4.2.2
 qdrant-client==1.18.0
 apache-airflow-providers-postgres==6.6.3
 langchain-text-splitters==1.1.2
+fastembed==0.8.0
+underthesea==9.5.0

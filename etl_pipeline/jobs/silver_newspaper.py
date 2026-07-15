@@ -32,7 +32,12 @@ class SilverNewspaper(BasePipeline):
         return df
     
     def load(self, df: pl.DataFrame):
-        self.loader.load(df)
+        self.loader.load(
+            df, 
+            dense_vector_column="dense_vector_embedded", 
+            sparse_vector_indices_column="sparse_vector_indices", 
+            sparse_vector_values_column="sparse_vector_value"
+        )
     
     def run(self) -> None:
         data_ = self.extract()

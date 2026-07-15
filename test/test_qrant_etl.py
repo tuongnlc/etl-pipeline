@@ -16,7 +16,7 @@ def main(
     args: Namespace
 ):
     extract = QdrantExtractorWithPayloadFilter(
-        qdrant_url = args.job_config.loader.qrant_url,
+        qdrant_url = args.job_config.loader.qdrant_url,
         collection_name=args.job_config.loader.collection_name,
         payload_filter=args.job_config.loader.payload_filter,
     )
@@ -30,7 +30,7 @@ def main(
 
     df = silver_newspaper_job.run()
     
-    #do chunk
+    #do chun
     
 
 

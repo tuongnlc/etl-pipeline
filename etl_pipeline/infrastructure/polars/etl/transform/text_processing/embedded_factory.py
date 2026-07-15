@@ -5,7 +5,7 @@ import polars as pl
 from google.genai.errors import ClientError
 import re
 import time
-
+from fastembed import SparseTextEmbedding as FastEmbedSparseTextEmbedding
 
 
 class GoogleGeminiEmbedding(Embeddings):
@@ -86,8 +86,8 @@ class GoogleGeminiEmbedding(Embeddings):
         self,
         df: pl.DataFrame,
         *,
-        text_column: str = "chunk_content",
-        output_column: str = "chunk_embedded",
+        text_column: str,
+        output_column: str,
     ) -> pl.DataFrame:
         texts = ["" if v is None else str(v) for v in df[text_column].to_list()]
         if not texts:
@@ -117,8 +117,59 @@ class GoogleGeminiEmbedding(Embeddings):
 
         return list(result.embeddings[0].values)
 
+
+class SparseTextEmbedding(Embeddings):
+    def __init__(
+        self,
+        model: str = "Qdrant/bm25",
+        disable_stemmer: bool = True,
+    ) -> None:
+        self.model = model
+        self.disable_stemmer = disable_stemmer
+        self.embedding_model = FastEmbedSparseTextEmbedding(
+            model_name=model,
+            disable_stemmer=disable_stemmer,
+        )
+
+    def embed_query(self, text: str) -> List[float]:
+        sparse_vector = next(self.embedding_model.query_embed(text))
+        return sparse_vector.values.tolist()
+
+    def embed_documents(
+        self,
+        df: pl.DataFrame,
+        *,
+        text_column: str,
+        output_indices_column: str = "sparse_vector_indices",
+        output_values_column: str = "sparse_vector_value",
+    ) -> pl.DataFrame:
+        if text_column not in df.columns:
+            raise ValueError(f"Column '{text_column}' not found in dataframe")
+
+        texts = ["" if value is None else str(value) for value in df[text_column].to_list()]
+
+        if not texts:
+            raise ValueError("No text to embed")
+
+        sparse_vectors = list(self.embedding_model.embed(texts))
+        df = df.with_columns(
+            pl.Series(
+                output_indices_column,
+                [vec.indices.tolist() for vec in sparse_vectors],
+                strict=False,
+            ),
+            pl.Series(
+                output_values_column,
+                [vec.values.tolist() for vec in sparse_vectors],
+                strict=False,
+            ),
+        )
+        return df
+
+
 MAPPING_Embedding = {
     "google_embedding": GoogleGeminiEmbedding,
+    "sparse_embedding": SparseTextEmbedding,
 }
 
 class EmbeddingFactory:
@@ -129,17 +180,20 @@ class EmbeddingFactory:
         cls,
         embedding_type: str,
         *,
-        api_key: str,
+        api_key: Optional[str] = None, # For sparse embedding we don't need api_key
         model: str = "gemini-embedding-2",
         task_type_documents: str = "RETRIEVAL_DOCUMENT",
         task_type_query: str = "RETRIEVAL_QUERY",
         output_dimensionality: Optional[int] = None,
         batch_size: int = 100,
     ) -> Embeddings:
-        key = embedding_type.strip().lower()
+        key = embedding_type.strip().lower() #get embedding type to create embedding
         embedding_cls = cls._registry.get(key)
         if embedding_cls is None:
             raise ValueError(f"Unknown embedding_type: {embedding_type}")
+
+        if embedding_type == "sparse_embedding":
+            return embedding_cls(model=model)
 
         return embedding_cls(
             api_key=api_key,
@@ -152,12 +206,12 @@ class EmbeddingFactory:
 
 def chunk_embedding_factory(
     embedding_type: str,
-    api_key: str,
-    model: str = "gemini-embedding-2",
-    task_type_documents: str = "RETRIEVAL_DOCUMENT",
-    task_type_query: str = "RETRIEVAL_QUERY",
+    model: str,
+    api_key: Optional[str] = None,
+    task_type_documents: Optional[str] = None,
+    task_type_query: Optional[str] = None,
     output_dimensionality: Optional[int] = None,
-    batch_size: int = 100,
+    batch_size: Optional[int] = None,
 ) -> Embeddings:
     return EmbeddingFactory.create(
         embedding_type,

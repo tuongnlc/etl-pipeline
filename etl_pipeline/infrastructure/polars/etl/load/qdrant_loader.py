@@ -6,10 +6,11 @@ from pydantic import BaseModel
 from typing import List
 from pydantic import TypeAdapter
 import polars as pl
-from qdrant_client.models import PointStruct
+from qdrant_client.models import PointStruct, SparseVector
 from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
 from qdrant_client.models import Filter
 from qdrant_client.models import Filter, FieldCondition, MatchValue
+
 
 class QdrantLoader(QdrantLoader):
     """
@@ -22,20 +23,20 @@ class QdrantLoader(QdrantLoader):
             None
     """
     def __init__(self, 
-                qrant_url: str,
+                qdrant_url: str,
                 destination_collection_name: str,
-                qrant_payload: type[BaseModel],
+                qdrant_payload: type[BaseModel],
                 is_upsert_source_table: bool = False,
                 source_name: str | None = None, 
-                qrant_payload_for_source_table: dict | None = None,
+                qdrant_payload_for_source_table: dict | None = None,
                 payload_filter_for_source_table: dict | None = None,
             ) -> None:
-        self.qdrant_client = QdrantClient(url=qrant_url)
+        self.qdrant_client = QdrantClient(url=qdrant_url)
         self.destination_collection_name = destination_collection_name
-        self.qrant_payload = qrant_payload
+        self.qdrant_payload = qdrant_payload
         self.source_name = source_name
         self.is_upsert_source_table = is_upsert_source_table
-        self.qrant_payload_for_source_table = qrant_payload_for_source_table
+        self.qdrant_payload_for_source_table = qdrant_payload_for_source_table
         self.payload_filter_for_source_table = payload_filter_for_source_table
 
 
@@ -61,52 +62,53 @@ class QdrantLoader(QdrantLoader):
 
         return Filter(must=must_conditions)
         
-    def _valid_schema(self, raw_data_list: List[dict]):
-        """
-            Validate schema of qrant payload
-        """ 
-        payload_list_adapter = TypeAdapter(List[self.qrant_payload])
-        try:
-            validated_payloads = payload_list_adapter.validate_python(raw_data_list)
-        except Exception as e:
-            raise ValueError(f"Payload validation failed: {e}") from e
+    # def _valid_schema(self, raw_data_list: List[dict]):
+    #     """
+    #         Validate schema of qrant payload
+    #     """ 
+    #     payload_list_adapter = TypeAdapter(List[self.qrant_payload])
+    #     try:
+    #         validated_payloads = payload_list_adapter.validate_python(raw_data_list)
+    #     except Exception as e:
+    #         raise ValueError(f"Payload validation failed: {e}") from e
         
-        return validated_payloads
+        # return validated_payloads
     
     def _payload_to_dict(self, payload: BaseModel) -> dict:
         if hasattr(payload, "model_dump"):
             return payload.model_dump(mode="json")
         return payload.dict()
 
-    def load(self, records: pl.DataFrame, vector_column: str | None = "chunk_embedded"):
+    def load(self, 
+            records: pl.DataFrame, 
+            dense_vector_column: str | None = None, 
+            sparse_vector_indices_column: str | None = None,
+            sparse_vector_values_column: str | None = None,
+        ):
         """
             Load arrow table to qdrant database
         """
         if records.height == 0:
             return
 
-        raw_data_list = records.to_dicts()
+        # raw_data_list = records.to_dicts()
 
         print("NUMBER of vector to write to qdrant:")
         print(len(records))
 
-        if not raw_data_list:
-            return
-        
-        #Check schema of qrant payload
-        validated_payloads = self._valid_schema(raw_data_list)
-
-        # #Load data to qdrant database
-        if vector_column is not None and vector_column not in records.columns:
-            raise ValueError(
-                f"Missing vector column '{vector_column}'. Available columns: {records.columns}. "
-                "Pass vector_column=None to upsert payload-only points, or add an embedding transform step."
-            )
-
         points = []
-        for item, payload in zip(raw_data_list, validated_payloads):
-            payload_dict = self._payload_to_dict(payload)
-            if vector_column is None:
+        for item in records.to_dicts():
+            payload_dict = {
+                    key: value
+                    for key, value in item.items()
+                    if key != "id" and key != dense_vector_column and key != sparse_vector_indices_column and key != sparse_vector_values_column
+                }
+
+            if (
+                dense_vector_column is None
+                and sparse_vector_indices_column is None
+                and sparse_vector_values_column is None
+            ):
                 points.append(
                     PointStruct(
                         id=item["id"],
@@ -114,11 +116,36 @@ class QdrantLoader(QdrantLoader):
                         payload=payload_dict,
                     )
                 )
-            else:
+            elif sparse_vector_indices_column is None and sparse_vector_values_column is None and dense_vector_column is not None: 
                 points.append(
                     PointStruct(
                         id=item["id"],
-                        vector=item[vector_column],
+                        vector=item[dense_vector_column],
+                        payload=payload_dict,
+                    )
+                )
+            elif sparse_vector_indices_column is not None and sparse_vector_values_column is not None:
+                collection_info = self.qdrant_client.get_collection(
+                    self.destination_collection_name
+                )
+                dense_vector_name = (
+                    list(collection_info.config.params.vectors.keys())[0]
+                    if isinstance(collection_info.config.params.vectors, dict)
+                    else ""
+                )
+                sparse_vector_name = list(
+                    collection_info.config.params.sparse_vectors.keys()
+                )[0]
+                points.append(
+                    PointStruct(
+                        id=item["id"],
+                        vector={
+                            dense_vector_name: item[dense_vector_column],
+                            sparse_vector_name: SparseVector(
+                                indices=item[sparse_vector_indices_column],
+                                values=item[sparse_vector_values_column],
+                            ),
+                        },
                         payload=payload_dict,
                     )
                 )
@@ -134,16 +161,16 @@ class QdrantLoader(QdrantLoader):
         if self.is_upsert_source_table:
             if not self.source_name:
                 raise ValueError("source_name must be provided when is_upsert_source_table is True")
-            if self.qrant_payload_for_source_table is None:
+            if self.qdrant_payload_for_source_table is None:
                 raise ValueError(
-                    "qrant_payload_for_source_table must be provided when is_upsert_source_table is True"
+                    "qdrant_payload_for_source_table must be provided when is_upsert_source_table is True"
                 )
 
             payload_filter_for_source_table = self.payload_filter_for_source_table
             qdrant_filter = self._build_payload_filter(payload_filter_for_source_table)
             self.qdrant_client.set_payload(
                 collection_name=self.source_name,
-                payload=self.qrant_payload_for_source_table,
+                payload=self.qdrant_payload_for_source_table,
                 points=qdrant_filter,
                 wait=True,
             )
