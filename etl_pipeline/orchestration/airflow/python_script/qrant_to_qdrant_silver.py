@@ -5,7 +5,6 @@ from etl_pipeline.infrastructure.polars.etl.extract.qdrant_extractor import Qdra
 from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
 from etl_pipeline.jobs.silver_newspaper import SilverNewspaper
 import os
-from etl_pipeline.utils.qdrant_payload_config_loader import build_payload_model
 from etl_pipeline.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 
 
@@ -35,18 +34,12 @@ def main(
 
     qdrant_transform = QdrantTransform()
 
-    payload_model = build_payload_model(
-        model_name="NewspaperPayload",
-        payload_config=args.job_config.loader.qdrant_payload,
-    )
-
     payload_for_source_table = args.job_config.loader.qdrant_payload_for_source_table
     payload_filter_for_source_table = args.job_config.loader.payload_filter_for_source_table
 
     loader = QdrantLoader(
         qdrant_url=args.job_config.loader.qdrant_url,
         destination_collection_name=args.job_config.loader.destination_collection_name,
-        qdrant_payload=payload_model,
         is_upsert_source_table=args.job_config.loader.is_upsert_source_table,
         source_name=args.job_config.loader.source_name,
         qdrant_payload_for_source_table=payload_for_source_table,

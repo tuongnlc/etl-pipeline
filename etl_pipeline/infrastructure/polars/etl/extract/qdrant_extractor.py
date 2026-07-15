@@ -23,12 +23,14 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
         payload_filter: dict,
         batch_size: int = 256,
         max_records: Optional[int] = None,
+        with_vectors: list[str] | bool | None = None,
     ):
         self.qdrant_client = QdrantClient(url=qdrant_url)
         self.collection_name = collection_name
         self.payload_filter = payload_filter
         self.batch_size = batch_size
         self.max_records = max_records
+        self.with_vectors = with_vectors if with_vectors is not None else False
 
     def _build_payload_filter(
         self
@@ -69,7 +71,7 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
                 collection_name=self.collection_name,
                 scroll_filter=query_filter,
                 with_payload=True,
-                with_vectors=False,
+                with_vectors=self.with_vectors,
                 limit=self.batch_size,
                 offset=next_offset,
             )
@@ -77,13 +79,26 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
             if not records:
                 break
 
-            rows.extend(
-                {
+            for record in records:
+                row = {
                     "id": record.id,
                     **(record.payload or {}),
                 }
-                for record in records
-            )
+
+                if self.with_vectors:
+                    if (
+                        isinstance(self.with_vectors, list)
+                        and isinstance(record.vector, dict)
+                        and len(self.with_vectors) == 1
+                    ):
+                        row["vector"] = record.vector.get(self.with_vectors[0])
+                    elif isinstance(self.with_vectors, list) and isinstance(record.vector, dict):
+                        for vector_name in self.with_vectors:
+                            row[vector_name] = record.vector.get(vector_name)
+                    else:
+                        row["vector"] = record.vector
+
+                rows.append(row)
 
             if self.max_records is not None and len(rows) >= self.max_records:
                 rows = rows[: self.max_records]

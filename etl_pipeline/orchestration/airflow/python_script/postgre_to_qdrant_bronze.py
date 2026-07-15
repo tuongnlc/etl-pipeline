@@ -4,7 +4,6 @@ from argparse import Namespace
 from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
-from etl_pipeline.utils.qdrant_payload_config_loader import build_payload_model
 from etl_pipeline.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from etl_pipeline.jobs.bronze_newspaper import BronzeNewspaper
 import os
@@ -49,15 +48,9 @@ def main(
 
     qdrant_transform = QdrantTransform()
 
-    payload_model = build_payload_model(
-        model_name="NewspaperPayload",
-        payload_config=args.job_config.loader.qdrant_payload,
-    )
-
     loader = QdrantLoader(
         qdrant_url=args.job_config.loader.qdrant_url,
         destination_collection_name=args.job_config.loader.destination_collection_name,
-        qdrant_payload=payload_model
     )
 
     bronze_newspaper_job = BronzeNewspaper(

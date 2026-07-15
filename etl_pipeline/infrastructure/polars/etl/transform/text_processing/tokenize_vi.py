@@ -2,9 +2,6 @@ from underthesea import word_tokenize
 import polars as pl
 
 
-
-
-
 class TokenizeVi:
     def __init__(self, col_name: str | None, tokenize_col_name: str | None):
         self.col_name = col_name

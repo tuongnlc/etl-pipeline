@@ -3,12 +3,9 @@
 """
 from qdrant_client import QdrantClient
 from pydantic import BaseModel
-from typing import List
-from pydantic import TypeAdapter
 import polars as pl
 from qdrant_client.models import PointStruct, SparseVector
 from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
-from qdrant_client.models import Filter
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 
@@ -25,7 +22,6 @@ class QdrantLoader(QdrantLoader):
     def __init__(self, 
                 qdrant_url: str,
                 destination_collection_name: str,
-                qdrant_payload: type[BaseModel],
                 is_upsert_source_table: bool = False,
                 source_name: str | None = None, 
                 qdrant_payload_for_source_table: dict | None = None,
@@ -33,7 +29,6 @@ class QdrantLoader(QdrantLoader):
             ) -> None:
         self.qdrant_client = QdrantClient(url=qdrant_url)
         self.destination_collection_name = destination_collection_name
-        self.qdrant_payload = qdrant_payload
         self.source_name = source_name
         self.is_upsert_source_table = is_upsert_source_table
         self.qdrant_payload_for_source_table = qdrant_payload_for_source_table
@@ -91,10 +86,40 @@ class QdrantLoader(QdrantLoader):
         if records.height == 0:
             return
 
-        # raw_data_list = records.to_dicts()
+        required_columns = {"id"}
+        optional_vector_columns = {
+            dense_vector_column,
+            sparse_vector_indices_column,
+            sparse_vector_values_column,
+        }
+        required_columns.update(
+            column_name for column_name in optional_vector_columns if column_name is not None
+        )
+
+        missing_columns = sorted(required_columns.difference(records.columns))
+        if missing_columns:
+            raise ValueError(
+                "Missing required columns for Qdrant load: "
+                f"{missing_columns}. Available columns: {records.columns}"
+            )
 
         print("NUMBER of vector to write to qdrant:")
         print(len(records))
+
+        dense_vector_name = None
+        sparse_vector_name = None
+        if sparse_vector_indices_column is not None and sparse_vector_values_column is not None:
+            collection_info = self.qdrant_client.get_collection(
+                self.destination_collection_name
+            )
+            dense_vector_name = (
+                list(collection_info.config.params.vectors.keys())[0]
+                if isinstance(collection_info.config.params.vectors, dict)
+                else ""
+            )
+            sparse_vector_name = list(
+                collection_info.config.params.sparse_vectors.keys()
+            )[0]
 
         points = []
         for item in records.to_dicts():
@@ -125,17 +150,6 @@ class QdrantLoader(QdrantLoader):
                     )
                 )
             elif sparse_vector_indices_column is not None and sparse_vector_values_column is not None:
-                collection_info = self.qdrant_client.get_collection(
-                    self.destination_collection_name
-                )
-                dense_vector_name = (
-                    list(collection_info.config.params.vectors.keys())[0]
-                    if isinstance(collection_info.config.params.vectors, dict)
-                    else ""
-                )
-                sparse_vector_name = list(
-                    collection_info.config.params.sparse_vectors.keys()
-                )[0]
                 points.append(
                     PointStruct(
                         id=item["id"],
