@@ -9,7 +9,6 @@ from etl_pipeline.utils.jobargs import etl_job_args_utils
 from etl_pipeline.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
 from etl_pipeline.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
-from etl_pipeline.utils.qdrant_payload_config_loader import build_payload_model
 import polars as pl
 
 
@@ -38,15 +37,9 @@ def main(
 
     print(df)
 
-    payload_model = build_payload_model(
-        model_name="NewspaperPayload",
-        payload_config=args.job_config.loader.qdrant_payload,
-    )
-
     loader = QdrantLoader(
         qdrant_url=args.job_config.loader.qdrant_url,
         collection_name=args.job_config.loader.collection_name,
-        qdrant_payload=payload_model
     )
 
     loader.load(df)

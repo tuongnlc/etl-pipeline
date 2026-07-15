@@ -28,14 +28,4 @@ spec:
     spec:
       qdrant_url: http://qdrant:6333
       destination_collection_name: newspaper
-      qdrant_payload: 
-        id: str
-        newspaper_title: str
-        newspaper_url: str
-        publish_date: Optional[date]
-        newspaper_content: str
-        newspaper_summary: str
-        is_embedded: int
-        created_at: date
-        is_topic_tagging: int
   

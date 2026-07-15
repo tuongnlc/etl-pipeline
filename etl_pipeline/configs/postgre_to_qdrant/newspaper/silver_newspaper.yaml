@@ -52,13 +52,7 @@ spec:
     kind: QdrantLoaderConfig
     spec:
       qdrant_url: http://qdrant:6333
-      destination_collection_name: test_collection
-      qdrant_payload: 
-        id: str
-        document_id: str
-        publish_date: Optional[date]
-        chunk_content: str
-        chunk_index: int
+      destination_collection_name: newspaper_embedded 
       is_upsert_source_table: true
       source_name: newspaper
       qdrant_payload_for_source_table:
