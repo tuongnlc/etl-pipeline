@@ -26,9 +26,9 @@ spec:
   loader:
     kind: QdrantLoaderConfig
     spec:
-      qrant_url: http://qdrant:6333
+      qdrant_url: http://qdrant:6333
       destination_collection_name: newspaper
-      qrant_payload: 
+      qdrant_payload: 
         id: str
         newspaper_title: str
         newspaper_url: str

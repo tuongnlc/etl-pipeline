@@ -4,7 +4,7 @@ spec:
   extractor:
     kind: QdrantExtractorWithPayloadConfig
     spec:
-      qrant_url: http://qdrant:6333
+      qdrant_url: http://qdrant:6333
       collection_name: newspaper
       payload_filter: 
         is_embedded: 0
@@ -29,6 +29,14 @@ spec:
             splitter_type: recursive_character
             chunk_size: 1200
             chunk_overlap: 300
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.text_processing.tokenize_vi.TokenizeVi
+          spec:
+            col_name: chunk_content
+            tokenize_col_name: chunk_content_vi_tokenized
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.embedding.SparseTextEmbedding
+          spec:
+            embedding_type: sparse_embedding
+            model_name: Qdrant/bm25
         - kind: etl_pipeline.infrastructure.polars.etl.transform.embedding.TextEmbedding
           spec:
             embedding_type: google_embedding
@@ -38,22 +46,22 @@ spec:
             output_dimensionality: 768
             batch_size: 100
             text_column: chunk_content
-            output_column: chunk_embedded
+            output_column: dense_vector_embedded
             number_of_small_dataframes: 3
   loader:
     kind: QdrantLoaderConfig
     spec:
-      qrant_url: http://qdrant:6333
-      destination_collection_name: newspaper_embedded
-      qrant_payload: 
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: test_collection
+      qdrant_payload: 
         id: str
         document_id: str
-        publish_date: date
+        publish_date: Optional[date]
         chunk_content: str
         chunk_index: int
       is_upsert_source_table: true
       source_name: newspaper
-      qrant_payload_for_source_table:
+      qdrant_payload_for_source_table:
         is_embedded: 1
       payload_filter_for_source_table:
         is_embedded: 0
