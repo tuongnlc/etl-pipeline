@@ -28,3 +28,35 @@ class RemoveColumn(TransformStep):
 
     def transform(self, df: pl.DataFrame) -> pl.DataFrame:
         return df.drop(self.column)
+
+
+class RenameColumns(TransformStep):
+    def __init__(self, column_mappings: dict):
+        self.column_mappings =  column_mappings
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        return df.rename(self.column_mappings)
+
+
+class ConcatColumns(TransformStep):
+    def __init__(self, concat_columns: list, new_column: str):
+        self.concat_columns = concat_columns
+        self.new_column = new_column
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        # return super().transform(df)
+        exprs = []
+        print(self.concat_columns)
+        for col in self.concat_columns:
+            # print(col)
+            if df[col].dtype in [pl.Date, pl.Datetime]:
+                formatted_col = pl.col(col).dt.strftime("%Y-%m-%d")
+            else:
+                formatted_col = pl.col(col).cast(pl.String)
+                
+            exprs.append(pl.format("{}: {}", pl.lit(col), formatted_col))
+
+        df = df.with_columns(
+            pl.concat_str(*exprs, separator=", ").alias(self.new_column),
+        )
+        return df

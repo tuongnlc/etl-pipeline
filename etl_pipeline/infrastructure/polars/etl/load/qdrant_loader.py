@@ -122,6 +122,7 @@ class QdrantLoader(QdrantLoader):
             )[0]
 
         points = []
+        
         for item in records.to_dicts():
             payload_dict = {
                     key: value

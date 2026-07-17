@@ -18,6 +18,7 @@ from dacite import from_dict
 from etl_pipeline.models.etl.transform.qdrant_transform import QdrantTransformConfig
 from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
+# from etl_pipeline.orchestration.dag_builder.task_factories.bronze_postgre_qdrant_factory import BronzePostgreQdrantFactory
 
 
 
@@ -32,6 +33,7 @@ CONFIG_PARSER_MAP = {
     QdrantExtractorWithPayloadConfig.__name__: QdrantExtractorWithPayloadConfig,
     QdrantTransformConfig.__name__: QdrantTransformConfig,
     TriggerDagJobConfig.__name__: TriggerDagJobConfig,
+    # BronzePostgreQdrantFactory.__name__: BronzePostgreQdrantFactory
 }
 
 
