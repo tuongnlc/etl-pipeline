@@ -6,18 +6,48 @@ spec:
     spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.stock_price
-      # execution_date_filter: 
-      filter_type: date
-      filter_time_range: 30
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "0"
   transform:
     kind: QdrantTransformConfig
     spec:
       transform_steps:
-        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RemoveColumn
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
           spec:
-            column: is_load_to_qdrant
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              trading_date: "ngày giao dịch"
+              open_price: "giá mở cửa"
+              high_price: "giá cao nhất trong ngày"
+              low_price: "giá thấp nhất trong ngày"
+              close_price: "giá đóng cửa"
+              volume: "khối lượng giao dịch"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - tên cổ phiếu
+              - ngày giao dịch
+              - giá mở cửa
+              - giá cao nhất trong ngày
+              - giá thấp nhất trong ngày
+              - giá đóng cửa
+              - khối lượng giao dịch
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - ngày giao dịch
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              ngày giao dịch: trading_date
+        
   loader:
     kind: QdrantLoaderConfig
     spec:
       qdrant_url: http://qdrant:6333
-      destination_collection_name: stock_price
+      destination_collection_name: stock_price_embedded

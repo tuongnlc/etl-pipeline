@@ -45,6 +45,8 @@ def main(
     else:
         execution_date_filter = None
 
+    print("filter_type: ", job_config.extractor.filter_type)
+
     print("execution_date: ", execution_date)
     print("execution_date_filter: ", execution_date_filter)
 

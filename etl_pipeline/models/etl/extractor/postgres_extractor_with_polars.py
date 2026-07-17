@@ -12,4 +12,4 @@ class PostgreDBExtractorWithPolarsConfig:
     filter_value: Optional[str] = None
     execution_date_filter: Optional[str] = None
     filter_time_range: Optional[int] = None
-    filter_type: Optional[str] = 'date'
+    filter_type: Optional[str] = None

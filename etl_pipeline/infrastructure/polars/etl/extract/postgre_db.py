@@ -46,7 +46,6 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
 
         #Query by execution_date using for postgre_bq etl
         if self.filter_type == 'date':
-            # if self.execution_date_filter:
             import logging
             logger = logging.getLogger(__name__)
             
