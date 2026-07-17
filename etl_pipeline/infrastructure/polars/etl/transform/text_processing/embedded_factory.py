@@ -101,7 +101,6 @@ class GoogleGeminiEmbedding(Embeddings):
             all_embeddings.extend(self._embed_texts_one_request(batch, config))
 
         df = df.with_columns(pl.Series(output_column, all_embeddings))
-        print(df)
         return df
 
     def embed_query(

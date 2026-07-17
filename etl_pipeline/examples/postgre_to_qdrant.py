@@ -35,8 +35,6 @@ def main(
     if not isinstance(df, pl.DataFrame):
         df = pl.from_arrow(df)
 
-    print(df)
-
     loader = QdrantLoader(
         qdrant_url=args.job_config.loader.qdrant_url,
         collection_name=args.job_config.loader.collection_name,
