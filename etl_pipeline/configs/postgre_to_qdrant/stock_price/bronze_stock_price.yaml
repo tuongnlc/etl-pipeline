@@ -1,0 +1,23 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.stock_price
+      # execution_date_filter: 
+      filter_type: date
+      filter_time_range: 30
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RemoveColumn
+          spec:
+            column: is_load_to_qdrant
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price

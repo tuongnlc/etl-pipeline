@@ -1,0 +1,22 @@
+---
+kind: DagDefinition
+metadata:
+  name: 2026_07_17_stock_price_bronze
+spec:
+  dag_id: 2026_07_17_stock_price_bronze
+  schedule: None
+  start_date: 2026-07-14
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["Silver", "Stock Price"]
+  task_factories:
+    - id: job
+      factory_type: BronzePostgreQdrantFactory
+      args:
+        task_id: "bronze_stock_price"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/stock_price/bronze_stock_price.yaml
+        # /Users/tuongnguyen/Desktop/projects/etl-pipeline/etl_pipeline/configs/postgre_to_qdrant/newspaper/bronze_stock_price.yaml
+        # /Users/tuongnguyen/Desktop/projects/etl-pipeline/etl_pipeline/configs/postgre_to_qdrant/stock_price/bronze_stock_price.yaml

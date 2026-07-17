@@ -36,7 +36,7 @@ class BronzeNewspaper(BasePipeline):
 
     def run(self) -> None:
         data_ = self.extract()
-        df = self.transform(data_, self.transform_steps)
-        self.load(df)
-        return df
+        # df = self.transform(data_, self.transform_steps)
+        # self.load(df)
+        # return df
         

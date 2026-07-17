@@ -13,7 +13,7 @@ from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import Qd
 
 def main(
     job_config: PostgreToQdrantBronzeConfig = None,
-    # execution_date: str = None,
+    execution_date: str = None, #get from airflow
 ):
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
@@ -25,7 +25,7 @@ def main(
             ]
     if job_config.loader is not None:
         job_config.loader = parse_config(job_config.loader)
-    args = Namespace(job_config=job_config)
+    args = Namespace(job_config=job_config, execution_date=execution_date)
 
     if not isinstance(args.job_config, PostgreToQdrantBronzeConfig): # Check job_config is of type SilverJobConfig  
         raise ValueError("job_config must be of type SilverJobConfig")
@@ -39,11 +39,23 @@ def main(
     polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
     uri = polars_connection.password
 
+    # #Update here
+    if job_config.extractor.filter_type == 'date':
+        execution_date_filter = execution_date
+    else:
+        execution_date_filter = None
+
+    print("execution_date: ", execution_date)
+    print("execution_date_filter: ", execution_date_filter)
+
     extractor = PostgreDBExtractorWithPolars(
         source_table_name=args.job_config.extractor.source_table_name,
         uri=uri,
+        filter_type=job_config.extractor.filter_type,
         extractor_column_filter=args.job_config.extractor.extractor_column_filter,
         filter_value=args.job_config.extractor.filter_value,
+        execution_date_filter=execution_date_filter,
+        filter_time_range=job_config.extractor.filter_time_range,
     )
 
     qdrant_transform = QdrantTransform()

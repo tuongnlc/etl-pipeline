@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class BronzeNewspaperTaskFactory(TaskFactoryBase):
+class BronzePostgreQdrantFactory(TaskFactoryBase):
     """
         Loader newspaper data from postgresql to qdrant
     """
@@ -23,7 +23,7 @@ class BronzeNewspaperTaskFactory(TaskFactoryBase):
         dag: Any, args: dict[str, Any]
     ):
         task_id = args["task_id"]
-        logger.info(f"Create silver market data task groups")
+        logger.info(f"Create bronze postrgesql to qdrant data task groups")
 
         job_config_path = args["job_config_path"]
         job_config = load_and_parse_config(job_config_path, None)
@@ -44,21 +44,25 @@ class BronzeNewspaperTaskFactory(TaskFactoryBase):
                 dag=dag,
                 task_id=task_id,
                 python_callable=main,
-                op_kwargs={"job_config": job_config},
+                op_kwargs={
+                    "job_config": job_config,
+                    "execution_date": "{{ ds }}"
+                },
             )
             bronze_newspaper_etl_task.set_upstream(hello_world_task)
 
-            update_newspaper_postgre_table = SQLExecuteQueryOperator(
-                dag=dag,
-                task_id="update_newspaper_postgre_table",
-                conn_id="postgres_market_data",
-                parameters={},
-                sql=f"""
-                        UPDATE {job_config.extractor.get('spec').get('source_table_name')}
-                        SET is_load_to_qdrant = 1
-                        WHERE is_load_to_qdrant = 0;
-                """,
-            )
+            if job_config.extractor.get('spec').get('filter_type') != 'date':
+                update_newspaper_postgre_table = SQLExecuteQueryOperator(
+                    dag=dag,
+                    task_id="update_newspaper_postgre_table",
+                    conn_id="postgres_market_data",
+                    parameters={},
+                    sql=f"""
+                            UPDATE {job_config.extractor.get('spec').get('source_table_name')}
+                            SET is_load_to_qdrant = 1
+                            WHERE is_load_to_qdrant = 0;
+                    """,
+                )
 
-            update_newspaper_postgre_table.set_upstream(bronze_newspaper_etl_task)
+                update_newspaper_postgre_table.set_upstream(bronze_newspaper_etl_task)
             return task_group
