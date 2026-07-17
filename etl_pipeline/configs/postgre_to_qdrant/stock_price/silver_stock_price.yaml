@@ -5,7 +5,7 @@ spec:
     kind: QdrantExtractorWithPayloadConfig
     spec:
       qdrant_url: http://qdrant:6333
-      collection_name: newspaper
+      collection_name: stock_price_embedded
       payload_filter: 
         is_embedded: 0
   transform:
@@ -13,22 +13,6 @@ spec:
     spec:
       transform_steps:
         - kind: etl_pipeline.infrastructure.polars.etl.transform.example.ExampleTransformStep
-        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
-          spec:
-            columns:
-              - id
-              - publish_date
-              - newspaper_content
-        - kind: etl_pipeline.infrastructure.polars.etl.transform.clean_text.CleanTextPolars
-          spec:
-            col_name: newspaper_content
-        - kind: etl_pipeline.infrastructure.polars.etl.transform.chunking.ChunkPolars
-          spec:
-            document_col_name: newspaper_content
-            chunk_col_name: chunk_content
-            splitter_type: recursive_character
-            chunk_size: 1200
-            chunk_overlap: 300
         - kind: etl_pipeline.infrastructure.polars.etl.transform.text_processing.tokenize_vi.TokenizeVi
           spec:
             col_name: chunk_content
@@ -48,14 +32,19 @@ spec:
             text_column: chunk_content
             output_column: dense_vector_embedded
             number_of_small_dataframes: 8
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 1
+
   loader:
     kind: QdrantLoaderConfig
     spec:
       qdrant_url: http://qdrant:6333
-      destination_collection_name: newspaper_embedded 
-      is_upsert_source_table: true
-      source_name: newspaper
-      qdrant_payload_for_source_table:
-        is_embedded: 1
-      payload_filter_for_source_table:
-        is_embedded: 0
+      destination_collection_name: stock_price_embedded 
+      is_upsert_source_table: false
+      source_name: stock_price_embedded
+      # qdrant_payload_for_source_table:
+      #   is_embedded: 1
+      # payload_filter_for_source_table:
+      #   is_embedded: 0

@@ -16,7 +16,7 @@ class TextEmbedding(TransformStep):
         batch_size: int = 100,
         text_column: str = "chunk_content",
         output_column: str = "dense_vector_embedded",  
-        number_of_small_dataframes: int = 3, #Split df into 3 to avoid quota limit
+        number_of_small_dataframes: int = 8, #Split df into 3 to avoid quota limit
     ):
         self.embedding_type = embedding_type
         self.model = model
@@ -47,9 +47,20 @@ class TextEmbedding(TransformStep):
             api_key_1 = self._extract_api_key("google_gemini_embedding_key_1")
             api_key_2 = self._extract_api_key("google_gemini_embedding_key_2")
             api_key_3 = self._extract_api_key("google_gemini_embedding_key_3")
+            api_key_4 = self._extract_api_key("google_gemini_embedding_key_4")
+            api_key_5 = self._extract_api_key("google_gemini_embedding_key_5")
+            api_key_6 = self._extract_api_key("google_gemini_embedding_key_6")
+            api_key_7 = self._extract_api_key("google_gemini_embedding_key_7")
+            # api_key_8 = self._extract_api_key("google_gemini_embedding_key_8")
+
             api_keys.append(api_key_1)
             api_keys.append(api_key_2)
             api_keys.append(api_key_3)
+            api_keys.append(api_key_4)
+            api_keys.append(api_key_5)
+            api_keys.append(api_key_6)
+            api_keys.append(api_key_7)
+            # api_keys.append(api_key_8)
         return api_keys
 
     def transform(self, df: pl.DataFrame,  **kwargs) -> pl.DataFrame:

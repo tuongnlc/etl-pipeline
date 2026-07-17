@@ -7,7 +7,7 @@ spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.stock_price
       extractor_column_filter: is_load_to_qdrant
-      filter_value: "0"
+      filter_value: "1"
   transform:
     kind: QdrantTransformConfig
     spec:
@@ -45,6 +45,10 @@ spec:
             column_mappings: 
               tên cổ phiếu: stock_id
               ngày giao dịch: trading_date
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
         
   loader:
     kind: QdrantLoaderConfig
