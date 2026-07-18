@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: 2026_07_21_fs_income_statement_type_four_qdrant_bronze
+spec:
+  dag_id: 2026_07_21_fs_income_statement_type_four_qdrant_bronze
+  schedule: None
+  start_date: 2026-07-14
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["Bronze", "Finance Statement", "Income Statement", "Type Four", "Qdrant"]
+  task_factories:
+    - id: job
+      factory_type: BronzePostgreQdrantFactory
+      args:
+        task_id: "bronze_fs_income_statement_type_four"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/finance_statement/income_statement/bronze_fs_income_statement_type_four.yaml 
