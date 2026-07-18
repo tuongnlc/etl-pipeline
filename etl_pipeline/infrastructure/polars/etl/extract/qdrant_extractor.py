@@ -1,7 +1,8 @@
+from datetime import datetime
 from etl_pipeline.templates.etl.extract.qdrant_extractor import QdrantExtractor
 import polars as pl
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import DatetimeRange, Filter, FieldCondition, MatchValue, Range
 from typing import Optional
 
 
@@ -32,6 +33,18 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
         self.max_records = max_records
         self.with_vectors = with_vectors if with_vectors is not None else False
 
+    @staticmethod
+    def is_datetime_str(val):
+        if not isinstance(val, str):
+            return False
+        try:
+            # Thử parse nhanh xem có đúng định dạng ngày tháng không
+            # Định dạng 'YYYY-MM-DD' hoặc có thêm giờ đều được ngầm hiểu
+            datetime.fromisoformat(val.replace("Z", "+00:00"))
+            return True
+        except ValueError:
+            return False
+
     def _build_payload_filter(
         self
     ) -> Filter:
@@ -44,12 +57,41 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
         must_conditions = []
 
         for key, value in self.payload_filter.items():
-            must_conditions.append(
-                FieldCondition(
-                    key=key,
-                    match=MatchValue(value=value),
+            if isinstance(value, dict) and any(k in value for k in ["gt", "gte", "lt", "lte"]):
+            # 1. CHECK IF ANY VALUE IS DATETIME STRING
+                if any(self.is_datetime_str(v) for v in value.values() if v is not None):
+                    must_conditions.append(
+                        FieldCondition(
+                            key=key,
+                            range=DatetimeRange(
+                                gte=value.get("gte"),
+                                gt=value.get("gt"),
+                                lte=value.get("lte"),
+                                lt=value.get("lt")
+                            )
+                        )
+                    )
+                else:
+                    # 2. USE RANGE IF VALUES ARE NUMERIC
+                    must_conditions.append(
+                        FieldCondition(
+                            key=key,
+                            range=Range(
+                                gte=value.get("gte"),
+                                gt=value.get("gt"),
+                                lte=value.get("lte"),
+                                lt=value.get("lt")
+                            )
+                        )
+                    )
+            else:
+                # 3. USE DEFAULT MATCH IF VALUES ARE NOT DATETIME STRING
+                must_conditions.append(
+                    FieldCondition(
+                        key=key,
+                        match=MatchValue(value=value),
+                    )
                 )
-            )
 
         return Filter(must=must_conditions)
 
@@ -108,7 +150,6 @@ class QdrantExtractorWithPayloadFilter(QdrantExtractor):
                 break
 
         output_df = pl.DataFrame(rows) if rows else pl.DataFrame()
-
         print(f"NUMBER of records extracted: {len(rows)}")
 
         return output_df

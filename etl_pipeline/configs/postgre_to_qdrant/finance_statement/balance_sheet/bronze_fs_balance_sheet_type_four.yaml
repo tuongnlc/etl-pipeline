@@ -1,0 +1,202 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_balance_sheet_type_four
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm" 
+              quarter: "quý"
+              cash_gold_and_valuables: "i. tiền mặt, chứng từ có giá trị, ngoại tệ, kim loại quý, đá quý"
+              balances_with_the_sbv: "ii. tiền gửi tại ngân hàng nhà nước"
+              treasury_bills_and_eligible_short_term_valuable_papers: "iii. tín phiếu kho bạc và các giấy tờ có giá ngắn hạn đủ tiêu chuẩn khác"
+              total_placements_with_and_loans_to_other_cis: "iv. tiền, vàng gửi tại các tổ chức tín dụng khác và cho vay các tổ chức tín dụng khác"
+              placements_with_other_credit_institutions: "1. tiền, vàng gửi tại các tổ chức tín dụng khác"
+              loans_to_other_credit_institutions: "2. cho vay các tổ chức tín dụng khác"
+              allowance_for_loans_to_other_credit_institutions: "3. dự phòng rủi ro cho vay các tổ chức tín dụng khác"
+              total_trading_securities: "v. chứng khoán kinh doanh"
+              trading_securities_gross: "1. chứng khoán kinh doanh"
+              allowance_for_diminution_in_value_of_trading_securities: "2. dự phòng giảm giá chứng khoán kinh doanh"
+              derivative_financial_instruments_and_other_assets: "vi. các công cụ tài chính phái sinh và các tài sản tài chính khác"
+              total_loans_to_customers: "vii. cho vay khách hàng"
+              loans_to_customers_gross: "1. cho vay khách hàng"
+              allowance_for_loans_to_customers: "2. dự phòng rủi ro cho vay khách hàng"
+              total_investment_securities: "viii. chứng khoán đầu tư"
+              available_for_sale_investment_securities: "1. chứng khoán đầu tư sẵn sàng để bán" 
+              held_to_maturity_investment_securities: "2. chứng khoán đầu tư giữ đến ngày đáo hạn" #2. chứng khoán đầu tư giữ đến ngày kết hạn
+              allowance_for_diminution_in_value_of_investment_securities: "3. dự phòng giảm giá chứng khoán đầu tư"
+              total_long_term_investments: "ix. góp vốn đầu tư dài hạn"
+              investments_in_subsidiaries: "1. đầu tư vào công ty con"
+              investments_in_joint_ventures: "2. góp vốn liên doanh"
+              investments_in_associates: "3. đầu tư vào công ty liên kết"
+              other_long_term_investments: "4. đầu tư dài hạn khác"
+              allowance_for_diminution_in_value_of_long_term_investments: "5. dự phòng giảm giá đầu tư dài hạn"
+              total_fixed_assets: "x. tài sản cố định"
+              tangible_fixed_assets: "1. tài sản cố định hữu hình"
+              tangible_fixed_assets_cost: "nguyên giá"
+              tangible_fixed_assets_accumulated_depreciation: "giá trị hao mòn lũy kế"
+              finance_lease_fixed_assets: "2. tài sản cố định thuê tài chính"
+              finance_lease_fixed_assets_cost: "nguyên giá (2)"
+              finance_lease_fixed_assets_accumulated_depreciation: "giá trị hao mòn lũy kế (2)"
+              intangible_fixed_assets: "3. tài sản cố định vô hình"
+              intangible_fixed_assets_cost: "nguyên giá (3)"
+              intangible_fixed_assets_accumulated_amortization: "giá trị hao mòn lũy kế (3)"
+              construction_in_progress: "5. chi phí xây dựng cơ bản dở dang"
+              investment_properties: "xi. bất động sản đầu tư"
+              investment_properties_cost: "nguyên giá (4)"
+              investment_properties_accumulated_depreciation: "giá trị hao mòn lũy kế (4)"
+              total_other_assets: "xii. tài sản có khác"
+              other_receivables: "1. các khoản phải thu"
+              accrued_interest_and_fees_receivable: "2. các khoản lãi, phí phải thu"
+              deferred_corporate_income_tax_assets: "3. tài sản thuế tndn hoãn lại"
+              other_asset_items: "4. tài sản có khác"
+              goodwill: "trong đó: lợi thế thương mại"
+              allowance_for_other_on_balance_sheet_assets: "5. các khoản dự phòng rủi ro cho các tài sản có nội bảng khác"
+              total_assets: "tổng cộng tài sản"
+              borrowings_from_the_government_and_the_sbv: "i. các khoản nợ chính phủ và ngân hàng nhà nước"
+              total_deposits_and_borrowings_from_other_cis: "ii. tiền gửi và cho vay các tổ chức tín dụng khác"
+              deposits_from_other_credit_institutions: "1. tiền gửi các tổ chức tín dụng khác"
+              borrowings_from_other_credit_institutions: "2. vay các tổ chức tín dụng khác"
+              deposits_from_customers: "iii. tiền gửi khách hàng"
+              derivatives_and_other_fin_liab: "iv. các công cụ tài chính phái sinh và các khoản nợ tài chính khác"
+              entrusted_funds_and_grants: "v. vốn tài trợ, uỷ thác đầu tư mà ngân hàng chịu rủi ro"
+              valuable_papers_issued: "vi. phát hành giấy tờ có giá"
+              total_other_liabilities: "vii. các khoản nợ khác"
+              accrued_interest_and_fees_payable: "1. các khoản lãi, phí phải trả"
+              deferred_corporate_income_tax_liabilities: "2.thuế tndn hoãn lại phải trả"
+              other_payables_and_liabilities: "3. các khoản phải trả và công nợ khác"
+              other_provisions: "4. dự phòng rủi ro khác"
+              total_capital_and_reserves: "viii. vốn và các quỹ"
+              credit_institution_capital: "1. vốn của tổ chức tín dụng"
+              charter_capital: "vốn điều lệ"
+              capital_expenditure_fund: "vốn đầu tư xây dựng cơ bản"
+              share_premium: "thặng dư vốn cổ phần"
+              treasury_shares: "cổ phiếu quỹ"
+              preferred_shares: "cổ phiếu ưu đãi"
+              other_capital: "vốn khác"
+              funds_of_the_credit_institution: "2. quỹ của tổ chức tín dụng"
+              foreign_exchange_differences: "3. chênh lệch tỷ giá hối đoái"
+              asset_revaluation_differences: "4. chênh lệch đánh giá lại tài sản"
+              retained_earnings_or_accumulated_losses: "5. lợi nhuận chưa phân phối/lỗ lũy kế"
+              other_reserves_and_funds: "6. nguồn kinh phí, quỹ khác"
+              non_controlling_interests: "ix. lợi ích của cổ đông thiểu số"
+              total_liabilities_and_equity: "tổng cộng nguồn vốn"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - tên cổ phiếu
+              - năm
+              - quý
+              - i. tiền mặt, chứng từ có giá trị, ngoại tệ, kim loại quý, đá quý
+              - ii. tiền gửi tại ngân hàng nhà nước
+              - iii. tín phiếu kho bạc và các giấy tờ có giá ngắn hạn đủ tiêu chuẩn khác
+              - iv. tiền, vàng gửi tại các tổ chức tín dụng khác và cho vay các tổ chức tín dụng khác
+              - "1. tiền, vàng gửi tại các tổ chức tín dụng khác"
+              - "2. cho vay các tổ chức tín dụng khác"
+              - "3. dự phòng rủi ro cho vay các tổ chức tín dụng khác"
+              - "v. chứng khoán kinh doanh" #v. chứng khoán kinh doanh
+              - "1. chứng khoán kinh doanh"
+              - "2. dự phòng giảm giá chứng khoán kinh doanh"
+              - "vi. các công cụ tài chính phái sinh và các tài sản tài chính khác"
+              - "vii. cho vay khách hàng"
+              - "1. cho vay khách hàng"
+              - "2. dự phòng rủi ro cho vay khách hàng"
+              - "viii. chứng khoán đầu tư"
+              - "1. chứng khoán đầu tư sẵn sàng để bán"
+              - "2. chứng khoán đầu tư giữ đến ngày đáo hạn"
+              - "3. dự phòng giảm giá chứng khoán đầu tư"
+              - "ix. góp vốn đầu tư dài hạn"
+              - "1. đầu tư vào công ty con"
+              - "2. góp vốn liên doanh"
+              - "3. đầu tư vào công ty liên kết"
+              - "4. đầu tư dài hạn khác"
+              - "5. dự phòng giảm giá đầu tư dài hạn"
+              - "x. tài sản cố định"
+              - "1. tài sản cố định hữu hình"
+              - "nguyên giá"
+              - "giá trị hao mòn lũy kế"
+              - "2. tài sản cố định thuê tài chính"
+              - "nguyên giá (2)"
+              - "giá trị hao mòn lũy kế (2)"
+              - "3. tài sản cố định vô hình"
+              - "nguyên giá (3)"
+              - "giá trị hao mòn lũy kế (3)"
+              - "5. chi phí xây dựng cơ bản dở dang"
+              - "xi. bất động sản đầu tư"
+              - "nguyên giá (4)"
+              - "giá trị hao mòn lũy kế (4)"
+              - "xii. tài sản có khác"
+              - "1. các khoản phải thu"
+              - "2. các khoản lãi, phí phải thu"
+              - "3. tài sản thuế tndn hoãn lại"
+              - "4. tài sản có khác"
+              - "trong đó: lợi thế thương mại"
+              - "5. các khoản dự phòng rủi ro cho các tài sản có nội bảng khác"
+              - "tổng cộng tài sản"
+              - "i. các khoản nợ chính phủ và ngân hàng nhà nước"
+              - "ii. tiền gửi và cho vay các tổ chức tín dụng khác"
+              - "1. tiền gửi các tổ chức tín dụng khác"
+              - "2. vay các tổ chức tín dụng khác"
+              - "iii. tiền gửi khách hàng"
+              - "iv. các công cụ tài chính phái sinh và các khoản nợ tài chính khác"
+              - "v. vốn tài trợ, uỷ thác đầu tư mà ngân hàng chịu rủi ro"
+              - "vi. phát hành giấy tờ có giá"
+              - "vii. các khoản nợ khác"
+              - "1. các khoản lãi, phí phải trả"
+              - "2.thuế tndn hoãn lại phải trả"
+              - "3. các khoản phải trả và công nợ khác"
+              - "4. dự phòng rủi ro khác"
+              - "viii. vốn và các quỹ"
+              - "1. vốn của tổ chức tín dụng"
+              - "vốn điều lệ"
+              - "vốn đầu tư xây dựng cơ bản"
+              - "thặng dư vốn cổ phần"
+              - "cổ phiếu quỹ"
+              - "cổ phiếu ưu đãi"
+              - "vốn khác"
+              - "2. quỹ của tổ chức tín dụng"
+              - "3. chênh lệch tỷ giá hối đoái"
+              - "4. chênh lệch đánh giá lại tài sản"
+              - "5. lợi nhuận chưa phân phối/lỗ lũy kế"
+              - "6. nguồn kinh phí, quỹ khác"
+              - "ix. lợi ích của cổ đông thiểu số"
+              - "tổng cộng nguồn vốn"
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "balance_sheet"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded
