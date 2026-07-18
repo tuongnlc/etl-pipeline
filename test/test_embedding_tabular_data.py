@@ -12,7 +12,7 @@ extract = QdrantExtractorWithPayloadFilter(
     collection_name="stock_price_embedded",
     payload_filter={
         "is_embedded": 0,
-        "document_type": "cash_flow_statement",
+        "document_type": "income_statement",
     },
     # with_vectors=["dense"],
     # with_payload=True,

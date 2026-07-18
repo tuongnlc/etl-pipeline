@@ -1,0 +1,98 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_income_statement_type_one
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm"
+              quarter: "quý"
+              gross_revenue: "1. tổng doanh thu hoạt động kinh doanh"
+              revenue_deductions: "2. các khoản giảm trừ doanh thu"
+              net_revenue: "3. doanh thu thuần (1)-(2)"
+              cost_of_goods_sold: "4. giá vốn hàng bán"
+              gross_profit: "5. lợi nhuận gộp (3)-(4)"
+              financial_income: "6. doanh thu hoạt động tài chính"
+              financial_expenses: "7. chi phí tài chính"
+              interest_expense: "trong đó: chi phí lãi vay"
+              jv_associates_profit: "8. phần lợi nhuận hoặc lỗ trong công ty liên kết liên doanh"
+              selling_expenses: "9. chi phí bán hàng"
+              general_and_administrative_expenses: "10. chi phí quản lý doanh nghiệp"
+              net_operating_profit: "11. lợi nhuận thuần từ hoạt động kinh doanh (5)+(6)-(7)+(8)-(9)-(10)"
+              other_income: "12. thu nhập khác"
+              other_expenses: "13. chi phí khác"
+              other_profit: "14. lợi nhuận khác (12)-(13)"
+              total_accounting_profit_before_tax: "15. tổng lợi nhuận kế toán trước thuế (11)+(14)"
+              current_corporate_income_tax_expense: "16. chi phí thuế tndn hiện hành"
+              deferred_corporate_income_tax_expense: "17. chi phí thuế tndn hoãn lại"
+              corporate_income_tax_expense: "18. chi phí thuế tndn (16)+(17)"
+              net_profit_after_corporate_income_tax: "19. lợi nhuận sau thuế thu nhập doanh nghiệp (15)-(18)"
+              non_controlling_interests: "20. lợi nhuận sau thuế của cổ đông không kiểm soát"
+              net_profit_parent: "21. lợi nhuận sau thuế của cổ đông của công ty mẹ (19)-(20)"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - "tên cổ phiếu"
+              - "năm"
+              - "quý"
+              - "1. tổng doanh thu hoạt động kinh doanh"
+              - "2. các khoản giảm trừ doanh thu"
+              - "3. doanh thu thuần (1)-(2)"
+              - "4. giá vốn hàng bán"
+              - "5. lợi nhuận gộp (3)-(4)"
+              - "6. doanh thu hoạt động tài chính"
+              - "7. chi phí tài chính"
+              - "trong đó: chi phí lãi vay"
+              - "8. phần lợi nhuận hoặc lỗ trong công ty liên kết liên doanh"
+              - "9. chi phí bán hàng"
+              - "10. chi phí quản lý doanh nghiệp"
+              - "11. lợi nhuận thuần từ hoạt động kinh doanh (5)+(6)-(7)+(8)-(9)-(10)"
+              - "12. thu nhập khác"
+              - "13. chi phí khác"
+              - "14. lợi nhuận khác (12)-(13)"
+              - "15. tổng lợi nhuận kế toán trước thuế (11)+(14)"
+              - "16. chi phí thuế tndn hiện hành"
+              - "17. chi phí thuế tndn hoãn lại"
+              - "18. chi phí thuế tndn (16)+(17)"
+              - "19. lợi nhuận sau thuế thu nhập doanh nghiệp (15)-(18)"
+              - "20. lợi nhuận sau thuế của cổ đông không kiểm soát"
+              - "21. lợi nhuận sau thuế của cổ đông của công ty mẹ (19)-(20)"
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "income_statement"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded
