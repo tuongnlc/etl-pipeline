@@ -5,7 +5,7 @@ spec:
     kind: PostgreDBExtractorWithPolarsConfig
     spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
-      source_table_name: public.fs_financial_statistics_overview_type_one
+      source_table_name: public.fs_financial_statistics_overview_type_four
       extractor_column_filter: is_load_to_qdrant
       filter_value: "0"
   transform:
@@ -23,21 +23,22 @@ spec:
               p_b: "Hệ số giá trên giá trị sổ sách p/b"
               eps: "Thu nhập trên mỗi cổ phiếu eps"
               net_profit_margin: "tỷ lệ lãi ròng (%)"
-              gross_profit_margin: "tỷ lệ lãi gộp (%)"
-              ebit_margin: "tỷ lệ ebit (%)"
-              operating_profit_margin: "tỷ lệ lãi từ hoạt động kinh doanh (%)"
-              current_ratio: "thanh toán hiện hành"
-              quick_ratio: "thanh toán nhanh"
-              interest_coverage_ratio: "thanh toán lãi vay"
-              debt_to_equity: "tỷ lệ nợ trên vốn chủ sỡ hữu"
-              roa: "Tỷ suất sinh lời trên tổng tài sản roa (%)"
-              roe: "Tỷ suất sinh lời trên vốn chủ sở hữu roe (%)"
-              roic: "Tỷ suất sinh lời trên vốn đầu tư roic (%)"
-              roce: "Tỷ suất sinh lời trên vốn sử dụng roce (%)"
-              total_asset_turnover: "vòng quay tổng tài sản"
-              inventory_turnover: "vòng quay hàng tồn kho"
-              receivables_turnover: "vòng quay các khoản phải thu"
-              short_term_asset_turnover: "vòng quay tài sản ngắn hạn"
+              yoea: "Tỷ suất sinh lời của tài sản sinh lãi yoea (%)"
+              nim: "Tỷ lệ thu nhập lãi thuần nim (%)"
+              cof: "Chi phí vốn cof"
+              lar: "Tỷ lệ cho vay trên tổng tài sản lar"
+              ldr: "Tỷ lệ dư nợ tín dụng trên vốn huy động ldr"
+              clr: "Tỷ lệ khả năng chi trả cốt lõi clr"
+              cta: "Tỷ lệ vốn trên tổng tài sản cta"
+              elr: "Tỷ lệ vốn chủ sở hữu trên tổng dư nợ cho vay elr"
+              roa: "Tỷ suất sinh lời trên tổng tài sản roa"
+              roe: "Tỷ suất sinh lời trên vốn chủ sở hữu roe"
+              cir: "Tỷ lệ chi phí trên thu nhập cir"
+              llrl: "Tỷ lệ dự phòng rủi ro tín dụng trên tổng dư nợ llrl"
+              llrnpl: "Tỷ lệ bao phủ nợ xấu llrnpl"
+              npl_ratio: "Tỷ lệ nợ xấu npl_ratio"
+              pcl: "Chi phí dự phòng rủi ro tín dụng pcl"
+            
         - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
           spec:
             concat_columns:
@@ -49,21 +50,21 @@ spec:
               - "Hệ số giá trên giá trị sổ sách p/b"
               - "Thu nhập trên mỗi cổ phiếu eps"
               - "tỷ lệ lãi ròng (%)"
-              - "tỷ lệ lãi gộp (%)"
-              - "tỷ lệ ebit (%)"
-              - "tỷ lệ lãi từ hoạt động kinh doanh (%)"
-              - "thanh toán hiện hành"
-              - "thanh toán nhanh"
-              - "thanh toán lãi vay"
-              - "tỷ lệ nợ trên vốn chủ sỡ hữu"
-              - "Tỷ suất sinh lời trên tổng tài sản roa (%)"
-              - "Tỷ suất sinh lời trên vốn chủ sở hữu roe (%)"
-              - "Tỷ suất sinh lời trên vốn đầu tư roic (%)"
-              - "Tỷ suất sinh lời trên vốn sử dụng roce (%)"
-              - "vòng quay tổng tài sản"
-              - "vòng quay hàng tồn kho"
-              - "vòng quay các khoản phải thu"
-              - "vòng quay tài sản ngắn hạn"
+              - "Tỷ suất sinh lời của tài sản sinh lãi yoea (%)"
+              - "Tỷ lệ thu nhập lãi thuần nim (%)"
+              - "Chi phí vốn cof"
+              - "Tỷ lệ cho vay trên tổng tài sản lar"
+              - "Tỷ lệ dư nợ tín dụng trên vốn huy động ldr"
+              - "Tỷ lệ khả năng chi trả cốt lõi clr"
+              - "Tỷ lệ vốn trên tổng tài sản cta"
+              - "Tỷ lệ vốn chủ sở hữu trên tổng dư nợ cho vay elr"
+              - "Tỷ suất sinh lời trên tổng tài sản roa"
+              - "Tỷ suất sinh lời trên vốn chủ sở hữu roe"
+              - "Tỷ lệ chi phí trên thu nhập cir"
+              - "Tỷ lệ dự phòng rủi ro tín dụng trên tổng dư nợ llrl"
+              - "Tỷ lệ bao phủ nợ xấu llrnpl"
+              - "Tỷ lệ nợ xấu npl_ratio"
+              - "Chi phí dự phòng rủi ro tín dụng pcl"
             new_column: chunk_content
         - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
           spec:
