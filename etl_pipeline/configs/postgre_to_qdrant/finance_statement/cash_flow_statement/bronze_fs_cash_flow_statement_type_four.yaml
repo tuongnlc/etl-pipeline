@@ -1,0 +1,154 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_cash_flow_statement_type_four
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm"
+              quarter: "quý"
+
+              # ==================== I. DÒNG TIỀN TỪ HOẠT ĐỘNG KINH DOANH ====================
+              interest_and_similar_income_received: "thu nhập lãi và các khoản thu nhập tương tự nhận được"
+              interest_and_similar_expenses_paid: "chi phí lãi và các chi phí tương tự đã trả"
+              fee_and_commission_income_received: "thu nhập từ hoạt động dịch vụ nhận được"
+              net_gain_loss_from_trading_activities: "chênh lệch số tiền thực thu/ thực chi từ hoạt động kinh doanh (ngoại tệ, vàng bạc, chứng khoán)"
+              other_operating_income: "thu nhập khác"
+              cash_recovered_from_bad_debts_written_off: "tiền thu các khoản nợ đã được xử lý xóa, bù đắp bằng nguồn rủi ro"
+              cash_paid_to_employees_and_for_operating_expenses: "tiền chi trả cho nhân viên và hoạt động quản lý, công vụ"
+              corporate_income_tax_paid: "tiền thuế thu nhập thực nộp trong kỳ"
+              operating_cash_flows_before_working_capital_changes: "lưu chuyển tiền thuần từ hoạt động kinh doanh trước những thay đổi về tài sản và vốn lưu động"
+              change_in_deposits_and_loans_to_other_cits: "(tăng)/giảm các khoản tiền, vàng gửi và cho vay các tổ chức tín dụng khác"
+              change_in_trading_securities: "(tăng)/giảm các khoản về kinh doanh chứng khoán"
+              change_in_derivative_financial_assets: "(tăng)/giảm các công cụ tài chính phái sinh và các tài sản tài chính khác"
+              change_in_loans_to_customers: "(tăng)/giảm các khoản cho vay khách hàng"
+              change_in_provisions_for_credit_losses: "(tăng)/giảm nguồn dự phòng để bù bắp tổn thất các khoản"
+              change_in_other_operating_assets: "(tăng)/giảm khác về tài sản hoạt động"
+              change_in_due_to_government_and_sbv: "tăng/(giảm) các khoản nợ chính phủ và ngân hàng nhà nước"
+              change_in_deposits_and_borrowings_from_other_cits: "tăng/(giảm) các khoản tiền gửi, tiền vay các tổ chức tín dụng"
+              change_in_deposits_from_customers: "tăng/(giảm) tiền gửi của khách hàng"
+              change_in_valuable_papers_issued: "tăng/(giảm) phát hành giấy tờ có giá"
+              change_in_entrusted_funds_and_loans: "tăng/(giảm) vốn tài trợ, ủy thác đầu tư, cho vay mà tổ chức tín dụng chịu rủi ro"
+              change_in_derivative_financial_liabilities: "tăng/(giảm) các công cụ tài chính phái sinh và các khoản nợ tài chính khác"
+              change_in_other_operating_liabilities: "tăng/(giảm) khác về công nợ hoạt động"
+              payments_from_welfare_and_other_funds: "chi từ các quỹ của tổ chức tín dụng"
+              net_cash_flows_from_operating_activities: "lưu chuyển tiền thuần từ hoạt động kinh doanh"
+
+              # ==================== II. DÒNG TIỀN TỪ HOẠT ĐỘNG ĐẦU TƯ ====================
+              cash_proceeds_from_disposal_of_subsidiaries: "tiền giảm do bán công ty con"
+              cash_paid_for_fixed_assets: "mua sắm tài sản cố định"
+              cash_received_from_disposal_of_fixed_assets: "tiền thu từ thanh lý, nhượng bán tài sản cố định"
+              cash_paid_for_disposal_of_fixed_assets: "tiền chi từ thanh lý, nhượng bán tài sản cố định"
+              cash_paid_for_investment_properties: "mua sắm bất động sản đầu tư"
+              cash_received_from_disposal_of_investment_properties: "tiền thu từ bán, thanh lý bất động sản đầu tư"
+              cash_paid_for_disposal_of_investment_properties: "tiền chi ra do bán, thanh lý bất động sản đầu tư"
+              cash_paid_for_equity_investments: "tiền chi đầu tư, góp vốn vào các đơn vị khác"
+              cash_received_from_equity_investments: "tiền thu đầu tư, góp vốn vào các đơn vị khác"
+              dividends_and_profits_received: "tiền thu cổ tức và lợi nhuận được chia từ các khoản đầu tư, góp vốn dài hạn"
+              net_cash_flows_from_investing_activities: "lưu chuyển tiền thuần từ hoạt động đầu tư"
+
+              # ==================== III. DÒNG TIỀN TỪ HOẠT ĐỘNG TÀI CHÍNH ====================
+              cash_received_from_issuing_shares: "tăng vốn cổ phần từ góp vốn và phát hành cổ phiếu"
+              cash_received_from_long_term_eligible_papers_and_loans: "tiền thu từ phát hành giấy tờ có giá dài hạn có đủ điều kiện tính vào vốn tự có và các khoản vốn vay dài hạn khác"
+              cash_repayments_of_long_term_eligible_papers_and_loans: "tiền chi thanh toán giấy tờ có giá dài hạn có đủ điều kiện tính vào vốn tự có và các khoản vốn vay dài hạn khác"
+              dividends_paid_to_shareholders: "cổ tức trả cho cổ đông, lợi nhuận đã chia"
+              cash_paid_for_treasury_shares_buyback: "tiền chi ra mua cổ phiếu ngân quỹ"
+              cash_received_from_disposal_of_treasury_shares: "tiền thu được do bán cổ phiếu ngân quỹ"
+              net_cash_flows_from_financing_activities: "lưu chuyển tiền từ hoạt động tài chính"
+
+              # ==================== TỔNG KẾT CUỐI KỲ ====================
+              net_change_in_cash: "lưu chuyển tiền thuần trong kỳ"
+              cash_and_cash_equivalents_at_start_of_period: "tiền và tương đương tiền đầu kỳ"
+              effect_of_exchange_rate_changes: "ảnh hưởng của thay đổi tỷ giá hối đoái quy đổi ngoại tệ"
+              cash_and_cash_equivalents_at_end_of_period: "tiền và tương đương tiền cuối kỳ"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - "tên cổ phiếu"
+              - "năm"
+              - "quý"
+              - "thu nhập lãi và các khoản thu nhập tương tự nhận được"
+              - "chi phí lãi và các chi phí tương tự đã trả"
+              - "thu nhập từ hoạt động dịch vụ nhận được"
+              - "chênh lệch số tiền thực thu/ thực chi từ hoạt động kinh doanh (ngoại tệ, vàng bạc, chứng khoán)"
+              - "thu nhập khác"
+              - "tiền thu các khoản nợ đã được xử lý xóa, bù đắp bằng nguồn rủi ro"
+              - "tiền chi trả cho nhân viên và hoạt động quản lý, công vụ"
+              - "tiền thuế thu nhập thực nộp trong kỳ"
+              - "lưu chuyển tiền thuần từ hoạt động kinh doanh trước những thay đổi về tài sản và vốn lưu động"
+              - "(tăng)/giảm các khoản tiền, vàng gửi và cho vay các tổ chức tín dụng khác"
+              - "(tăng)/giảm các khoản về kinh doanh chứng khoán"
+              - "(tăng)/giảm các công cụ tài chính phái sinh và các tài sản tài chính khác"
+              - "(tăng)/giảm các khoản cho vay khách hàng"
+              - "(tăng)/giảm nguồn dự phòng để bù bắp tổn thất các khoản"
+              - "(tăng)/giảm khác về tài sản hoạt động"
+              - "tăng/(giảm) các khoản nợ chính phủ và ngân hàng nhà nước"
+              - "tăng/(giảm) các khoản tiền gửi, tiền vay các tổ chức tín dụng"
+              - "tăng/(giảm) tiền gửi của khách hàng"
+              - "tăng/(giảm) phát hành giấy tờ có giá"
+              - "tăng/(giảm) vốn tài trợ, ủy thác đầu tư, cho vay mà tổ chức tín dụng chịu rủi ro"
+              - "tăng/(giảm) các công cụ tài chính phái sinh và các khoản nợ tài chính khác"
+              - "tăng/(giảm) khác về công nợ hoạt động"
+              - "chi từ các quỹ của tổ chức tín dụng"
+              - "lưu chuyển tiền thuần từ hoạt động kinh doanh"
+              - "tiền giảm do bán công ty con"
+              - "mua sắm tài sản cố định"
+              - "tiền thu từ thanh lý, nhượng bán tài sản cố định"
+              - "tiền chi từ thanh lý, nhượng bán tài sản cố định"
+              - "mua sắm bất động sản đầu tư"
+              - "tiền thu từ bán, thanh lý bất động sản đầu tư"
+              - "tiền chi ra do bán, thanh lý bất động sản đầu tư"
+              - "tiền chi đầu tư, góp vốn vào các đơn vị khác"
+              - "tiền thu đầu tư, góp vốn vào các đơn vị khác"
+              - "tiền thu cổ tức và lợi nhuận được chia từ các khoản đầu tư, góp vốn dài hạn"
+              - "lưu chuyển tiền thuần từ hoạt động đầu tư"
+              - "tăng vốn cổ phần từ góp vốn và phát hành cổ phiếu"
+              - "tiền thu từ phát hành giấy tờ có giá dài hạn có đủ điều kiện tính vào vốn tự có và các khoản vốn vay dài hạn khác"
+              - "tiền chi thanh toán giấy tờ có giá dài hạn có đủ điều kiện tính vào vốn tự có và các khoản vốn vay dài hạn khác"
+              - "cổ tức trả cho cổ đông, lợi nhuận đã chia"
+              - "tiền chi ra mua cổ phiếu ngân quỹ"
+              - "tiền thu được do bán cổ phiếu ngân quỹ"
+              - "lưu chuyển tiền từ hoạt động tài chính"
+              - "lưu chuyển tiền thuần trong kỳ"
+              - "tiền và tương đương tiền đầu kỳ"
+              - "ảnh hưởng của thay đổi tỷ giá hối đoái quy đổi ngoại tệ"
+              - "tiền và tương đương tiền cuối kỳ"
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "cash_flow_statement"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded

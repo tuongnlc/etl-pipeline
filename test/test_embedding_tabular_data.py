@@ -11,8 +11,8 @@ extract = QdrantExtractorWithPayloadFilter(
     qdrant_url="http://localhost:6333",
     collection_name="stock_price_embedded",
     payload_filter={
-        # "is_embedded": 0,
-        "document_type": "balance_sheet",
+        "is_embedded": 0,
+        "document_type": "cash_flow_statement",
     },
     # with_vectors=["dense"],
     # with_payload=True,
