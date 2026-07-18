@@ -1,0 +1,100 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_income_statement_type_four
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm"
+              quarter: "quý"
+              net_interest_income: "thu nhập lãi thuần"
+              interest_and_similar_income: "thu nhập từ lãi và các khoản thu nhập tương tự"
+              interest_and_similar_expenses: "chi phí lãi và các chi phí tương tự"
+              net_fee_and_commission_income: "lãi/lỗ thuần từ hoạt động dịch vụ"
+              fee_and_commission_income: "thu nhập từ hoạt động dịch vụ"
+              fee_and_commission_expenses: "chi phí hoạt động dịch vụ"
+              net_gain_loss_from_foreign_currency_and_gold_dealings: "lãi/lỗ thuần từ hoạt động kinh doanh ngoại hối"
+              net_gain_loss_from_trading_securities: "lãi/lỗ thuần từ mua bán chứng khoán kinh doanh"
+              net_gain_loss_from_investment_securities: "lãi/lỗ thuần từ mua bán chứng khoán đầu tư"
+              net_gain_loss_from_other_operating_activities: "lãi/lỗ thuần từ hoạt động khác"
+              other_operating_income: "thu nhập từ hoạt động khác"
+              other_operating_expenses: "chi phí hoạt động khác"
+              income_from_long_term_investments: "thu nhập từ hoạt động góp vốn mua cổ phần"
+              operating_expenses: "chi phí hoạt động"
+              net_operating_profit_before_provision_for_credit_losses: "lợi nhuận từ hoạt động kinh doanh trước chi phí dự phòng rủi ro tín dụng"
+              provision_expenses_for_credit_losses: "chi phí dự phòng rủi ro tín dụng"
+              total_accounting_profit_before_tax: "tổng lợi nhuận trước thuế"
+              corporate_income_tax_expense: "chi phí thuế tndn"
+              current_corporate_income_tax_expense: "chi phí thuế thu nhập hiện hành"
+              deferred_corporate_income_tax_expense: "chi phí thuế tndn giữ lại"
+              net_profit_after_corporate_income_tax: "lợi nhuận sau thuế thu nhập doanh nghiệp"
+              non_controlling_interests_and_preferred_dividends: "lợi ích của cổ đông thiểu số và cổ tức ưu đãi"
+              net_profit_parent: "lợi nhuận sau thuế sau khi điều chỉnh lợi ích của cổ đông thiểu số và cổ tức ưu đãi"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - "tên cổ phiếu"
+              - "năm"
+              - "quý"
+              - "thu nhập lãi thuần"
+              - "thu nhập từ lãi và các khoản thu nhập tương tự"
+              - "chi phí lãi và các chi phí tương tự"
+              - "lãi/lỗ thuần từ hoạt động dịch vụ"
+              - "thu nhập từ hoạt động dịch vụ"
+              - "chi phí hoạt động dịch vụ"
+              - "lãi/lỗ thuần từ hoạt động kinh doanh ngoại hối"
+              - "lãi/lỗ thuần từ mua bán chứng khoán kinh doanh"
+              - "lãi/lỗ thuần từ mua bán chứng khoán đầu tư"
+              - "lãi/lỗ thuần từ hoạt động khác"
+              - "thu nhập từ hoạt động khác"
+              - "chi phí hoạt động khác"
+              - "thu nhập từ hoạt động góp vốn mua cổ phần"
+              - "chi phí hoạt động"
+              - "lợi nhuận từ hoạt động kinh doanh trước chi phí dự phòng rủi ro tín dụng"
+              - "chi phí dự phòng rủi ro tín dụng"
+              - "tổng lợi nhuận trước thuế"
+              - "chi phí thuế tndn"
+              - "chi phí thuế thu nhập hiện hành"
+              - "chi phí thuế tndn giữ lại"
+              - "lợi nhuận sau thuế thu nhập doanh nghiệp"
+              - "lợi ích của cổ đông thiểu số và cổ tức ưu đãi"
+              - "lợi nhuận sau thuế sau khi điều chỉnh lợi ích của cổ đông thiểu số và cổ tức ưu đãi"
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "income_statement"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded
