@@ -1,0 +1,290 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_balance_sheet_type_one
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm"
+              quarter: "quý"
+              current_assets: "a. tài sản lưu động và đầu tư ngắn hạn"
+              cash_and_cash_equivalents: "i. tiền và các khoản tương đương tiền"
+              cash: "1. tiền"
+              cash_equivalents: "2. các khoản tương đương tiền"
+              short_term_financial_investments: "ii. các khoản đầu tư tài chính ngắn hạn"
+              trading_securities: "1. chứng khoán kinh doanh"
+              provision_for_diminution_in_value_of_trading_securities: "2. dự phòng giảm giá chứng khoán kinh doanh"
+              held_to_maturity_investments_short_term: "3. đầu tư nắm giữ đến ngày đáo hạn"
+              short_term_receivables: "iii. các khoản phải thu ngắn hạn"
+              short_term_trade_receivables: "1. phải thu ngắn hạn của khách hàng"
+              short_term_advances_to_suppliers: "2. trả trước cho người bán"
+              short_term_internal_receivables: "3. phải thu nội bộ ngắn hạn"
+              receivables_construction_contract_progress: "4. phải thu theo tiến độ hợp đồng xây dựng"
+              short_term_loan_receivables: "5. phải thu về cho vay ngắn hạn"
+              other_short_term_receivables: "6. phải thu ngắn hạn khác"
+              provision_for_short_term_doubtful_debts: "7. dự phòng phải thu ngắn hạn khó đòi"
+              inventories: "iv. tổng hàng tồn kho"
+              gross_inventories: "1. hàng tồn kho"
+              provision_for_decline_in_value_of_inventories: "2. dự phòng giảm giá hàng tồn kho"
+              other_current_assets: "v. tài sản ngắn hạn khác"
+              short_term_prepaid_expenses: "1. chi phí trả trước ngắn hạn"
+              deductible_value_added_tax: "2. thuế giá trị gia tăng được khấu trừ"
+              taxes_and_other_receivables_from_state_budget: "3. thuế và các khoản phải thu nhà nước"
+              government_bond_repo_transactions_short_term: "4. giao dịch mua bán lại trái phiếu chính phủ"
+              other_current_assets_items: "5. tài sản ngắn hạn khác"
+
+              non_current_assets: "b. tài sản cố định và đầu tư dài hạn"
+              long_term_receivables: "i. các khoản phải thu dài hạn"
+              long_term_trade_receivables: "1. phải thu dài hạn của khách hàng"
+              working_capital_provided_to_subordinates: "2. vốn kinh doanh tại các đơn vị trực thuộc"
+              long_term_internal_receivables: "3. phải thu dài hạn nội bộ"
+              long_term_loan_receivables: "4. phải thu về cho vay dài hạn"
+              other_long_term_receivables: "5. phải thu dài hạn khác"
+              provision_for_long_term_doubtful_debts: "6. dự phòng phải thu dài hạn khó đòi"
+              fixed_assets: "ii. tài sản cố định"
+              tangible_fixed_assets: "1. tài sản cố định hữu hình"
+              tangible_fixed_assets_cost: "nguyên giá"
+              tangible_fixed_assets_accumulated_depreciation: "giá trị hao mòn lũy kế"
+              finance_lease_fixed_assets: "2. tài sản cố định thuê tài chính"
+              finance_lease_fixed_assets_cost: "nguyên giá (2)"
+              finance_lease_fixed_assets_accumulated_depreciation: "giá trị hao mòn lũy kế (2)"
+              intangible_fixed_assets: "3. tài sản cố định vô hình"
+              intangible_fixed_assets_cost: "nguyên giá (3)"
+              intangible_fixed_assets_accumulated_amortization: "giá trị hao mòn lũy kế (3)"
+              investment_properties: "iii. bất động sản đầu tư"
+              investment_properties_cost: "nguyên giá (4)"
+              investment_properties_accumulated_depreciation: "giá trị hao mòn lũy kế (4)"
+              long_term_assets_in_progress: "iv. tài sản dở dang dài hạn"
+              long_term_work_in_progress: "1. chi phí sản xuất, kinh doanh dở dang dài hạn"
+              construction_in_progress: "2. chi phí xây dựng cơ bản dở dang"
+              long_term_financial_investments: "v. các khoản đầu tư tài chính dài hạn"
+              investments_in_subsidiaries: "1. đầu tư vào công ty con"
+              investments_in_associates_and_joint_ventures: "2. đầu tư vào công ty liên kết, liên doanh"
+              equity_investments_in_other_entities: "3. đầu tư khác vào công cụ vốn"
+              provision_for_long_term_financial_investments: "4. dự phòng giảm giá đầu tư tài chính dài hạn"
+              held_to_maturity_investments_long_term: "5. đầu tư nắm giữ đến ngày đáo hạn"
+              other_non_current_assets: "vi. tổng tài sản dài hạn khác"
+              long_term_prepaid_expenses: "1. chi phí trả trước dài hạn"
+              deferred_corporate_income_tax_assets: "2. tài sản thuế thu nhập hoãn lại"
+              other_long_term_asset_items: "3. tài sản dài hạn khác"
+              goodwill: "vii. lợi thế thương mại"
+              total_assets: "tổng cộng tài sản"
+
+              # ==================== NGUỒN VỐN (LIABILITIES AND EQUITY) ====================
+              total_liabilities: "a. nợ phải trả"
+              current_liabilities: "i. nợ ngắn hạn"
+              short_term_borrowings_and_finance_lease_liabilities: "1. vay và nợ thuê tài chính ngắn hạn"
+              current_portion_of_long_term_borrowings_and_liabilities: "2. vay và nợ dài hạn đến hạn phải trả"
+              short_term_trade_payables: "3. phải trả người bán ngắn hạn"
+              short_term_advances_from_customers: "4. người mua trả tiền trước"
+              statutory_obligations_and_taxes_payable: "5. thuế và các khoản phải nộp nhà nước"
+              payables_to_employees: "6. phải trả người lao động"
+              short_term_accrued_expenses: "7. chi phí phải trả ngắn hạn"
+              short_term_internal_payables: "8. phải trả nội bộ ngắn hạn"
+              payables_construction_contract_progress: "9. phải trả theo tiến độ kế hoạch hợp đồng xây dựng"
+              short_term_unearned_revenue: "10. doanh thu chưa thực hiện ngắn hạn"
+              other_short_term_payables: "11. phải trả ngắn hạn khác"
+              short_term_provisions: "12. dự phòng phải trả ngắn hạn"
+              bonus_and_welfare_fund: "13. quỹ khen thưởng phúc lợi"
+              price_stabilization_fund: "14. quỹ bình ổn giá"
+              government_bond_repo_transactions_liabilities: "15. giao dịch mua bán lại trái phiếu chính phủ"
+
+              non_current_liabilities: "ii. nợ dài hạn"
+              long_term_trade_payables: "1. phải trả người bán dài hạn"
+              long_term_accrued_expenses: "2. chi phí phải trả dài hạn"
+              internal_payables_on_working_capital: "3. phải trả nội bộ về vốn kinh doanh"
+              long_term_internal_payables: "4. phải trả nội bộ dài hạn"
+              other_long_term_payables: "5. phải trả dài hạn khác"
+              long_term_borrowings_and_finance_lease_liabilities: "6. vay và nợ thuê tài chính dài hạn"
+              convertible_bonds: "7. trái phiếu chuyển đổi"
+              deferred_corporate_income_tax_liabilities: "8. thuế thu nhập hoãn lại phải trả"
+              provision_for_severance_allowances: "9. dự phòng trợ cấp mất việc làm"
+              long_term_provisions: "10. dự phòng phải trả dài hạn"
+              long_term_unearned_revenue: "11. doanh thu chưa thực hiện dài hạn"
+              science_and_technology_development_fund: "12. quỹ phát triển khoa học và công nghệ"
+
+              total_equity: "b. nguồn vốn chủ sở hữu"
+              owners_equity: "i. vốn chủ sở hữu"
+              contributed_charter_capital: "1. vốn đầu tư của chủ sở hữu"
+              share_premium: "2. thặng dư vốn cổ phần"
+              convertible_bond_options: "3. quyền chọn chuyển đổi trái phiếu"
+              other_owners_equity: "4. vốn khác của chủ sở hữu"
+              treasury_shares: "5. cổ phiếu quỹ"
+              asset_revaluation_differences: "6. chênh lệch đánh giá lại tài sản"
+              foreign_exchange_differences: "7. chênh lệch tỷ giá hối đoái"
+              investment_and_development_fund: "8. quỹ đầu tư phát triển"
+              financial_reserve_fund: "9. quỹ dự phòng tài chính"
+              other_funds_belonging_to_equity: "10. quỹ khác thuộc vốn chủ sở hữu"
+              undistributed_earnings_after_tax: "11. lợi nhuận sau thuế chưa phân phối"
+              accumulated_retained_earnings_up_to_previous_period: "lnst chưa phân phối lũy kế đến cuối kỳ trước"
+              retained_earnings_for_current_period: "lnst chưa phân phối kỳ này"
+              capital_expenditure_fund: "12. nguồn vốn đầu tư xây dựng cơ bản"
+              enterprise_rearrangement_support_fund: "13. quỹ hỗ trợ sắp xếp doanh nghiệp"
+              non_controlling_interests: "14. lợi ích của cổ đông không kiểm soát"
+              other_resources_and_funds: "ii. nguồn kinh phí và quỹ khác"
+              non_business_expenditure_source: "1. nguồn kinh phí"
+              expenditure_source_formed_fixed_assets: "2. nguồn kinh phí đã hình thành tài sản cố định"
+              job_loss_allowance_reserve_fund: "3. quỹ dự phòng trợ cấp mất việc làm"
+              total_liabilities_and_equity: "tổng cộng nguồn vốn"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - tên cổ phiếu
+              - năm
+              - quý
+              - "a. tài sản lưu động và đầu tư ngắn hạn"
+              - "i. tiền và các khoản tương đương tiền"
+              - "1. tiền"
+              - "2. các khoản tương đương tiền"
+              - "ii. các khoản đầu tư tài chính ngắn hạn"
+              - "1. chứng khoán kinh doanh"
+              - "2. dự phòng giảm giá chứng khoán kinh doanh"
+              - "3. đầu tư nắm giữ đến ngày đáo hạn"
+              - "iii. các khoản phải thu ngắn hạn"
+              - "1. phải thu ngắn hạn của khách hàng"
+              - "2. trả trước cho người bán"
+              - "3. phải thu nội bộ ngắn hạn"
+              - "4. phải thu theo tiến độ hợp đồng xây dựng"
+              - "5. phải thu về cho vay ngắn hạn"
+              - "6. phải thu ngắn hạn khác"
+              - "7. dự phòng phải thu ngắn hạn khó đòi"
+              - "iv. tổng hàng tồn kho"
+              - "1. hàng tồn kho"
+              - "2. dự phòng giảm giá hàng tồn kho"
+              - "v. tài sản ngắn hạn khác"
+              - "1. chi phí trả trước ngắn hạn"
+              - "2. thuế giá trị gia tăng được khấu trừ"
+              - "3. thuế và các khoản phải thu nhà nước"
+              - "4. giao dịch mua bán lại trái phiếu chính phủ"
+              - "5. tài sản ngắn hạn khác"
+              - "b. tài sản cố định và đầu tư dài hạn"
+              - "i. các khoản phải thu dài hạn"
+              - "1. phải thu dài hạn của khách hàng"
+              - "2. vốn kinh doanh tại các đơn vị trực thuộc"
+              - "3. phải thu dài hạn nội bộ"
+              - "4. phải thu về cho vay dài hạn"
+              - "5. phải thu dài hạn khác"
+              - "6. dự phòng phải thu dài hạn khó đòi"
+              - "ii. tài sản cố định"
+              - "1. tài sản cố định hữu hình"
+              - "nguyên giá"
+              - "giá trị hao mòn lũy kế"
+              - "2. tài sản cố định thuê tài chính"
+              - "nguyên giá (2)"
+              - "giá trị hao mòn lũy kế (2)"
+              - "3. tài sản cố định vô hình"
+              - "nguyên giá (3)"
+              - "giá trị hao mòn lũy kế (3)"
+              - "iii. bất động sản đầu tư"
+              - "nguyên giá (4)"
+              - "giá trị hao mòn lũy kế (4)"
+              - "iv. tài sản dở dang dài hạn"
+              - "1. chi phí sản xuất, kinh doanh dở dang dài hạn"
+              - "2. chi phí xây dựng cơ bản dở dang"
+              - "v. các khoản đầu tư tài chính dài hạn"
+              - "1. đầu tư vào công ty con"
+              - "2. đầu tư vào công ty liên kết, liên doanh"
+              - "3. đầu tư khác vào công cụ vốn"
+              - "4. dự phòng giảm giá đầu tư tài chính dài hạn"
+              - "5. đầu tư nắm giữ đến ngày đáo hạn"
+              - "vi. tổng tài sản dài hạn khác"
+              - "1. chi phí trả trước dài hạn"
+              - "2. tài sản thuế thu nhập hoãn lại"
+              - "3. tài sản dài hạn khác"
+              - "vii. lợi thế thương mại"
+              - "tổng cộng tài sản"
+
+              - "a. nợ phải trả"
+              - "i. nợ ngắn hạn"
+              - "1. vay và nợ thuê tài chính ngắn hạn"
+              - "2. vay và nợ dài hạn đến hạn phải trả"
+              - "3. phải trả người bán ngắn hạn"
+              - "4. người mua trả tiền trước"
+              - "5. thuế và các khoản phải nộp nhà nước"
+              - "6. phải trả người lao động"
+              - "7. chi phí phải trả ngắn hạn"
+              - "8. phải trả nội bộ ngắn hạn"
+              - "9. phải trả theo tiến độ kế hoạch hợp đồng xây dựng"
+              - "10. doanh thu chưa thực hiện ngắn hạn"
+              - "11. phải trả ngắn hạn khác"
+              - "12. dự phòng phải trả ngắn hạn"
+              - "13. quỹ khen thưởng phúc lợi"
+              - "14. quỹ bình ổn giá"
+              - "15. giao dịch mua bán lại trái phiếu chính phủ"
+
+              - "ii. nợ dài hạn"
+              - "1. phải trả người bán dài hạn"
+              - "2. chi phí phải trả dài hạn"
+              - "3. phải trả nội bộ về vốn kinh doanh"
+              - "4. phải trả nội bộ dài hạn"
+              - "5. phải trả dài hạn khác"
+              - "6. vay và nợ thuê tài chính dài hạn"
+              - "7. trái phiếu chuyển đổi"
+              - "8. thuế thu nhập hoãn lại phải trả"
+              - "9. dự phòng trợ cấp mất việc làm"
+              - "10. dự phòng phải trả dài hạn"
+              - "11. doanh thu chưa thực hiện dài hạn"
+              - "12. quỹ phát triển khoa học và công nghệ"
+
+              - "b. nguồn vốn chủ sở hữu"
+              - "i. vốn chủ sở hữu"
+              - "1. vốn đầu tư của chủ sở hữu"
+              - "2. thặng dư vốn cổ phần"
+              - "3. quyền chọn chuyển đổi trái phiếu"
+              - "4. vốn khác của chủ sở hữu"
+              - "5. cổ phiếu quỹ"
+              - "6. chênh lệch đánh giá lại tài sản"
+              - "7. chênh lệch tỷ giá hối đoái"
+              - "8. quỹ đầu tư phát triển"
+              - "9. quỹ dự phòng tài chính"
+              - "10. quỹ khác thuộc vốn chủ sở hữu"
+              - "11. lợi nhuận sau thuế chưa phân phối"
+              - "lnst chưa phân phối lũy kế đến cuối kỳ trước"
+              - "lnst chưa phân phối kỳ này"
+              - "12. nguồn vốn đầu tư xây dựng cơ bản"
+              - "13. quỹ hỗ trợ sắp xếp doanh nghiệp"
+              - "14. lợi ích của cổ đông không kiểm soát"
+              - "ii. nguồn kinh phí và quỹ khác"
+              - "1. nguồn kinh phí"
+              - "2. nguồn kinh phí đã hình thành tài sản cố định"
+              - "3. quỹ dự phòng trợ cấp mất việc làm"
+              - "tổng cộng nguồn vốn" 
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "balance_sheet"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded
