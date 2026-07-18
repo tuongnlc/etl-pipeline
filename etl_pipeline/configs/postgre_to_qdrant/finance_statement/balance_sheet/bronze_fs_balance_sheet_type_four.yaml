@@ -7,7 +7,7 @@ spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.fs_balance_sheet_type_four
       extractor_column_filter: is_load_to_qdrant
-      filter_value: "1"
+      filter_value: "0"
   transform:
     kind: QdrantTransformConfig
     spec:
