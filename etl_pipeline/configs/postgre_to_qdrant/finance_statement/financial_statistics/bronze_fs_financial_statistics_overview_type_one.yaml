@@ -1,0 +1,94 @@
+---
+kind: PostgreToQdrantBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_financial_statistics_overview_type_one
+      extractor_column_filter: is_load_to_qdrant
+      filter_value: "1"
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              stock_id: "tên cổ phiếu"
+              year: "năm"
+              quarter: "quý"
+              p_e: "Hệ số giá trên thu nhập p/e"
+              p_s: "Hệ số giá trên doanh thu p/s"
+              p_b: "Hệ số giá trên giá trị sổ sách p/b"
+              eps: "Thu nhập trên mỗi cổ phiếu eps"
+              net_profit_margin: "tỷ lệ lãi ròng (%)"
+              gross_profit_margin: "tỷ lệ lãi gộp (%)"
+              ebit_margin: "tỷ lệ ebit (%)"
+              operating_profit_margin: "tỷ lệ lãi từ hoạt động kinh doanh (%)"
+              current_ratio: "thanh toán hiện hành"
+              quick_ratio: "thanh toán nhanh"
+              interest_coverage_ratio: "thanh toán lãi vay"
+              debt_to_equity: "tỷ lệ nợ trên vốn chủ sỡ hữu"
+              roa: "Tỷ suất sinh lời trên tổng tài sản roa (%)"
+              roe: "Tỷ suất sinh lời trên vốn chủ sở hữu roe (%)"
+              roic: "Tỷ suất sinh lời trên vốn đầu tư roic (%)"
+              roce: "Tỷ suất sinh lời trên vốn sử dụng roce (%)"
+              total_asset_turnover: "vòng quay tổng tài sản"
+              inventory_turnover: "vòng quay hàng tồn kho"
+              receivables_turnover: "vòng quay các khoản phải thu"
+              short_term_asset_turnover: "vòng quay tài sản ngắn hạn"
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.ConcatColumns
+          spec:
+            concat_columns:
+              - "tên cổ phiếu"
+              - "năm"
+              - "quý"
+              - "Hệ số giá trên thu nhập p/e"
+              - "Hệ số giá trên doanh thu p/s"
+              - "Hệ số giá trên giá trị sổ sách p/b"
+              - "Thu nhập trên mỗi cổ phiếu eps"
+              - "tỷ lệ lãi ròng (%)"
+              - "tỷ lệ lãi gộp (%)"
+              - "tỷ lệ ebit (%)"
+              - "tỷ lệ lãi từ hoạt động kinh doanh (%)"
+              - "thanh toán hiện hành"
+              - "thanh toán nhanh"
+              - "thanh toán lãi vay"
+              - "tỷ lệ nợ trên vốn chủ sỡ hữu"
+              - "Tỷ suất sinh lời trên tổng tài sản roa (%)"
+              - "Tỷ suất sinh lời trên vốn chủ sở hữu roe (%)"
+              - "Tỷ suất sinh lời trên vốn đầu tư roic (%)"
+              - "Tỷ suất sinh lời trên vốn sử dụng roce (%)"
+              - "vòng quay tổng tài sản"
+              - "vòng quay hàng tồn kho"
+              - "vòng quay các khoản phải thu"
+              - "vòng quay tài sản ngắn hạn"
+            new_column: chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.SelectColumns
+          spec:
+            columns:
+              - id
+              - tên cổ phiếu
+              - năm
+              - quý
+              - chunk_content
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RenameColumns
+          spec:
+            column_mappings: 
+              tên cổ phiếu: stock_id
+              năm: year
+              quý: quarter
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: is_embedded
+            value: 0
+        - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.AddColumn
+          spec:
+            column: document_type
+            value: "financial_statistics"
+  loader:
+    kind: QdrantLoaderConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      destination_collection_name: stock_price_embedded
