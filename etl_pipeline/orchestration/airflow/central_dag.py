@@ -8,8 +8,8 @@ from etl_pipeline.orchestration.dag_builder.task_factories.task_factory_registry
 from etl_pipeline.orchestration.dag_builder.task_factories.dummy_factory import DummyTaskFactory
 from etl_pipeline.orchestration.dag_builder.dag_builder import DagBuilder
 from etl_pipeline.orchestration.dag_builder.task_factories.silver_market_data_factory import SilverMarketDataTaskFactory
-from etl_pipeline.orchestration.dag_builder.task_factories.bronze_newspaper_factory import BronzeNewspaperTaskFactory
-from etl_pipeline.orchestration.dag_builder.task_factories.silver_newspaper_factory import SilverNewspaperTaskFactory
+from etl_pipeline.orchestration.dag_builder.task_factories.bronze_postgre_qdrant_factory import BronzePostgreQdrantFactory
+from etl_pipeline.orchestration.dag_builder.task_factories.silver_qdrant_embedding_factory import SilverQdrantEmbeddingTaskFactory
 from etl_pipeline.orchestration.dag_builder.task_factories.trigger_dag_factory import TriggerDagsFactory
 
 configs_path = f"local://{Path(airflow_config_loader.__file__).resolve().parents[1] / 'configs' / 'orchestration'}"
@@ -20,8 +20,8 @@ config_registry.populate(raw_configs)
 task_factory_registry: TaskFactoryRegistry = TaskFactoryRegistry()
 task_factory_registry.register(DummyTaskFactory())
 task_factory_registry.register(SilverMarketDataTaskFactory())
-task_factory_registry.register(BronzeNewspaperTaskFactory())
-task_factory_registry.register(SilverNewspaperTaskFactory())
+task_factory_registry.register(BronzePostgreQdrantFactory())
+task_factory_registry.register(SilverQdrantEmbeddingTaskFactory())
 task_factory_registry.register(TriggerDagsFactory())
 task_factory_registry.register(BronzePostgreQdrantFactory())
 

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class BronzePostgreQdrantFactory(TaskFactoryBase):
     """
-        Loader newspaper data from postgresql to qdrant
+        Loader postgre data to qdrant
     """
     def _create_task_impl(
         self, 
@@ -40,7 +40,7 @@ class BronzePostgreQdrantFactory(TaskFactoryBase):
                 """,
             )
 
-            bronze_newspaper_etl_task = PythonOperator(
+            bronze_postgre_qdrant_etl_task = PythonOperator(
                 dag=dag,
                 task_id=task_id,
                 python_callable=main,
@@ -49,12 +49,12 @@ class BronzePostgreQdrantFactory(TaskFactoryBase):
                     "execution_date": "{{ ds }}"
                 },
             )
-            bronze_newspaper_etl_task.set_upstream(hello_world_task)
+            bronze_postgre_qdrant_etl_task.set_upstream(hello_world_task)
 
             if job_config.extractor.get('spec').get('filter_type') != 'date':
-                update_newspaper_postgre_table = SQLExecuteQueryOperator(
+                update_postgre_table = SQLExecuteQueryOperator(
                     dag=dag,
-                    task_id="update_newspaper_postgre_table",
+                    task_id="update_postgre_table",
                     conn_id="postgres_market_data",
                     parameters={},
                     sql=f"""
@@ -64,5 +64,5 @@ class BronzePostgreQdrantFactory(TaskFactoryBase):
                     """,
                 )
 
-                update_newspaper_postgre_table.set_upstream(bronze_newspaper_etl_task)
+                update_postgre_table.set_upstream(bronze_postgre_qdrant_etl_task)
             return task_group

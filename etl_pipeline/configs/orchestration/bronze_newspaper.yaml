@@ -14,8 +14,7 @@ spec:
   tags: ["Bronze", "Newspaper"]
   task_factories:
     - id: job
-      factory_type: BronzeNewspaperTaskFactory
+      factory_type: BronzePostgreQdrantFactory
       args:
         task_id: "bronze_newspaper"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/newspaper/bronze_newspaper.yaml
-      

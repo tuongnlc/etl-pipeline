@@ -5,9 +5,9 @@ import polars as pl
 from etl_pipeline.templates.etl.transform.base import TransformStep, BaseTransform
 
 
-class BronzeNewspaper(BasePipeline):
+class BronzePostgreQdrant(BasePipeline):
     """
-        Pipeline to do ETL newspaper data from Postgres to Qdrant.
+        Pipeline to do ETL data from Postgres to Qdrant.
     """
 
     def __init__(self, 

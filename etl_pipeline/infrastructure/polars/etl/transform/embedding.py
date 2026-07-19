@@ -51,7 +51,7 @@ class TextEmbedding(TransformStep):
             api_key_5 = self._extract_api_key("google_gemini_embedding_key_5")
             api_key_6 = self._extract_api_key("google_gemini_embedding_key_6")
             api_key_7 = self._extract_api_key("google_gemini_embedding_key_7")
-            # api_key_8 = self._extract_api_key("google_gemini_embedding_key_8")
+            api_key_8 = self._extract_api_key("google_gemini_embedding_key_8")
 
             api_keys.append(api_key_1)
             api_keys.append(api_key_2)
@@ -60,7 +60,7 @@ class TextEmbedding(TransformStep):
             api_keys.append(api_key_5)
             api_keys.append(api_key_6)
             api_keys.append(api_key_7)
-            # api_keys.append(api_key_8)
+            api_keys.append(api_key_8)
         return api_keys
 
     def transform(self, df: pl.DataFrame,  **kwargs) -> pl.DataFrame:

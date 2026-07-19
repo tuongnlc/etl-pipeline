@@ -14,7 +14,7 @@ spec:
   tags: ["Silver", "Newspaper"]
   task_factories:
     - id: job
-      factory_type: SilverNewspaperTaskFactory
+      factory_type: SilverQdrantEmbeddingTaskFactory
       args:
-        task_id: "silver_newspaper"
+        task_id: "silver_qdrant_embedding"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/newspaper/silver_newspaper.yaml

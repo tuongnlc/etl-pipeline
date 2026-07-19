@@ -3,7 +3,7 @@ from etl_pipeline.utils.config_loader import parse_config
 from argparse import Namespace
 from etl_pipeline.infrastructure.polars.etl.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
-from etl_pipeline.jobs.silver_newspaper import SilverNewspaper
+from etl_pipeline.jobs.silver_qdrant_embedding import SilverQdrantEmbedding
 import os
 from etl_pipeline.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
 
@@ -46,14 +46,14 @@ def main(
         payload_filter_for_source_table=payload_filter_for_source_table,
     )
 
-    silver_newspaper_job = SilverNewspaper(
+    silver_qdrant_embedding_job = SilverQdrantEmbedding(
         extractor=extract,
         transform=qdrant_transform,
         transform_steps=args.job_config.transform.transform_steps,
         loader=loader,
     )
 
-    silver_newspaper_job.run()
+    silver_qdrant_embedding_job.run()
 
 if __name__ == "__main__":
     if os.getenv("ENV", "") == "local":

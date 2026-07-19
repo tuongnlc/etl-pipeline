@@ -6,9 +6,14 @@ from etl_pipeline.templates.etl.transform.base import TransformStep
 from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
 
 
-class SilverNewspaper(BasePipeline):
+class SilverQdrantEmbedding(BasePipeline):
     """
-        SilverNewspaper pipeline
+        SilverQdrantEmbedding pipeline
+
+        The pipeline including:
+        - Extract data from Qdrant
+        - Transform data focusing on embedd data
+        - Load data to Qdrant
     """
     def __init__(
             self, 
