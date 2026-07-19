@@ -14,8 +14,7 @@ spec:
   tags: ["Silver", "Stock Price", "Qdrant"]
   task_factories:
     - id: job
-      factory_type: SilverNewspaperTaskFactory
+      factory_type: SilverQdrantEmbeddingTaskFactory
       args:
-        task_id: "silver_stock_price"
+        task_id: "silver_qdrant_embedding"
         job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_qdrant/stock_price/silver_stock_price.yaml
-#etl_pipeline/configs/postgre_to_qdrant/stock_price/sivler_stock_price.yaml

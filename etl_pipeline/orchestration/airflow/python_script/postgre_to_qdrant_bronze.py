@@ -5,7 +5,7 @@ from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import Pos
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
 from etl_pipeline.infrastructure.polars.etl.load.qdrant_loader import QdrantLoader
-from etl_pipeline.jobs.bronze_newspaper import BronzeNewspaper
+from etl_pipeline.jobs.bronze_postgre_qdrant import BronzePostgreQdrant
 import os
 from airflow.sdk.bases.hook import BaseHook
 from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
@@ -62,14 +62,14 @@ def main(
         destination_collection_name=args.job_config.loader.destination_collection_name,
     )
 
-    bronze_newspaper_job = BronzeNewspaper(
+    bronze_postgre_qdrant_job = BronzePostgreQdrant(
         extractor=extractor,
         transform=qdrant_transform,
         transform_steps=args.job_config.transform.transform_steps,
         loader=loader,
 
     )
-    bronze_newspaper_job.run()
+    bronze_postgre_qdrant_job.run()
 
 
 if __name__ == "__main__":

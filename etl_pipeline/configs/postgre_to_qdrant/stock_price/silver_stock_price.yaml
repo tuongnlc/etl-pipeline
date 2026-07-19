@@ -44,7 +44,3 @@ spec:
       destination_collection_name: stock_price_embedded 
       is_upsert_source_table: false
       source_name: stock_price_embedded
-      # qdrant_payload_for_source_table:
-      #   is_embedded: 1
-      # payload_filter_for_source_table:
-      #   is_embedded: 0

@@ -18,7 +18,7 @@ class TriggerDagsFactory(TaskFactoryBase):
             args: dict[str, Any],
             # child_dags: list[Any]
         ):
-            logger.info(f"Create trigger newspaper task groups")
+            logger.info(f"Create trigger postgre to qdrant task groups")
 
             job_config_path = args["job_config_path"]
             job_config = load_and_parse_config(job_config_path, None)

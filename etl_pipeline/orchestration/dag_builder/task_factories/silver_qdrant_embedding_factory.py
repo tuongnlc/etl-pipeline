@@ -13,14 +13,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SilverNewspaperTaskFactory(TaskFactoryBase):
+class SilverQdrantEmbeddingTaskFactory(TaskFactoryBase):
     def _create_task_impl(
         self, 
         task_group_id: str, 
         dag: Any, args: dict[str, Any]
     ):
         task_id = args["task_id"]
-        logger.info(f"Create silver market data task groups")
+        logger.info(f"Create silver Qdrant embedding data task groups")
 
         job_config_path = args["job_config_path"]
         job_config = load_and_parse_config(job_config_path, None)
@@ -37,16 +37,16 @@ class SilverNewspaperTaskFactory(TaskFactoryBase):
                 """,
             )
 
-            silver_newspaper_etl_task = PythonOperator(
+            silver_qdrant_embedding_etl_task = PythonOperator(
                 dag=dag,
-                task_id="silver_newspaper_etl",
+                task_id="silver_qdrant_embedding_etl",
                 python_callable=main,
                 op_kwargs={"job_config": job_config},
                 doc_yaml="""
-                    a: silver_newspaper_etl
+                    a: silver_qdrant_embedding_etl
                     b: 2
                 """,
             )
 
-            hello_world_task >> silver_newspaper_etl_task
+            hello_world_task >> silver_qdrant_embedding_etl_task
 
