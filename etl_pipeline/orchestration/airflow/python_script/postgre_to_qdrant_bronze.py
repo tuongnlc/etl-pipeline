@@ -39,7 +39,6 @@ def main(
     polars_connection = BaseHook.get_connection('postgres_market_data_polar_uri')
     uri = polars_connection.password
 
-    # #Update here
     if job_config.extractor.filter_type == 'date':
         execution_date_filter = execution_date
     else:

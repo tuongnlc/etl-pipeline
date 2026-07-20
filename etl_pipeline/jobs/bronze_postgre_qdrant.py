@@ -25,8 +25,8 @@ class BronzePostgreQdrant(BasePipeline):
         data_from_postgres = self.extractor.extract()
         return data_from_postgres
 
-    def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]):
-        df = self.transformer.transform(df, transform_steps)
+    def transform(self, df: pl.DataFrame):
+        df = self.transformer.transform(df, self.transform_steps)
         if isinstance(df, pl.DataFrame):
             return df
 
@@ -35,5 +35,5 @@ class BronzePostgreQdrant(BasePipeline):
 
     def run(self) -> None:
         data_ = self.extract()
-        df = self.transform(data_, self.transform_steps)
+        df = self.transform(data_)
         self.load(df)        

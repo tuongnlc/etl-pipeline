@@ -51,7 +51,7 @@ class SilverMarketDataTaskFactory(TaskFactoryBase):
                 python_callable=main,
                 op_kwargs={
                     "job_config": job_config,
-                    "execution_date": "{{ ds }}" if job_config.extractor.get('spec').get('enable_execution_date') == True else None
+                    "execution_date": "{{ ds }}" 
                 }
             )
             # Build task pipeline - using proper Airflow SDK pattern

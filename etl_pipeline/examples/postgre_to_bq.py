@@ -8,8 +8,6 @@ from google.oauth2 import service_account
 
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
 from etl_pipeline.infrastructure.polars.etl.load.bq_loader import BigQueryLoaderPolars
-from etl_pipeline.jobs.silver_market_data import SilverMarketData
-
 
 from argparse import Namespace
 from typing import Optional
