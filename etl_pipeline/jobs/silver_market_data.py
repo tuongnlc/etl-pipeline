@@ -2,6 +2,9 @@
 from etl_pipeline.templates.etl.extract.postgre_db import PostgreDBExtractor
 from etl_pipeline.templates.etl.load.bq_loader import BigQueryLoader
 from etl_pipeline.templates.pipeline.base import BasePipeline
+import polars as pl
+from etl_pipeline.templates.etl.transform.base import BaseTransform, TransformStep
+
 
 
 class SilverMarketData(BasePipeline):
@@ -11,11 +14,13 @@ class SilverMarketData(BasePipeline):
     def __init__(
             self, 
             extractor: PostgreDBExtractor,
-            # transformer: BaseTransformer,
+            transformer: BaseTransform,
+            transform_steps: list[TransformStep],
             loader: BigQueryLoader,
         ) -> None:
         self.extractor = extractor
-        # self.transformer = transformer
+        self.transformer = transformer
+        self.transform_steps = transform_steps
         self.loader = loader
 
     def extract(self) -> None:
@@ -25,10 +30,15 @@ class SilverMarketData(BasePipeline):
         data_from_postgresql = self.extractor.extract()
         return data_from_postgresql
         
-    def transform(self) -> None:
-        pass
+    def transform(self, data: pl.DataFrame) -> pl.DataFrame:
+        """
+            Transform data using transform_steps
+        """
+        df = self.transformer.transform(data, self.transform_steps)
+        if isinstance(df, pl.DataFrame):
+            return df
 
-    def load(self, transform_data) -> None:
+    def load(self, transform_data: pl.DataFrame) -> None:
         """
             Load data to bigquery
         """
@@ -36,5 +46,5 @@ class SilverMarketData(BasePipeline):
 
     def run(self) -> None:
         data_ = self.extract()
-        # self.transform(data_)
+        data_ = self.transform(data_)
         self.load(data_)

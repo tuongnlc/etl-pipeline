@@ -1,11 +1,11 @@
 import json
 import os
-from pathlib import Path
 
 from google.oauth2 import service_account
 
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
 from etl_pipeline.infrastructure.polars.etl.load.bq_loader import BigQueryLoaderPolars
+from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
 from etl_pipeline.jobs.silver_market_data import SilverMarketData
 
 
@@ -14,8 +14,7 @@ from argparse import Namespace
 from etl_pipeline.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from etl_pipeline.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
-import os
-from etl_pipeline.utils.config_loader import load_and_parse_config, parse_config
+from etl_pipeline.utils.config_loader import  parse_config
 from airflow.sdk.bases.hook import BaseHook
 
 def main(
@@ -28,6 +27,12 @@ def main(
     
     if job_config.extractor is not None:
         job_config.extractor = parse_config(job_config.extractor)
+    if job_config.transform is not None:
+        job_config.transform = parse_config(job_config.transform)
+        if getattr(job_config.transform, "transform_steps", None) is not None:
+            job_config.transform.transform_steps = [
+                parse_config(step) for step in job_config.transform.transform_steps
+            ]
     if job_config.loader is not None:
         job_config.loader = parse_config(job_config.loader)
     args = Namespace(job_config=job_config)
@@ -48,12 +53,19 @@ def main(
     json_credentials = json.loads(bq_connectyion.password)
     credentials = service_account.Credentials.from_service_account_info(json_credentials)
 
+    if job_config.extractor.filter_type == 'date':
+        execution_date_filter = execution_date
+    else:
+        execution_date_filter = None
+
     extractor = PostgreDBExtractorWithPolars(
         # query=args.job_config.extractor.query,
         source_table_name=args.job_config.extractor.source_table_name,
         uri=uri,
-        execution_date=execution_date, # Get from {{ ds }}
+        execution_date_filter=execution_date_filter, # Get from {{ ds }}
     )
+
+    qdrant_transform = QdrantTransform()
 
     loader = BigQueryLoaderPolars(
         gcp_credential=credentials,
@@ -65,6 +77,8 @@ def main(
 
     silver_market_data_jobs = SilverMarketData(
         extractor=extractor,
+        transformer=qdrant_transform,
+        transform_steps=getattr(args.job_config.transform, "transform_steps", []) or [],
         loader=loader,
     )
     silver_market_data_jobs.run()

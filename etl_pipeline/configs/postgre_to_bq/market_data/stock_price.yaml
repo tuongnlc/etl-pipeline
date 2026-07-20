@@ -7,6 +7,15 @@ spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.stock_price
       enable_execution_date: true
+      filter_type: date 
+      filter_time_range: 90    
+  transform:
+    kind: QdrantTransformConfig
+    spec:
+      transform_steps: 
+      - kind: etl_pipeline.infrastructure.polars.etl.transform.columns.RemoveColumn
+        spec:
+          column: is_load_to_qdrant
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:

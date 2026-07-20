@@ -7,6 +7,8 @@ spec:
       uri: postgresql://postgres:postgres@localhost:5432/market_data
       source_table_name: public.foreign_trade
       enable_execution_date: true
+      filter_type: date 
+      filter_time_range: 90
   loader:
     kind: BigQueryLoaderPolarsConfig
     spec:
