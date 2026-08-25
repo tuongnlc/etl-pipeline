@@ -44,9 +44,17 @@ class SilverQdrantEmbedding(BasePipeline):
         )
     
     def run(self) -> None:
-        data_ = self.extract()
-        # data_ = data_.limit(200)
+        data_ = self.extract()       
+
+        #filter empty record
+        data_ = data_.filter(
+            pl.col("newspaper_summary")
+            .fill_null("")
+            .str.strip_chars()
+            .ne("")
+        )
         print("Number of records to transform:", len(data_))
+
         df = self.transform(data_, self.transform_steps)
         self.load(df)
         return df
