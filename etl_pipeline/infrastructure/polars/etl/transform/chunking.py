@@ -30,7 +30,9 @@ class ChunkPolars(TransformStep):
 
         chunked = (
             df.select(
-                pl.col("id").cast(pl.Utf8).alias("document_id"),
+                pl.col("id")
+                .map_elements(lambda v: str(v), return_dtype=pl.Utf8)
+                .alias("document_id"),
                 *(pl.col(c) for c in passthrough_columns),
                 pl.col(self.document_col_name)
                 .fill_null("")
@@ -44,10 +46,17 @@ class ChunkPolars(TransformStep):
             .explode(self.chunk_col_name)
             .with_columns(
                 chunk_index=pl.col("document_id").cum_count().over("document_id") - 1,
-                id=pl.int_range(0, pl.len()).map_elements(
-                    lambda _: str(uuid.uuid4()),
+            )
+            .with_columns(
+                id=pl.struct("document_id", "chunk_index").map_elements(
+                    lambda col: str(
+                        uuid.uuid5(
+                            uuid.NAMESPACE_DNS,
+                            f"{col['document_id']}:{col['chunk_index']}",
+                        )
+                    ),
                     return_dtype=pl.Utf8,
-                ),
+                )
             )
             .select(["id", "document_id", *passthrough_columns, self.chunk_col_name, "chunk_index"])
         )
