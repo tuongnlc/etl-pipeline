@@ -4,6 +4,7 @@
 from qdrant_client import QdrantClient
 from pydantic import BaseModel
 import polars as pl
+import uuid
 from qdrant_client.models import PointStruct, SparseVector
 from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
 from qdrant_client.models import Filter, FieldCondition, MatchValue
@@ -74,6 +75,15 @@ class QdrantLoader(QdrantLoader):
             return payload.model_dump(mode="json")
         return payload.dict()
 
+    def _normalize_uuid_like_value(self, value):
+        if isinstance(value, uuid.UUID):
+            return str(value)
+        if isinstance(value, memoryview):
+            value = value.tobytes()
+        if isinstance(value, (bytes, bytearray)) and len(value) == 16:
+            return str(uuid.UUID(bytes=bytes(value)))
+        return value
+
     def load(self, 
             records: pl.DataFrame, 
             dense_vector_column: str | None = None, 
@@ -124,6 +134,10 @@ class QdrantLoader(QdrantLoader):
         points = []
         
         for item in records.to_dicts():
+            item = {
+                key: self._normalize_uuid_like_value(value)
+                for key, value in item.items()
+            }
             payload_dict = {
                     key: value
                     for key, value in item.items()

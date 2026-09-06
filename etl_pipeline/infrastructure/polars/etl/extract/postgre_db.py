@@ -58,5 +58,5 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
         print(query)
 
         df = pl.read_database_uri(query=query, uri=self.uri, engine="adbc", **self.kwargs)
-        df = df.with_columns(pl.col("id").bin.encode("hex").alias("id"))
+        df = df.with_columns(pl.col("id").bin.encode("hex").alias("id")) #need this to load to bigquery
         return df
