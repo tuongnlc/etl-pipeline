@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: bronze__postgre_to_databricks__fs_balance_sheet_type_four
+spec:
+  dag_id: bronze__postgre_to_databricks__fs_balance_sheet_type_four
+  schedule: None
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 1
+    on_failure_callback: []
+  tags: ["Finance Statement", "Balance Sheet", "Load Data From Postgres to Databricks"]
+  task_factories:
+    - id: job
+      factory_type: BronzePostgreDatabricksFactory
+      args:
+        task_id: "bronze__postgre_to_databricks__fs_balance_sheet_type_four"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_databricks/finance_statement/fs_balance_sheet_type_four.yaml
