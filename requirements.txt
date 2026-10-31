@@ -18,3 +18,4 @@ underthesea==9.5.0
 pymupdf==1.28.0
 pytesseract==0.3.13
 opencv-python==5.0.0.93
+databricks-sdk==0.158.0
