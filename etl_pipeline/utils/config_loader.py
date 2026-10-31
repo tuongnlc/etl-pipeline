@@ -10,7 +10,6 @@ import inspect
 from etl_pipeline.models.example_config import ExampleConfig
 from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
 from etl_pipeline.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
-from etl_pipeline.models.etl.jobs.postgre_to_bq_silver import PostgreToBqSilverConfig
 from etl_pipeline.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_qdrant_silver import QdrantToQdrantSilverConfig
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
@@ -20,15 +19,12 @@ from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import Qdra
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
 from etl_pipeline.models.etl.loader.databricks_volume_loader import DatabricksVolumeLoaderConfig
-# from etl_pipeline.orchestration.dag_builder.task_factories.bronze_postgre_qdrant_factory import BronzePostgreQdrantFactory
-
 
 
 CONFIG_PARSER_MAP = {
     ExampleConfig.__name__: ExampleConfig,
     PostgreDBExtractorWithPolarsConfig.__name__: PostgreDBExtractorWithPolarsConfig,
     BigQueryLoaderPolarsConfig.__name__: BigQueryLoaderPolarsConfig,    
-    PostgreToBqSilverConfig.__name__: PostgreToBqSilverConfig,
     PostgreToQdrantBronzeConfig.__name__: PostgreToQdrantBronzeConfig,
     QdrantLoaderConfig.__name__: QdrantLoaderConfig,
     QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
