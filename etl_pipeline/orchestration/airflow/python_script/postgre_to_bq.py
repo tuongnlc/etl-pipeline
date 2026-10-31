@@ -6,7 +6,7 @@ from google.oauth2 import service_account
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
 from etl_pipeline.infrastructure.polars.etl.load.bq_loader import BigQueryLoaderPolars
 from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
-from etl_pipeline.jobs.silver_market_data import SilverMarketData
+from etl_pipeline.jobs.bronze_postgre_databricks import SilverMarketData
 
 
 from argparse import Namespace

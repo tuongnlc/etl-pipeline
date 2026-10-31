@@ -1,6 +1,7 @@
 # market_data_etl.pyfrom etl_pipeline.templates.pipeline.base import BasePipeline
 from etl_pipeline.templates.etl.extract.postgre_db import PostgreDBExtractor
 from etl_pipeline.templates.etl.load.bq_loader import BigQueryLoader
+from etl_pipeline.templates.etl.load.databricks_volume_loader import DatabricksVolumeLoader
 from etl_pipeline.templates.pipeline.base import BasePipeline
 import polars as pl
 from etl_pipeline.templates.etl.transform.base import BaseTransform, TransformStep
@@ -16,7 +17,7 @@ class SilverMarketData(BasePipeline):
             extractor: PostgreDBExtractor,
             transformer: BaseTransform,
             transform_steps: list[TransformStep],
-            loader: BigQueryLoader,
+            loader: DatabricksVolumeLoader,
         ) -> None:
         self.extractor = extractor
         self.transformer = transformer
