@@ -3,4 +3,4 @@ kind: TriggerDagJobConfig
 spec:
   childs_dag_ids:
     - 2026_09_06_foreign_trade_crawler
-    - 2026_09_06_foreign_trade_silver
+    - bronze__postgre_to_databricks__foreign_trade

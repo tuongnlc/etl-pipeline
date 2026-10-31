@@ -1,0 +1,20 @@
+---
+kind: DagDefinition
+metadata:
+  name: bronze__postgre_to_databricks__stock_index
+spec:
+  dag_id: bronze__postgre_to_databricks__stock_index
+  schedule: "0 0 * * *"
+  start_date: 2023-01-01
+  catchup: False
+  default_args:
+    owner: tuongnguyen
+    retries: 5
+    on_failure_callback: []
+  tags: ["market_data", "stock_index"]
+  task_factories:
+    - id: job
+      factory_type: BronzePostgreDatabricksFactory
+      args:
+        task_id: "bronze__postgre_to_databricks__stock_index"
+        job_config_path: /opt/airflow/dags/etl_pipeline_dags/src/config/postgre_to_databricks/market_data/stock_index.yaml
