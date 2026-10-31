@@ -9,7 +9,7 @@ from etl_pipeline.models.etl.loader.databricks_volume_loader import DatabricksVo
 from etl_pipeline.infrastructure.polars.etl.extract.postgre_db import PostgreDBExtractorWithPolars
 from etl_pipeline.infrastructure.polars.etl.load.databricks_volume_loader import DatabricksVolumeLoader
 from etl_pipeline.infrastructure.polars.etl.transform.qdrant_transform import QdrantTransform
-from etl_pipeline.jobs.bronze_postgre_databricks import SilverMarketData
+from etl_pipeline.jobs.bronze_postgre_databricks import BronzePostgreDatabricks
 from etl_pipeline.utils.config_loader import parse_config
 
 
@@ -52,7 +52,7 @@ def main(
         local_file_path=args.job_config.loader.local_file_path,
     )
 
-    bronze_postgre_databricks_job = SilverMarketData(
+    bronze_postgre_databricks_job = BronzePostgreDatabricks(
         extractor=extractor,
         transformer=QdrantTransform(),
         transform_steps=[],

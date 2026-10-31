@@ -1,0 +1,14 @@
+---
+kind: PostgreToDatabricksVolumeBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.stock_index
+      enable_execution_date: true
+  loader:
+    kind: DatabricksVolumeLoaderConfig
+    spec:
+      volume_url: finance_data_volume.market_data.stock_index
+      local_file_path: tmp/stock_index.parquet

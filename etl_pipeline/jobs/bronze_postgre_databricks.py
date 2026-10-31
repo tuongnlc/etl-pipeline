@@ -7,10 +7,9 @@ import polars as pl
 from etl_pipeline.templates.etl.transform.base import BaseTransform, TransformStep
 
 
-
-class SilverMarketData(BasePipeline):
+class BronzePostgreDatabricks(BasePipeline):
     """
-        SilverMarketData pipeline
+        BronzePostgreDatabricks pipeline
     """
     def __init__(
             self, 
