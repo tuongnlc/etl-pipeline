@@ -1,0 +1,15 @@
+---
+kind: PostgreToDatabricksVolumeBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@localhost:5432/market_data
+      source_table_name: public.fs_balance_sheet_type_one
+      enable_execution_date: false
+  loader:
+    kind: DatabricksVolumeLoaderConfig
+    spec:
+      volume_url: finance_data_volume.finance_data.fs_balance_sheet_type_one
+      local_file_path: tmp/fs_balance_sheet_type_one.parquet
+  
