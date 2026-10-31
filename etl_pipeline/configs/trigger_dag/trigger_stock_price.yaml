@@ -3,4 +3,4 @@ kind: TriggerDagJobConfig
 spec:
   childs_dag_ids:
     - 2026_06_09_stock_price_crawler
-    - 2026_06_09_stock_price_silver
+    - bronze__postgre_to_databricks__stock_price

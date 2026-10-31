@@ -1,5 +1,5 @@
 ---
-kind: PostgreToBqSilverConfig
+kind: PostgreToDatabricksVolumeBronzeConfig
 spec:
   extractor:
     kind: PostgreDBExtractorWithPolarsConfig
@@ -17,11 +17,7 @@ spec:
         spec:
           column: is_load_to_qdrant
   loader:
-    kind: BigQueryLoaderPolarsConfig
+    kind: DatabricksVolumeLoaderConfig
     spec:
-      gcp_credential_key: gcp_sa_for_bq_data_append
-      project: rich-finance-2026
-      dataset: market_data
-      table: stock_price
-      write_disposition: WRITE_APPEND
-      enable_delete_before_load: true
+      volume_url: finance_data_volume.market_data.stock_price
+      local_file_path: tmp/stock_price.parquet
