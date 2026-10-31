@@ -10,5 +10,5 @@ spec:
   loader:
     kind: DatabricksVolumeLoaderConfig
     spec:
-      volume_url: finance_data_volume.finance_data.company_name
+      volume_url: finance_data_volume.market_data.company_name
       local_file_path: tmp/company_name.parquet
