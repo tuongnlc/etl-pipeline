@@ -1,9 +1,7 @@
-from etl_pipeline.templates.pipeline.base import BasePipeline
-from etl_pipeline.templates.etl.extract.base import BaseExtractor
-import polars as pl
+from etl_pipeline.templates.etl.extract.parquet_extractpr import ParquetExtractor
 from etl_pipeline.templates.etl.transform.base import BaseTransform
 from etl_pipeline.templates.etl.transform.base import TransformStep
-from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
+from pyspark.sql import DataFrame
 
 
 
@@ -18,7 +16,7 @@ class SilverDatabrickLakehouseJob:
     """
     def __init__(
         self, 
-        extractor: BaseExtractor,
+        extractor: ParquetExtractor,
         transform: BaseTransform,
         transform_steps: list[TransformStep],
         # loader: QdrantLoader,
@@ -30,4 +28,10 @@ class SilverDatabrickLakehouseJob:
     def extract(self):
         data_from_databricks = self.extractor.extract()
         return data_from_databricks
+
+    def load(self, df: DataFrame):
+        """
+            Load data to delta table
+        """
+        self.loader.load(df)
         

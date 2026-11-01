@@ -1,4 +1,4 @@
-# Sample job chạy code Python trong etl_pipeline/jobs.
+# Sample job chạy code Python trong etl_pipeline/orchestration/databricks/sample_job.py.
 
 resources:
   jobs:
@@ -27,7 +27,7 @@ resources:
             # Trùng với [project.name] trong pyproject.toml ở gốc repo.
             package_name: etl_pipeline
             # Trùng với entry point trong [project.scripts] của pyproject.toml.
-            entry_point: main
+            entry_point: sample_job
             parameters:
               - "--catalog"
               - "${var.catalog}"
@@ -42,4 +42,4 @@ resources:
             dependencies:
               # Wheel của package etl_pipeline, sinh ra bởi artifact `python_artifact`
               # trong databricks.yml. Đường dẫn tính tương đối từ file này.
-              - ../../../dist/*.whl
+              - ../../../../dist/*.whl
