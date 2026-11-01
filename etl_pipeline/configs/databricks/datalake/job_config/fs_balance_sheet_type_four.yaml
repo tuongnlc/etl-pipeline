@@ -1,0 +1,33 @@
+# Job chạy code Python trong etl_pipeline/orchestration/databricks/voume_to_datalake.py.
+
+resources:
+  jobs:
+    volume_to_datalake__fs_balance_sheet_type_four:
+      name: volume_to_datalake__fs_balance_sheet_type_four
+
+      parameters:
+        - name: job_config
+          default: ${workspace.file_path}/configs/databricks/datalake/spark_config/fs_balance_sheet_type_four.yaml
+
+      tasks:
+        - task_key: volume_to_datalake__fs_balance_sheet_type_four
+          python_wheel_task:
+            # Trùng với [project.name] trong pyproject.toml ở gốc repo.
+            package_name: etl_pipeline
+            # Trùng với entry point trong [project.scripts] của pyproject.toml.
+            entry_point: volume_to_datalake
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/datalake/spark_config/fs_balance_sheet_type_four.yaml"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              # Wheel của package etl_pipeline, sinh ra bởi artifact `python_artifact`
+              # trong databricks.yml. Đường dẫn tính tương đối từ file này.
+              - ../../../../dist/*.whl
+              # Deps runtime không có sẵn trong environment của Databricks serverless.
+              - dacite==1.9.2
