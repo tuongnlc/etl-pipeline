@@ -1,0 +1,45 @@
+# Sample job chạy code Python trong etl_pipeline/jobs.
+
+resources:
+  jobs:
+    sample_job_dev:
+      name: sample_job_dev
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+
+      tasks:
+        - task_key: python_wheel_task
+          python_wheel_task:
+            # Trùng với [project.name] trong pyproject.toml ở gốc repo.
+            package_name: etl_pipeline
+            # Trùng với entry point trong [project.scripts] của pyproject.toml.
+            entry_point: main
+            parameters:
+              - "--catalog"
+              - "${var.catalog}"
+              - "--schema"
+              - "${var.schema}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              # Wheel của package etl_pipeline, sinh ra bởi artifact `python_artifact`
+              # trong databricks.yml. Đường dẫn tính tương đối từ file này.
+              - ../../../dist/*.whl
