@@ -1,10 +1,7 @@
-from etl_pipeline.templates.pipeline.base import BasePipeline
-from etl_pipeline.templates.etl.extract.base import BaseExtractor
 import polars as pl
+from etl_pipeline.templates.etl.extract.parquet_extractpr import ParquetExtractor
 from etl_pipeline.templates.etl.transform.base import BaseTransform
 from etl_pipeline.templates.etl.transform.base import TransformStep
-from etl_pipeline.templates.etl.load.qdrant_loader import QdrantLoader
-
 
 
 class SilverDatabrickLakehouseJob:
@@ -18,7 +15,7 @@ class SilverDatabrickLakehouseJob:
     """
     def __init__(
         self, 
-        extractor: BaseExtractor,
+        extractor: ParquetExtractor,
         transform: BaseTransform,
         transform_steps: list[TransformStep],
         # loader: QdrantLoader,

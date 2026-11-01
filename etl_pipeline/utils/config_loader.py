@@ -19,6 +19,8 @@ from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import Qdra
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
 from etl_pipeline.models.etl.loader.databricks_volume_loader import DatabricksVolumeLoaderConfig
+from etl_pipeline.models.etl.extractor.parquet_extractor import ParquetExtractorWithSparkConfig
+from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 
 
 CONFIG_PARSER_MAP = {
@@ -33,6 +35,8 @@ CONFIG_PARSER_MAP = {
     TriggerDagJobConfig.__name__: TriggerDagJobConfig,
     PostgreToDatabricksVolumeBronzeConfig.__name__: PostgreToDatabricksVolumeBronzeConfig,
     DatabricksVolumeLoaderConfig.__name__: DatabricksVolumeLoaderConfig,
+    VolumeToDataLakeConfig.__name__: VolumeToDataLakeConfig,
+    ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     # BronzePostgreQdrantFactory.__name__: BronzePostgreQdrantFactory
 }
 

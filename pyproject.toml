@@ -11,7 +11,8 @@ dependencies = [
 ]
 
 [project.scripts]
-main = "etl_pipeline.jobs.main:main"
+sample_job = "etl_pipeline.orchestration.databricks.sample_job:main"
+volume_to_datalake = "etl_pipeline.orchestration.databricks.voume_to_datalake:main"
 
 [build-system]
 requires = ["hatchling"]

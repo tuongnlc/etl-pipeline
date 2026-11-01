@@ -1,0 +1,10 @@
+---
+kind: VolumeToDataLakeConfig
+spec:
+  extractor:
+    kind: ParquetExtractorWithSparkConfig
+    spec:
+      catalog: finance_data_volume
+      schema: finance_data
+      volume: fs_balance_sheet_type_four
+      path: fs_balance_sheet_type_four.parquet
