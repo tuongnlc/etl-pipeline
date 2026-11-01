@@ -9,7 +9,6 @@ import importlib
 import inspect
 from etl_pipeline.models.example_config import ExampleConfig
 from etl_pipeline.models.etl.extractor.postgres_extractor_with_polars import PostgreDBExtractorWithPolarsConfig
-from etl_pipeline.models.etl.loader.bq_loader_with_polars import BigQueryLoaderPolarsConfig
 from etl_pipeline.models.etl.jobs.postgre_to_qdrant_bronze import PostgreToQdrantBronzeConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_qdrant_silver import QdrantToQdrantSilverConfig
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
@@ -19,14 +18,14 @@ from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import Qdra
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
 from etl_pipeline.models.etl.loader.databricks_volume_loader import DatabricksVolumeLoaderConfig
-from etl_pipeline.models.etl.extractor.parquet_extractor import ParquetExtractorWithSparkConfig
+from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import ParquetExtractorWithSparkConfig
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
+from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
 
 
 CONFIG_PARSER_MAP = {
     ExampleConfig.__name__: ExampleConfig,
     PostgreDBExtractorWithPolarsConfig.__name__: PostgreDBExtractorWithPolarsConfig,
-    BigQueryLoaderPolarsConfig.__name__: BigQueryLoaderPolarsConfig,    
     PostgreToQdrantBronzeConfig.__name__: PostgreToQdrantBronzeConfig,
     QdrantLoaderConfig.__name__: QdrantLoaderConfig,
     QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
@@ -37,7 +36,7 @@ CONFIG_PARSER_MAP = {
     DatabricksVolumeLoaderConfig.__name__: DatabricksVolumeLoaderConfig,
     VolumeToDataLakeConfig.__name__: VolumeToDataLakeConfig,
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
-    # BronzePostgreQdrantFactory.__name__: BronzePostgreQdrantFactory
+    DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
 }
 
 

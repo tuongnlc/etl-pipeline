@@ -1,7 +1,8 @@
 from pyspark.sql import SparkSession
 
 from etl_pipeline.infrastructure.spark.etl.extract.parquet_extractor import ParquetExtractorWithSpark
-from etl_pipeline.models.etl.extractor.parquet_extractor import ParquetExtractorWithSparkConfig
+from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaLoaderWithSpark
+from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import ParquetExtractorWithSparkConfig
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 from etl_pipeline.utils.jobargs import etl_job_args_utils
 
@@ -30,6 +31,12 @@ def main():
     )
     df = extractor.extract()
     df.show()
+
+    loader = DeltaLoaderWithSpark(
+        delta_table_name=job_config.loader.delta_table_name,
+        spark=spark,
+    )
+    loader.load(df)
 
 
 if __name__ == "__main__":

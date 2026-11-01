@@ -7,18 +7,18 @@ resources:
 
       parameters:
         - name: job_config
-          default: ${workspace.file_path}/configs/databricks/data_lake/spark_config/company_name.yaml
+          default: ${workspace.file_path}/configs/databricks/datalake/spark_config/company_name.yaml
 
       tasks:
         - task_key: volume_to_datalake__company_name
-          volume_to_datalake__company_name:
+          python_wheel_task:
             # Trùng với [project.name] trong pyproject.toml ở gốc repo.
             package_name: etl_pipeline
             # Trùng với entry point trong [project.scripts] của pyproject.toml.
             entry_point: volume_to_datalake
             parameters:
               - "--job_config"
-              - "${workspace.file_path}/configs/databricks/data_lake/spark_config/company_name.yaml"
+              - "${workspace.file_path}/configs/databricks/datalake/spark_config/company_name.yaml"
           environment_key: default
 
       environments:

@@ -2,7 +2,7 @@ bundle:
   name: etl_pipeline
 
 include:
-  - configs/databricks/data_lake/job_config/*.yaml
+  - configs/databricks/datalake/job_config/*.yaml
 
 artifacts:
   # Wheel của package etl_pipeline được build từ gốc repo (cd ..), output vào dist/ của bundle.

@@ -8,5 +8,5 @@ class VolumeToDataLakeConfig:
         Configuration for Databricks Volume to DataLake ETL job
     """
     extractor: Any
-    loader: Optional[Any] = None
+    loader: Any
     transform: Optional[Any] = None
