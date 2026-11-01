@@ -1,0 +1,21 @@
+# Manifest để build wheel cho package `etl_pipeline` (dùng bởi artifact của bundle).
+# Chạy ở gốc repo vì package nằm ở ./etl_pipeline.
+[project]
+name = "etl_pipeline"
+version = "0.0.1"
+requires-python = ">=3.11"
+dependencies = [
+    # Deps runtime của job lấy từ requirements.txt của repo. Không khai báo ở đây
+    # để tránh cài những gói chỉ dùng local (apache-airflow, opencv, pytesseract...)
+    # vào environment của Databricks job.
+]
+
+[project.scripts]
+main = "etl_pipeline.jobs.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["etl_pipeline"]

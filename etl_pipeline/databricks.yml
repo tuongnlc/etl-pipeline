@@ -1,0 +1,37 @@
+bundle:
+  name: etl_pipeline
+
+include:
+  - orchestration/databricks/data_lake/*.yaml
+
+artifacts:
+  # Wheel của package etl_pipeline được build từ gốc repo (cd ..), output vào dist/ của bundle.
+  python_artifact:
+    type: whl
+    build: cd .. && uv build --wheel --out-dir etl_pipeline/dist
+
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+sync:
+  include:
+    - jobs/**
+    - models/**
+    - infrastructure/**
+    - utils/**
+  exclude:
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-a4257ab8-9fcb.cloud.databricks.com
+    variables:
+      catalog: test_dab
+      schema: ${workspace.current_user.short_name}
