@@ -1,0 +1,15 @@
+---
+kind: VolumeToDataLakeConfig
+spec:
+  extractor:
+    kind: ParquetExtractorWithSparkConfig
+    spec:
+      catalog: finance_data_volume
+      schema: market_data
+      volume: fund_gav
+  loader:
+    kind: DeltaLoaderWithSparkConfig
+    spec:
+      catalog: finance_datalake
+      schema: market_data
+      table: fund_gav
