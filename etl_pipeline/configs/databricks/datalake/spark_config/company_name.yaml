@@ -5,11 +5,11 @@ spec:
     kind: ParquetExtractorWithSparkConfig
     spec:
       catalog: finance_data_volume
-      schema: finance_data
-      volume: fs_balance_sheet_type_four
+      schema: market_data
+      volume: company_name
   loader:
     kind: DeltaLoaderWithSparkConfig
     spec:
       catalog: finance_datalake
-      schema: finance_data
-      table: fs_balance_sheet_type_four
+      schema: market_data
+      table: company_name
