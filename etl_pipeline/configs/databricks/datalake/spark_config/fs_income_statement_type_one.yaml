@@ -1,0 +1,15 @@
+---
+kind: VolumeToDataLakeConfig
+spec:
+  extractor:
+    kind: ParquetExtractorWithSparkConfig
+    spec:
+      catalog: finance_data_volume
+      schema: finance_data
+      volume: fs_income_statement_type_one
+  loader:
+    kind: DeltaLoaderWithSparkConfig
+    spec:
+      catalog: finance_datalake
+      schema: finance_data
+      table: fs_income_statement_type_one
