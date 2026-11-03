@@ -1,0 +1,74 @@
+resources:
+  postgres_synced_tables:
+    capital_efficiency:
+      synced_table_id: lakebase_sync.profitability_analytics.capital_efficiency
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.capital_efficiency
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+
+    equity_multiplier:
+      synced_table_id: lakebase_sync.profitability_analytics.equity_multiplier
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.equity_multiplier
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+
+    operating_asset_turnover:
+      synced_table_id: lakebase_sync.profitability_analytics.operating_asset_turnover
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.operating_asset_turnover
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+    
+    operating_margin:
+      synced_table_id: lakebase_sync.profitability_analytics.operating_margin
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.operating_margin
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+
+    profit_margin_cascade:
+      synced_table_id: lakebase_sync.profitability_analytics.profit_margin_cascade
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.profit_margin_cascade
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+    
+    roe_analytics:
+      synced_table_id: lakebase_sync.profitability_analytics.roe_analytics
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datamart.profitability_analytics.roe_analytics
+      primary_key_columns:
+        - stock_id
+      timeseries_key: year
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: 93d983d9-c378-447f-af32-a983ffcd4296
+

@@ -10,6 +10,7 @@ spec:
         SELECT 
             year,
             quarter,
+            stock_id,
             net_revenue, 
             gross_profit,
             net_operating_profit
