@@ -14,12 +14,14 @@ from etl_pipeline.models.etl.jobs.qdrant_to_qdrant_silver import QdrantToQdrantS
 from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 from etl_pipeline.models.etl.transform.qdrant_transform import QdrantTransformConfig
+from etl_pipeline.models.etl.transform.sql_transform import SqlTransformWithSparkConfig
 from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
 from etl_pipeline.models.etl.loader.databricks_volume_loader import DatabricksVolumeLoaderConfig
 from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import ParquetExtractorWithSparkConfig
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
+from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
 
 
@@ -31,10 +33,12 @@ CONFIG_PARSER_MAP = {
     QdrantToQdrantSilverConfig.__name__: QdrantToQdrantSilverConfig,
     QdrantExtractorWithPayloadConfig.__name__: QdrantExtractorWithPayloadConfig,
     QdrantTransformConfig.__name__: QdrantTransformConfig,
+    SqlTransformWithSparkConfig.__name__: SqlTransformWithSparkConfig,
     TriggerDagJobConfig.__name__: TriggerDagJobConfig,
     PostgreToDatabricksVolumeBronzeConfig.__name__: PostgreToDatabricksVolumeBronzeConfig,
     DatabricksVolumeLoaderConfig.__name__: DatabricksVolumeLoaderConfig,
     VolumeToDataLakeConfig.__name__: VolumeToDataLakeConfig,
+    DataLakeToDatamartConfig.__name__: DataLakeToDatamartConfig,
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
 }

@@ -1,0 +1,11 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        create or replace table `finance_datamart`.`market_data`.`company_name` as
+        select
+          *
+        from `finance_datalake`.`market_data`.`company_name`

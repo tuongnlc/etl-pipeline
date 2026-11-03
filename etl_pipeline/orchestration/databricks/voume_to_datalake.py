@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 
 from etl_pipeline.infrastructure.spark.etl.extract.parquet_extractor import ParquetExtractorWithSpark
 from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaLoaderWithSpark
+from etl_pipeline.jobs.silver_databrick_lakehouse import SilverDatabrickLakehouseJob
 from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import ParquetExtractorWithSparkConfig
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 from etl_pipeline.utils.jobargs import etl_job_args_utils
@@ -29,14 +30,17 @@ def main():
         parquet_uri=job_config.extractor.parquet_uri,
         spark=spark,
     )
-    df = extractor.extract()
-    df.show()
 
     loader = DeltaLoaderWithSpark(
         delta_table_name=job_config.loader.delta_table_name,
         spark=spark,
     )
-    loader.load(df)
+
+    silver_databrick_lakehouse_job = SilverDatabrickLakehouseJob(
+        extractor=extractor,
+        loader=loader,
+    )
+    silver_databrick_lakehouse_job.run()
 
 
 if __name__ == "__main__":

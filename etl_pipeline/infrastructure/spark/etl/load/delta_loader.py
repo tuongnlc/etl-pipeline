@@ -1,8 +1,10 @@
 from pyspark.sql import SparkSession, DataFrame
 
+from etl_pipeline.templates.etl.load.delta_loader import DeltaLoader
 
 
-class DeltaLoaderWithSpark:
+
+class DeltaLoaderWithSpark(DeltaLoader):
     def __init__(self, delta_table_name: str, spark: SparkSession):
         self.delta_table_name = delta_table_name
         self.spark = spark

@@ -1,0 +1,33 @@
+# Job chạy code Python trong etl_pipeline/orchestration/databricks/datalake_to_datamart.py.
+
+resources:
+  jobs:
+    datalake_to_datamart__test_config:
+      name: datalake_to_datamart__test_config
+
+      parameters:
+        - name: job_config
+          default: ${workspace.file_path}/configs/databricks/data_mart/spark_config/test_config.yaml
+
+      tasks:
+        - task_key: datalake_to_datamart__test_config
+          python_wheel_task:
+            # Trùng với [project.name] trong pyproject.toml ở gốc repo.
+            package_name: etl_pipeline
+            # Trùng với entry point trong [project.scripts] của pyproject.toml.
+            entry_point: datalake_to_datamart
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/data_mart/spark_config/test_config.yaml"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              # Wheel của package etl_pipeline, sinh ra bởi artifact `python_artifact`
+              # trong databricks.yml. Đường dẫn tính tương đối từ file này.
+              - ../../../../dist/*.whl
+              # Deps runtime không có sẵn trong environment của Databricks serverless.
+              - dacite==1.9.2
