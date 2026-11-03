@@ -1,0 +1,17 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Profit  Margin Cascade Analytics
+        CREATE OR REPLACE TABLE finance_datamart.profitability_analytics.profit_margin_cascade
+        SELECT 
+            year,
+            quarter,
+            net_revenue, 
+            gross_profit,
+            net_operating_profit
+        FROM finance_datalake.finance_data.fs_income_statement_type_one
+        ORDER BY year DESC, quarter DESC

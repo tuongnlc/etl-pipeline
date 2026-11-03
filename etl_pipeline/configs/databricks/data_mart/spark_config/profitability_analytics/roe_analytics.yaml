@@ -1,0 +1,66 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- ROE Analytics
+        CREATE OR REPLACE TABLE finance_datamart.profitability_analytics.roe_analytics
+        WITH data_ AS (
+            SELECT 
+                ist.year,
+                ist.quarter,
+                ist.stock_id,
+                bs.total_assets,
+                bs.total_equity,
+                ist.net_revenue,
+                ist.net_profit_after_corporate_income_tax,
+                -- Xử lý bỏ chữ 'Q' trong quarter trước khi nhân/cộng
+                (ist.year::integer * 4 + REPLACE(UPPER(ist.quarter), 'Q', '')::integer) AS time_order
+            FROM finance_datalake.finance_data.fs_balance_sheet_type_one AS bs
+            JOIN finance_datalake.finance_data.fs_income_statement_type_one AS ist
+                ON bs.year = ist.year
+                AND bs.stock_id = ist.stock_id
+                AND bs.quarter = ist.quarter
+        ),
+        ttm_data_ AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                SUM(net_revenue) OVER w AS ttm_net_revenue,
+                SUM(net_profit_after_corporate_income_tax) OVER w AS ttm_net_profit,
+                AVG(total_assets) OVER w AS avg_total_assets_ttm,
+                AVG(total_equity) OVER w AS avg_total_equity_ttm,
+                COUNT(*) OVER w AS ttm_count
+            FROM data_
+            WINDOW w AS (
+                PARTITION BY stock_id 
+                ORDER BY time_order 
+                ROWS BETWEEN 3 PRECEDING AND CURRENT ROW
+            )
+        ),
+        calculate_data_ AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                (ttm_net_profit::numeric / NULLIF(ttm_net_revenue::numeric, 0)) AS net_profit_margin_ttm,
+                (ttm_net_revenue::numeric / NULLIF(avg_total_assets_ttm::numeric, 0)) AS asset_turnover_ttm,
+                (avg_total_assets_ttm::numeric / NULLIF(avg_total_equity_ttm::numeric, 0)) AS financial_leverage_ttm
+            FROM ttm_data_
+            WHERE ttm_count = 4
+        )
+        SELECT 
+            year,
+            quarter,
+            stock_id,
+            ROUND(net_profit_margin_ttm, 4) AS net_profit_margin,
+            ROUND(asset_turnover_ttm, 4) AS asset_turnover,
+            ROUND(financial_leverage_ttm, 4) AS financial_leverage,
+            ROUND((net_profit_margin_ttm * asset_turnover_ttm * financial_leverage_ttm) * 100, 2) AS roe
+        FROM calculate_data_
+        ORDER BY year DESC, quarter DESC
+
+              
