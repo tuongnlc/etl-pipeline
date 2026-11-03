@@ -1,0 +1,23 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Operating Margin Analytics
+        CREATE OR REPLACE TABLE finance_datamart.profitability_analytics.operating_margin
+        SELECT 
+          year,
+          quarter,
+          gross_profit,
+          selling_expenses,
+          general_and_administrative_expenses,
+          net_revenue,
+          ROUND(
+          (
+              (gross_profit - selling_expenses - general_and_administrative_expenses)::numeric / 
+          net_revenue::numeric
+          ), 2) AS operating_margin   
+        FROM finance_datalake.finance_data.fs_income_statement_type_one
+

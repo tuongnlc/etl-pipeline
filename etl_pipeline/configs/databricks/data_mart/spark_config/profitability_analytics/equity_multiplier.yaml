@@ -1,0 +1,18 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Equity Multiplier Analytics
+        CREATE OR REPLACE TABLE finance_datamart.profitability_analytics.equity_multiplier
+        SELECT 
+          year,
+          quarter,
+          stock_id,
+          total_assets,
+          total_equity,
+          ROUND(total_assets::numeric / total_equity::numeric, 2) AS equity_multiplier 
+        FROM finance_datalake.finance_data.fs_balance_sheet_type_one
+    

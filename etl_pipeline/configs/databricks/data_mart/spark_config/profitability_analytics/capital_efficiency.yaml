@@ -1,0 +1,15 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Capital Efficiency Analytics
+        CREATE OR REPLACE TABLE finance_datamart.profitability_analytics.capital_efficiency
+        SELECT 
+          roa,
+          roe,
+          roic
+        FROM finance_datalake.finance_data.fs_financial_statistics_overview_type_one
+    
