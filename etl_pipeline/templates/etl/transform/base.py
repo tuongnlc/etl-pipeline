@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-import polars as pl
 
 
 class TransformStep(ABC):
     @abstractmethod
-    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+    def transform(self, df):
         """
             Transform the input DataFrame.
         """
@@ -13,5 +12,5 @@ class TransformStep(ABC):
 
 class BaseTransform:
     @abstractmethod
-    def transform(self, df: pl.DataFrame, transform_steps: list[TransformStep]) -> pl.DataFrame:
+    def transform(self, df, transform_steps: list[TransformStep]):
         raise NotImplementedError("transform method must be implemented")

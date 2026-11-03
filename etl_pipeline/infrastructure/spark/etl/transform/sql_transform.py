@@ -12,15 +12,12 @@ class SqlTransformWithSpark(BaseTransform):
         self,
         spark: SparkSession,
         sql_query: str,
-        view_name: str = "source_df",
     ):
         self.spark = spark
         self.sql_query = sql_query
-        self.view_name = view_name
 
-    def transform(self, df: DataFrame, transform_steps: list[TransformStep] = None) -> DataFrame:
+    def transform(self, transform_steps: list[TransformStep] = None) -> DataFrame:
         """
             Register the input DataFrame as a temp view then transform it using the SQL query
         """
-        df.createOrReplaceTempView(self.view_name)
         return self.spark.sql(self.sql_query)
