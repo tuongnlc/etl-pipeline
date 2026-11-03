@@ -3,6 +3,7 @@ bundle:
 
 include:
   - configs/databricks/datalake/job_config/*.yaml
+  - configs/databricks/data_mart/job_config/**/*.yaml
   - configs/databricks/data_mart/job_config/*.yaml
 
 artifacts:
