@@ -10,6 +10,7 @@ spec:
         SELECT 
           year,
           quarter,
+          stock_id,
           gross_profit,
           selling_expenses,
           general_and_administrative_expenses,
