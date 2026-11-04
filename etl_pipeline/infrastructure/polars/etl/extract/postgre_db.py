@@ -1,3 +1,5 @@
+import uuid
+
 import polars as pl
 
 from etl_pipeline.templates.etl.extract.postgre_db import PostgreDBExtractor
@@ -58,5 +60,19 @@ class PostgreDBExtractorWithPolars(PostgreDBExtractor):
         print(query)
 
         df = pl.read_database_uri(query=query, uri=self.uri, engine="adbc", **self.kwargs)
-        df = df.with_columns(pl.col("id").bin.encode("hex").alias("id")) #need this to load to bigquery
+        # ADBC trả các cột uuid của Postgres về dtype Binary (16 byte thô),
+        # cần đổi sang chuỗi UUID có dấu gạch (id, document_id, ...)
+        binary_columns = [c for c, dtype in df.schema.items() if dtype == pl.Binary]
+        if binary_columns:
+            df = df.with_columns(
+                [
+                    pl.col(c)
+                    .map_elements(
+                        lambda b: str(uuid.UUID(bytes=b)) if b is not None else None,
+                        return_dtype=pl.String,
+                    )
+                    .alias(c)
+                    for c in binary_columns
+                ]
+            )
         return df
