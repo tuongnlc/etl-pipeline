@@ -1,6 +1,6 @@
 resources:
-  newspaper_summary:
-    capital_efficiency:
+  postgres_synced_tables:
+    newspaper_summary:
       synced_table_id: lakebase_sync.market_news.newspaper_summary
       branch: projects/finance-2026/branches/production
       postgres_database: databricks_postgres
