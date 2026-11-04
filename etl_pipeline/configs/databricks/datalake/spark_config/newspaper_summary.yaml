@@ -1,0 +1,15 @@
+---
+kind: VolumeToDataLakeConfig
+spec:
+  extractor:
+    kind: ParquetExtractorWithSparkConfig
+    spec:
+      catalog: market_news_volume
+      schema: newspaper
+      volume: newspaper_summary
+  loader:
+    kind: DeltaLoaderWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper_summary

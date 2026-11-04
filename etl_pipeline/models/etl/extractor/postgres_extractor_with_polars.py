@@ -6,6 +6,7 @@ from typing import Optional
 class PostgreDBExtractorWithPolarsConfig:
     uri: str
     source_table_name: str
+    connection_id: str = "postgres_market_data_polar_uri"
     enable_execution_date: bool = None
     extractor_column_filter: Optional[str] = None
     filter_value: Optional[str] = None

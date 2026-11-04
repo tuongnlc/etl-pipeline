@@ -1,6 +1,5 @@
 # market_data_etl.pyfrom etl_pipeline.templates.pipeline.base import BasePipeline
 from etl_pipeline.templates.etl.extract.postgre_db import PostgreDBExtractor
-from etl_pipeline.templates.etl.load.bq_loader import BigQueryLoader
 from etl_pipeline.templates.etl.load.databricks_volume_loader import DatabricksVolumeLoader
 from etl_pipeline.templates.pipeline.base import BasePipeline
 import polars as pl
@@ -40,7 +39,7 @@ class BronzePostgreDatabricks(BasePipeline):
 
     def load(self, transform_data: pl.DataFrame) -> None:
         """
-            Load data to bigquery
+            Load data to databricks volume
         """
         self.loader.load(transform_data)
 

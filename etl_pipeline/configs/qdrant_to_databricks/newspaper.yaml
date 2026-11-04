@@ -1,0 +1,14 @@
+---
+kind: QdrantToDatabricksVolumeBronzeConfig
+spec:
+  extractor:
+    kind: QdrantExtractorWithPayloadConfig
+    spec:
+      qdrant_url: http://qdrant:6333
+      collection_name: newspaper
+      payload_filter: {}
+  loader:
+    kind: DatabricksVolumeLoaderConfig
+    spec:
+      volume_url: market_news_volume.newspaper.newspaper
+      local_file_path: tmp/newspaper.parquet
