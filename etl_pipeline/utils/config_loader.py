@@ -23,6 +23,8 @@ from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import Parqu
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
+from etl_pipeline.models.etl.jobs.qdrant_to_databricks_volume_bronze import QdrantToDatabricksVolumeBronzeConfig
+
 
 
 CONFIG_PARSER_MAP = {
@@ -41,6 +43,7 @@ CONFIG_PARSER_MAP = {
     DataLakeToDatamartConfig.__name__: DataLakeToDatamartConfig,
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
+    QdrantToDatabricksVolumeBronzeConfig.__name__: QdrantToDatabricksVolumeBronzeConfig,
 }
 
 

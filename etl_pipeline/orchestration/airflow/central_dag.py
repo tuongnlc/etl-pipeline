@@ -11,8 +11,9 @@ from etl_pipeline.orchestration.dag_builder.task_factories.bronze_postgre_qdrant
 from etl_pipeline.orchestration.dag_builder.task_factories.silver_qdrant_embedding_factory import SilverQdrantEmbeddingTaskFactory
 from etl_pipeline.orchestration.dag_builder.task_factories.trigger_dag_factory import TriggerDagsFactory
 from etl_pipeline.orchestration.dag_builder.task_factories.bronze_postgre_databricks_factory import BronzePostgreDatabricksFactory
+from etl_pipeline.orchestration.dag_builder.task_factories.bronze_qdrant_databricks_factory import BronzeQdrantDatabricksFactory
 
-configs_path = f"local://{Path(airflow_config_loader.__file__).resolve().parents[1] / 'configs' / 'orchestration'}"
+configs_path = f"local_recursive://{Path(airflow_config_loader.__file__).resolve().parents[1] / 'configs' / 'orchestration'}"
 raw_configs: list[dict[str, Any]] = load_config(path=configs_path)
 config_registry = ConfigRegistry()
 config_registry.populate(raw_configs)
@@ -24,6 +25,7 @@ task_factory_registry.register(SilverQdrantEmbeddingTaskFactory())
 task_factory_registry.register(TriggerDagsFactory())
 task_factory_registry.register(BronzePostgreQdrantFactory())
 task_factory_registry.register(BronzePostgreDatabricksFactory())
+task_factory_registry.register(BronzeQdrantDatabricksFactory())
 
 
 

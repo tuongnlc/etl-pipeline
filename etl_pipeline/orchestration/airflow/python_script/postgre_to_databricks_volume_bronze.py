@@ -33,7 +33,7 @@ def main(
     if not isinstance(args.job_config.loader, DatabricksVolumeLoaderConfig):
         raise ValueError("loader must be of type DatabricksVolumeLoaderConfig")
 
-    polars_connection = BaseHook.get_connection("postgres_market_data_polar_uri")
+    polars_connection = BaseHook.get_connection(args.job_config.extractor.connection_id)
     uri = polars_connection.password
 
     if job_config.extractor.filter_type == "date":

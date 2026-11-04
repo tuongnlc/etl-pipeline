@@ -1,0 +1,15 @@
+---
+kind: PostgreToDatabricksVolumeBronzeConfig
+spec:
+  extractor:
+    kind: PostgreDBExtractorWithPolarsConfig
+    spec:
+      uri: postgresql://postgres:postgres@chatbot_postgres:5432/chatbot_db
+      connection_id: postgres_chatbot_db_polar_uri
+      source_table_name: public.newspaper_summary
+      enable_execution_date: false
+  loader:
+    kind: DatabricksVolumeLoaderConfig
+    spec:
+      volume_url: market_news_volume.newspaper.newspaper_summary
+      local_file_path: tmp/newspaper_summary.parquet
