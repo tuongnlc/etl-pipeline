@@ -31,7 +31,6 @@ class CrawlNewspaper(Crawler):
                 "publish_date": publish_date,
                 "newspaper_content": newspaper_content,
             })
-        print(data_)
         
         # Build spark dataframe with these data
         # Schema của DataFrame links (gom 2 cột: text, url).

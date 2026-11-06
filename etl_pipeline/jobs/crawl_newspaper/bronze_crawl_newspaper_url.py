@@ -24,7 +24,6 @@ class BronzeCrawlNewspaperUrl(BaseCrawlerPipeline):
             Read data from postgresql database
         """
         data_crawler = self.crawler.crawl()
-        print(data_crawler)
         return data_crawler
         
     def transform(self, data: DataFrame) -> DataFrame:

@@ -1,0 +1,45 @@
+resources:
+  jobs:
+    crawl__vietstock_chung_khoan:
+      name: crawl__vietstock_chung_khoan
+
+      parameters:
+        - name: job_config
+          default: ${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/vietstock_chung_khoan.yaml
+        - name: execution_date
+          default: "{{job.start_time.iso_date}}"
+
+      tasks:
+        - task_key: crawl__vietstock_chung_khoan
+          python_wheel_task:
+            package_name: etl_pipeline
+            entry_point: crawl_newspaper_url
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/vietstock_chung_khoan_url.yaml"
+          environment_key: default
+
+        - task_key: silver_crawl_newspaper
+          depends_on:
+            - task_key: crawl__vietstock_chung_khoan
+          python_wheel_task:
+            package_name: etl_pipeline
+            entry_point: crawl_newspaper
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/vietstock_chung_khoan.yaml"
+              - "--execution_date"
+              - "{{job.parameters.execution_date}}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              - ../../../../dist/*.whl
+              - dacite==1.9.2
+              - httpx==0.28.1
+              - beautifulsoup4==4.15.0
+              - lxml==5.4.0
+              - newspaper4k==0.9.5

@@ -15,7 +15,7 @@ sample_job = "etl_pipeline.orchestration.databricks.sample_job:main"
 volume_to_datalake = "etl_pipeline.orchestration.databricks.voume_to_datalake:main"
 datalake_to_datamart = "etl_pipeline.orchestration.databricks.datalake_to_datamart:main"
 crawl_newspaper_url = "etl_pipeline.orchestration.databricks.crawl_newspaper.bronze_crawl_newspaper_url:main"
-silver_crawl_newspaper = "etl_pipeline.orchestration.databricks.crawl_newspaper.silver_crawl_newspaper:main"
+crawl_newspaper = "etl_pipeline.orchestration.databricks.crawl_newspaper.silver_crawl_newspaper:main"
 
 [build-system]
 requires = ["hatchling"]

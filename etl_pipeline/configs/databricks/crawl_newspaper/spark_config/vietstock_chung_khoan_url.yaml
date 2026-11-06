@@ -19,6 +19,6 @@ spec:
     spec:
       catalog: market_news_datalake
       schema: newspaper
-      table: newspaper
+      table: newspaper_url
       merge_keys:
-        - newspaper_url
+        - url
