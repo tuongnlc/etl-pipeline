@@ -22,10 +22,13 @@ class CrawlNewspaperUrl(Crawler):
         r"^https?://(?:[^/]+\.)?thoibaotaichinhvietnam\.vn/(?!.*-\d{3,}\.html$)",
     )
 
-    # Schema của DataFrame links (gom 2 cột: text, url).
+    # Schema của DataFrame links (gom 3 cột: text, url, source_link).
+    # `source_link` = URL trang chuyên mục (config crawler) -> dùng để filter ở lớp silver.
     SCHEMA = StructType([
         StructField("text", StringType(), True),
         StructField("url", StringType(), True),
+        StructField("source_link", StringType(), True),
+        StructField("created_date", StringType(), True),
     ])
 
     def __init__(self, link: str, spark: SparkSession) -> None:
@@ -59,6 +62,7 @@ class CrawlNewspaperUrl(Crawler):
             links.append({
                 "text": a.get_text(strip=True),
                 "url": url,
+                "source_link": self.link,
             })
 
         # Build spark dataframe
