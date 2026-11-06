@@ -1,0 +1,13 @@
+---
+kind: CrawlNewspaperUrlJobConfig
+spec:
+  extractor:
+    kind: CrawlNewspaperUrlExtractorConfig
+    spec:
+      link: https://vietstock.vn/chung-khoan.htm
+  loader:
+    kind: DeltaLoaderWithSparkConfig
+    spec:
+      catalog: finance_datalake
+      schema: market_data
+      table: newspaper_url

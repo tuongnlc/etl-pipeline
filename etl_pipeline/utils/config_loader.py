@@ -24,6 +24,8 @@ from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConf
 from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_databricks_volume_bronze import QdrantToDatabricksVolumeBronzeConfig
+from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper_url import CrawlNewspaperUrlExtractorConfig
+from etl_pipeline.models.etl.jobs.crawler.crawl_newspaper_url import CrawlNewspaperUrlJobConfig
 
 
 
@@ -44,6 +46,8 @@ CONFIG_PARSER_MAP = {
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
     QdrantToDatabricksVolumeBronzeConfig.__name__: QdrantToDatabricksVolumeBronzeConfig,
+    CrawlNewspaperUrlJobConfig.__name__: CrawlNewspaperUrlJobConfig,
+    CrawlNewspaperUrlExtractorConfig.__name__: CrawlNewspaperUrlExtractorConfig,
 }
 
 
