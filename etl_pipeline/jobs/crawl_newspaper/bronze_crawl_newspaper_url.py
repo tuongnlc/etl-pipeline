@@ -1,9 +1,9 @@
 # market_data_etl.pyfrom etl_pipeline.templates.pipeline.base import BasePipeline
 from etl_pipeline.infrastructure.crawler.extract.crawl_newspaper_url import CrawlNewspaperUrl
-from etl_pipeline.templates.etl.load.databricks_volume_loader import DatabricksVolumeLoader
+from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaMergeLoaderWithSpark
 from etl_pipeline.templates.pipeline.base import BasePipeline
-from etl_pipeline.templates.etl.transform.base import BaseTransform, TransformStep
-
+from pyspark.sql import DataFrame
+from etl_pipeline.templates.etl.transform.base import TransformStep
 
 class BronzeCrawlNewspaperUrl(BasePipeline):
     """
@@ -12,14 +12,12 @@ class BronzeCrawlNewspaperUrl(BasePipeline):
     def __init__(
             self, 
             extractor: CrawlNewspaperUrl,
-            # transformer: BaseTransform,
-            # transform_steps: list[TransformStep],
-            # loader: DatabricksVolumeLoader,
+            transform_steps: list[TransformStep],
+            loader: DeltaMergeLoaderWithSpark,
         ) -> None:
         self.extractor = extractor
-        # self.transformer = transformer
-        # self.transform_steps = transform_steps
-        # self.loader = loader
+        self.transform_steps = transform_steps
+        self.loader = loader
 
     def extract(self) -> None:
         """
@@ -29,21 +27,21 @@ class BronzeCrawlNewspaperUrl(BasePipeline):
         print(data_crawler)
         return data_crawler
         
-    # def transform(self, data: pl.DataFrame) -> pl.DataFrame:
-    #     """
-    #         Transform data using transform_steps
-    #     """
-    #     df = self.transformer.transform(data, self.transform_steps)
-    #     if isinstance(df, pl.DataFrame):
-    #         return df
+    def transform(self, data: DataFrame) -> DataFrame:
+        """
+            Transform data using transform_steps
+        """
+        for step in self.transform_steps:
+            data = step.transform(data)
+        return data
 
-    def load(self) -> None:
+    def load(self, data: DataFrame) -> None:
         """
             Load data to databricks volume
         """
-        return None
+        self.loader.load(data)
 
     def run(self) -> None:
         data_ = self.extract()
-        # data_ = self.transform(data_)
-        # self.load(data_)
+        data_ = self.transform(data_)
+        self.load(data_)

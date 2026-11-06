@@ -2,6 +2,8 @@ from urllib.parse import urljoin
 import re
 import httpx
 from bs4 import BeautifulSoup
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.types import StringType, StructField, StructType
 from etl_pipeline.templates.etl.extract.crawler_extractor import CrawlerExtractor
 
 
@@ -20,13 +22,20 @@ class CrawlNewspaperUrl(CrawlerExtractor):
         r"^https?://(?:[^/]+\.)?thoibaotaichinhvietnam\.vn/(?!.*-\d{3,}\.html$)",
     )
 
-    def __init__(self, link: str) -> None:
+    # Schema của DataFrame links (gom 2 cột: text, url).
+    SCHEMA = StructType([
+        StructField("text", StringType(), True),
+        StructField("url", StringType(), True),
+    ])
+
+    def __init__(self, link: str, spark: SparkSession) -> None:
         self.link = link
+        self.spark = spark
 
     def _should_ignore(self, url: str) -> bool:
         return any(re.search(pattern, url) for pattern in self.IGNORE_PATTERNS)
 
-    def extract(self) -> list[dict]:
+    def extract(self) -> DataFrame:
         with httpx.Client(
             follow_redirects=True,
             headers={"User-Agent": "Mozilla/5.0"},
@@ -51,4 +60,7 @@ class CrawlNewspaperUrl(CrawlerExtractor):
                 "text": a.get_text(strip=True),
                 "url": url,
             })
-        return links
+
+        # Build spark dataframe
+        df = self.spark.createDataFrame(links, schema=self.SCHEMA)
+        return df

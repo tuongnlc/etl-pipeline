@@ -15,6 +15,7 @@ from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 from etl_pipeline.models.etl.transform.qdrant_transform import QdrantTransformConfig
 from etl_pipeline.models.etl.transform.sql_transform import SqlTransformWithSparkConfig
+from etl_pipeline.models.etl.transform.spark_transform import SparkTransformConfig
 from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
@@ -23,6 +24,7 @@ from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import Parqu
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
+from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaMergeLoaderWithSparkConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_databricks_volume_bronze import QdrantToDatabricksVolumeBronzeConfig
 from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper_url import CrawlNewspaperUrlExtractorConfig
 from etl_pipeline.models.etl.jobs.crawler.crawl_newspaper_url import CrawlNewspaperUrlJobConfig
@@ -45,9 +47,11 @@ CONFIG_PARSER_MAP = {
     DataLakeToDatamartConfig.__name__: DataLakeToDatamartConfig,
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
+    DeltaMergeLoaderWithSparkConfig.__name__: DeltaMergeLoaderWithSparkConfig,
     QdrantToDatabricksVolumeBronzeConfig.__name__: QdrantToDatabricksVolumeBronzeConfig,
     CrawlNewspaperUrlJobConfig.__name__: CrawlNewspaperUrlJobConfig,
     CrawlNewspaperUrlExtractorConfig.__name__: CrawlNewspaperUrlExtractorConfig,
+    SparkTransformConfig.__name__: SparkTransformConfig,
 }
 
 

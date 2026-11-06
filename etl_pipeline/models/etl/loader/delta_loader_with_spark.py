@@ -10,3 +10,15 @@ class DeltaLoaderWithSparkConfig:
     @property
     def delta_table_name(self) -> str:
         return f"{self.catalog}.{self.schema}.{self.table}"
+
+
+@dataclass
+class DeltaMergeLoaderWithSparkConfig:
+    catalog: str
+    schema: str
+    table: str
+    merge_keys: list[str]
+
+    @property
+    def delta_table_name(self) -> str:
+        return f"{self.catalog}.{self.schema}.{self.table}"

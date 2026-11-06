@@ -32,6 +32,14 @@ def etl_job_args_utils(extra_args: Optional[list[dict]] = None) -> Namespace:
         if getattr(args.job_config, "loader", None) is not None:
             parsed_job_config_loader = parse_config(args.job_config.loader)
             args.job_config.loader = parsed_job_config_loader
+        if getattr(args.job_config, "transform", None) is not None:
+            parsed_job_config_transform = parse_config(args.job_config.transform)
+            args.job_config.transform = parsed_job_config_transform
+            # Parse từng transform step (kind/spec) thành object.
+            if getattr(parsed_job_config_transform, "transform_steps", None) is not None:
+                parsed_job_config_transform.transform_steps = [
+                    parse_config(step) for step in parsed_job_config_transform.transform_steps
+                ]
             
 
     # if args.meta_config != "": Update here

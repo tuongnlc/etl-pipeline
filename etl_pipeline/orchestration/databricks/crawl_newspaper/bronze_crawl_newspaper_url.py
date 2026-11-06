@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 
 from etl_pipeline.infrastructure.crawler.extract.crawl_newspaper_url import CrawlNewspaperUrl
 from etl_pipeline.infrastructure.spark.etl.extract.parquet_extractor import ParquetExtractorWithSpark
-from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaLoaderWithSpark
+from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaLoaderWithSpark, DeltaMergeLoaderWithSpark
 from etl_pipeline.jobs.crawl_newspaper.bronze_crawl_newspaper_url import BronzeCrawlNewspaperUrl
 from etl_pipeline.jobs.silver_databrick_lakehouse import SilverDatabrickLakehouseJob
 from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import ParquetExtractorWithSparkConfig
@@ -29,11 +29,26 @@ def main():
 
     extractor = CrawlNewspaperUrl(
         link=job_config.extractor.link,
+        spark=spark,
+    )
+
+    # Transform steps được khai báo trong config (spark_config/newspaper_url.yaml).
+    transform_steps = (
+        job_config.transform.transform_steps
+        if job_config.transform is not None
+        else []
+    )
+
+    loader = DeltaMergeLoaderWithSpark(
+        delta_table_name=job_config.loader.delta_table_name,
+        spark=spark,
+        merge_keys=job_config.loader.merge_keys,
     )
 
     bronze_crawl_newspaper_url_job = BronzeCrawlNewspaperUrl(
         extractor=extractor,
-        # loader=loader,
+        transform_steps=transform_steps,
+        loader=loader,
     )
     bronze_crawl_newspaper_url_job.run()
 
