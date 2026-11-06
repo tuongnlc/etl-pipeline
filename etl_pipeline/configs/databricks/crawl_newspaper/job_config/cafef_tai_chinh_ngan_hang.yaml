@@ -1,0 +1,50 @@
+# Job chạy code Python trong etl_pipeline/orchestration/databricks/voume_to_datalake.py.
+
+resources:
+  jobs:
+    crawl__cafef_tai_chinh_ngan_hang:
+      name: crawl__cafef_tai_chinh_ngan_hang
+
+      schedule:
+        quartz_cron_expression: "0 20 6,18 * * ?"
+        timezone_id: "Asia/Ho_Chi_Minh"
+        pause_status: UNPAUSED
+
+      parameters:
+        - name: execution_date
+          default: "{{job.start_time.iso_date}}"
+
+      tasks:
+        - task_key: crawl__cafef_tai_chinh_ngan_hang_url
+          python_wheel_task:
+            package_name: etl_pipeline
+            entry_point: crawl_newspaper_url
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/cafef_tai_chinh_ngan_hang_url.yaml"
+          environment_key: default
+
+        - task_key: crawl__cafef_tai_chinh_ngan_hang
+          depends_on:
+            - task_key: crawl__cafef_tai_chinh_ngan_hang_url
+          python_wheel_task:
+            package_name: etl_pipeline
+            entry_point: crawl_newspaper
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/cafef_tai_chinh_ngan_hang.yaml"
+              - "--execution_date"
+              - "{{job.parameters.execution_date}}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              - ../../../../dist/*.whl
+              - dacite==1.9.2
+              - httpx==0.28.1
+              - beautifulsoup4==4.15.0
+              - lxml==5.4.0
+              - newspaper4k==0.9.5

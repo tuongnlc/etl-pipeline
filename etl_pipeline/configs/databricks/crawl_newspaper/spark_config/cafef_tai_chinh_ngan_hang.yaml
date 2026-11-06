@@ -1,0 +1,34 @@
+---
+kind: SilverCrawlNewspaperJobConfig
+spec:
+  extractor:
+    kind: DeltaExtractorWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper_url
+  transform:
+    kind: SparkTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.dataframe_filter.DataFrameFilter
+          spec:
+            condition:
+              - created_date: "{{ execution_date }}"
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.columns.SelectColumns
+          spec:
+            column_names: 
+              - url    
+  crawler:
+    kind: CrawlNewspaperCrawlerConfig
+    spec: {}
+  loader:
+    kind: DeltaMergeLoaderWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper
+      merge_keys:
+        - newspaper_url
+      partition_column: published_date
+
