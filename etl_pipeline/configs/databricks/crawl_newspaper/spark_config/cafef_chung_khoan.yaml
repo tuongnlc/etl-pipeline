@@ -16,6 +16,8 @@ spec:
             condition:
               # date = ngày chạy job (Jinja render khi chạy); override được qua --execution_date để backfill.
               - created_date: "{{ execution_date }}"
+              # source_link = URL trang chuyên mục -> chỉ crawl đúng nguồn của job này.
+              - source_link: "https://cafef.vn/thi-truong-chung-khoan.chn"
         - kind: etl_pipeline.infrastructure.spark.etl.transform.columns.SelectColumns
           spec:
             column_names: 

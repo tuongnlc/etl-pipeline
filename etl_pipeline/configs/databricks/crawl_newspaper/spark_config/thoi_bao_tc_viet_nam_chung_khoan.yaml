@@ -1,0 +1,37 @@
+---
+kind: SilverCrawlNewspaperJobConfig
+spec:
+  extractor:
+    kind: DeltaExtractorWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper_url
+  transform:
+    kind: SparkTransformConfig
+    spec:
+      transform_steps:
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.dataframe_filter.DataFrameFilter
+          spec:
+            condition:
+              # date = ngày chạy job (Jinja render khi chạy); override được qua --execution_date để backfill.
+              - created_date: "{{ execution_date }}"
+              # source_link = URL trang chuyên mục -> chỉ crawl đúng nguồn của job này.
+              - source_link: "https://thoibaotaichinhvietnam.vn/chung-khoan"
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.columns.SelectColumns
+          spec:
+            column_names: 
+              - url    
+  crawler:
+    kind: CrawlNewspaperCrawlerConfig
+    spec: {}
+  loader:
+    kind: DeltaMergeLoaderWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper
+      merge_keys:
+        - newspaper_url
+      partition_column: published_date
+

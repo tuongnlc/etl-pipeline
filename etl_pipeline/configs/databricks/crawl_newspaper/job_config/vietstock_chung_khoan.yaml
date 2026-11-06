@@ -3,6 +3,11 @@ resources:
     crawl__vietstock_chung_khoan:
       name: crawl__vietstock_chung_khoan
 
+      schedule:
+        quartz_cron_expression: "0 10 6,18 * * ?"
+        timezone_id: "Asia/Ho_Chi_Minh"
+        pause_status: UNPAUSED
+
       parameters:
         - name: job_config
           default: ${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/vietstock_chung_khoan.yaml

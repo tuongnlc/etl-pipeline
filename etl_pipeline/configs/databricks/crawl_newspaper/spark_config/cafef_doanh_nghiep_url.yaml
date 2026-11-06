@@ -1,0 +1,24 @@
+---
+kind: CrawlNewspaperUrlJobConfig
+spec:
+  crawler:
+    kind: CrawlNewspaperUrlCrawlerConfig
+    spec:
+      link: https://cafef.vn/doanh-nghiep.chn
+  transform:
+    kind: SparkTransformConfig
+    spec:
+      transform_steps:
+        # created_date = ngày hôm nay (Jinja render tại thời điểm chạy job).
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.columns.AddDateColumn
+          spec:
+            column_name: created_date
+            value: "{{ datetime.now().date() }}"
+  loader:
+    kind: DeltaMergeLoaderWithSparkConfig
+    spec:
+      catalog: market_news_datalake
+      schema: newspaper
+      table: newspaper_url
+      merge_keys:
+        - url
