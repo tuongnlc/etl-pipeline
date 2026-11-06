@@ -15,6 +15,7 @@ from etl_pipeline.models.etl.loader.qdrant_loader import QdrantLoaderConfig
 from dacite import from_dict
 from etl_pipeline.models.etl.transform.qdrant_transform import QdrantTransformConfig
 from etl_pipeline.models.etl.transform.sql_transform import SqlTransformWithSparkConfig
+from etl_pipeline.models.etl.transform.spark_transform import SparkTransformConfig
 from etl_pipeline.models.etl.extractor.qdrant_extractor_with_payload import QdrantExtractorWithPayloadConfig
 from etl_pipeline.models.etl.jobs.trigger_dag import TriggerDagJobConfig
 from etl_pipeline.models.etl.jobs.postgre_to_databricks_volume_bronze import PostgreToDatabricksVolumeBronzeConfig
@@ -23,7 +24,13 @@ from etl_pipeline.models.etl.extractor.parquet_extractor_with_spark import Parqu
 from etl_pipeline.models.etl.jobs.volume_to_datalake import VolumeToDataLakeConfig
 from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
+from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaMergeLoaderWithSparkConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_databricks_volume_bronze import QdrantToDatabricksVolumeBronzeConfig
+from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper import CrawlNewspaperUrlCrawlerConfig
+from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper import CrawlNewspaperCrawlerConfig
+from etl_pipeline.models.etl.extractor.delta_extractor_with_spark import DeltaExtractorWithSparkConfig
+from etl_pipeline.models.etl.jobs.crawler.crawl_newspaper_url import CrawlNewspaperUrlJobConfig
+from etl_pipeline.models.etl.jobs.crawler.silver_crawl_newspaper import SilverCrawlNewspaperJobConfig
 
 
 
@@ -43,7 +50,14 @@ CONFIG_PARSER_MAP = {
     DataLakeToDatamartConfig.__name__: DataLakeToDatamartConfig,
     ParquetExtractorWithSparkConfig.__name__: ParquetExtractorWithSparkConfig,
     DeltaLoaderWithSparkConfig.__name__: DeltaLoaderWithSparkConfig,
+    DeltaMergeLoaderWithSparkConfig.__name__: DeltaMergeLoaderWithSparkConfig,
     QdrantToDatabricksVolumeBronzeConfig.__name__: QdrantToDatabricksVolumeBronzeConfig,
+    CrawlNewspaperUrlJobConfig.__name__: CrawlNewspaperUrlJobConfig,
+    CrawlNewspaperUrlCrawlerConfig.__name__: CrawlNewspaperUrlCrawlerConfig,
+    CrawlNewspaperCrawlerConfig.__name__: CrawlNewspaperCrawlerConfig,
+    SparkTransformConfig.__name__: SparkTransformConfig,
+    DeltaExtractorWithSparkConfig.__name__: DeltaExtractorWithSparkConfig,
+    SilverCrawlNewspaperJobConfig.__name__: SilverCrawlNewspaperJobConfig,
 }
 
 
@@ -69,12 +83,15 @@ def load_and_parse_config(
     config_str = load_yaml_config_from_path_as_str(config_path) #RETURN CONFIG STRING
 
     jinja_template = Template(config_str) # Use when we need to import library and allow jinja template do parser
+    # execution_date: ngày chạy job, có thể override khi backfill.
+    # Mặc định là ngày hiện tại nếu runtime_args không truyền.
+    execution_date = getattr(runtime_args, "execution_date", None) or datetime.now().date()
     allow_jinja_context = {
         "runtime_args": runtime_args,
         "timedelta": timedelta,
         "str": str,
         "datetime": datetime,
-        # "execution_date": runtime_args.execution_date
+        "execution_date": execution_date,
     }
     rendered_config = jinja_template.render(allow_jinja_context) #string type
 

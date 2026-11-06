@@ -6,6 +6,7 @@ include:
   - configs/databricks/data_mart/job_config/**/*.yaml
   - configs/databricks/data_mart/job_config/*.yaml
   - configs/databricks/lakebase/**/*.yaml
+  - configs/databricks/crawl_newspaper/job_config/*.yaml
 
 artifacts:
   # Wheel của package etl_pipeline được build từ gốc repo (cd ..), output vào dist/ của bundle.
