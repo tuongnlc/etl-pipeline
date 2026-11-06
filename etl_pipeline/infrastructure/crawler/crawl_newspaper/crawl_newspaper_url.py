@@ -4,10 +4,10 @@ import httpx
 from bs4 import BeautifulSoup
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StringType, StructField, StructType
-from etl_pipeline.templates.etl.extract.crawler_extractor import CrawlerExtractor
+from etl_pipeline.templates.etl.crawler.crawler_extractor import Crawler
 
 
-class CrawlNewspaperUrl(CrawlerExtractor):
+class CrawlNewspaperUrl(Crawler):
     # Pattern (regex) của những link cần bỏ qua (điều hướng, chuyên mục, quảng cáo...)
     IGNORE_PATTERNS = (
         r"/$",                                   # URL kết thúc bằng "/" -> trang chuyên mục
@@ -35,7 +35,7 @@ class CrawlNewspaperUrl(CrawlerExtractor):
     def _should_ignore(self, url: str) -> bool:
         return any(re.search(pattern, url) for pattern in self.IGNORE_PATTERNS)
 
-    def extract(self) -> DataFrame:
+    def crawl(self) -> DataFrame:
         with httpx.Client(
             follow_redirects=True,
             headers={"User-Agent": "Mozilla/5.0"},

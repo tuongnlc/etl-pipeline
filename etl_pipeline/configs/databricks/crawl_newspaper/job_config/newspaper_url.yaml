@@ -8,6 +8,9 @@ resources:
       parameters:
         - name: job_config
           default: ${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/newspaper_url.yaml
+        # Ngày chạy job. Mặc định là ngày job bắt đầu chạy; override giá trị này để backfill.
+        - name: execution_date
+          default: "{{job.start_time.iso_date}}"
 
       tasks:
         - task_key: crawl__newspaper_url
@@ -19,6 +22,22 @@ resources:
             parameters:
               - "--job_config"
               - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/newspaper_url.yaml"
+          environment_key: default
+
+        # Task silver chạy sau task crawl (bronze) ở trên.
+        - task_key: silver_crawl_newspaper
+          depends_on:
+            - task_key: crawl__newspaper_url
+          python_wheel_task:
+            # Trùng với [project.name] trong pyproject.toml ở gốc repo.
+            package_name: etl_pipeline
+            # Trùng với entry point trong [project.scripts] của pyproject.toml.
+            entry_point: silver_crawl_newspaper
+            parameters:
+              - "--job_config"
+              - "${workspace.file_path}/configs/databricks/crawl_newspaper/spark_config/newspaper.yaml"
+              - "--execution_date"
+              - "{{job.parameters.execution_date}}"
           environment_key: default
 
       environments:
@@ -34,3 +53,4 @@ resources:
               - httpx==0.28.1
               - beautifulsoup4==4.15.0
               - lxml==5.4.0
+              - newspaper4k==0.9.5

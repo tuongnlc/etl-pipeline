@@ -17,6 +17,16 @@ def etl_job_args_utils(extra_args: Optional[list[dict]] = None) -> Namespace:
         type=str, 
         required=True
     )
+    parser.add_argument(
+        "--execution_date",
+        help=(
+            "Ngày chạy job (YYYY-MM-DD), dùng cho backfill. "
+            "Nếu bỏ trống sẽ mặc định là ngày hiện tại."
+        ),
+        default=None,
+        type=str,
+        required=False,
+    )
 
     args = parser.parse_args()
 
@@ -26,9 +36,14 @@ def etl_job_args_utils(extra_args: Optional[list[dict]] = None) -> Namespace:
 
         # Chỉ parse các field config mà job hiện tại có (một số job như
         # datalake_to_datamart chỉ có transform, không có extractor/loader).
-        if getattr(args.job_config, "extractor", None) is not None:
-            parsed_job_config_extractpr = parse_config(args.job_config.extractor)
-            args.job_config.extractor = parsed_job_config_extractpr
+        # Job crawl dùng field `crawler`; các job khác dùng `extractor`.
+        for field_name in ("extractor", "crawler"):
+            if getattr(args.job_config, field_name, None) is not None:
+                setattr(
+                    args.job_config,
+                    field_name,
+                    parse_config(getattr(args.job_config, field_name)),
+                )
         if getattr(args.job_config, "loader", None) is not None:
             parsed_job_config_loader = parse_config(args.job_config.loader)
             args.job_config.loader = parsed_job_config_loader

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -18,6 +19,7 @@ class DeltaMergeLoaderWithSparkConfig:
     schema: str
     table: str
     merge_keys: list[str]
+    partition_column: Optional[str] | None = None
 
     @property
     def delta_table_name(self) -> str:

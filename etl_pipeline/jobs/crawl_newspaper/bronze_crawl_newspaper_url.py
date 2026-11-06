@@ -1,29 +1,29 @@
-# market_data_etl.pyfrom etl_pipeline.templates.pipeline.base import BasePipeline
-from etl_pipeline.infrastructure.crawler.extract.crawl_newspaper_url import CrawlNewspaperUrl
+from etl_pipeline.infrastructure.crawler.crawl_newspaper.crawl_newspaper_url import CrawlNewspaperUrl
 from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaMergeLoaderWithSpark
-from etl_pipeline.templates.pipeline.base import BasePipeline
+from etl_pipeline.templates.pipeline.base import BaseCrawlerPipeline
 from pyspark.sql import DataFrame
 from etl_pipeline.templates.etl.transform.base import TransformStep
 
-class BronzeCrawlNewspaperUrl(BasePipeline):
+
+class BronzeCrawlNewspaperUrl(BaseCrawlerPipeline):
     """
         BronzeCrawlNewspaperUrl pipeline
     """
     def __init__(
             self, 
-            extractor: CrawlNewspaperUrl,
+            crawler: CrawlNewspaperUrl,
             transform_steps: list[TransformStep],
             loader: DeltaMergeLoaderWithSpark,
         ) -> None:
-        self.extractor = extractor
+        self.crawler = crawler
         self.transform_steps = transform_steps
         self.loader = loader
 
-    def extract(self) -> None:
+    def crawl(self) -> None:
         """
             Read data from postgresql database
         """
-        data_crawler = self.extractor.extract()
+        data_crawler = self.crawler.crawl()
         print(data_crawler)
         return data_crawler
         
@@ -42,6 +42,6 @@ class BronzeCrawlNewspaperUrl(BasePipeline):
         self.loader.load(data)
 
     def run(self) -> None:
-        data_ = self.extract()
+        data_ = self.crawl()
         data_ = self.transform(data_)
         self.load(data_)

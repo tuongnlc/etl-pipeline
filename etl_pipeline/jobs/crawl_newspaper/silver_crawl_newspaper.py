@@ -1,48 +1,58 @@
+from etl_pipeline.infrastructure.crawler.crawl_newspaper.crawl_newspaper import CrawlNewspaper
 from etl_pipeline.infrastructure.spark.etl.load.delta_loader import DeltaLoaderWithSpark
-from etl_pipeline.templates.etl.extract.parquet_extractpr import ParquetExtractor
-from etl_pipeline.templates.pipeline.base import BasePipeline
-import polars as pl
+from etl_pipeline.templates.etl.extract.delta_extractor import DeltaExtractor
+from etl_pipeline.templates.pipeline.base import BaseCrawlerPipeline
 from etl_pipeline.templates.etl.transform.base import BaseTransform, TransformStep
+from pyspark.sql import DataFrame
 
-
-class SilverCrawlNewspaper(BasePipeline):
+class SilverCrawlNewspaper(BaseCrawlerPipeline):
     """
         SilverCrawlNewspaper pipeline
     """
     def __init__(
             self, 
-            extractor: ParquetExtractor,
+            extractor: DeltaExtractor,
             transformer: BaseTransform,
             transform_steps: list[TransformStep],
+            crawler: CrawlNewspaper,
             loader: DeltaLoaderWithSpark,
         ) -> None:
         self.extractor = extractor
         self.transformer = transformer
         self.transform_steps = transform_steps
-        self.loader = DeltaLoaderWithSpark
+        self.crawler = crawler
+        self.loader = loader
 
-    def extract(self) -> None:
+    def extract(self) -> DataFrame:
         """
-            Read data from postgresql database
+            Read data from datalake
         """
-        data_from_postgresql = self.extractor.extract()
-        return data_from_postgresql
+        data_from_datalake = self.extractor.extract()
+        return data_from_datalake
         
-    def transform(self, data: pl.DataFrame) -> pl.DataFrame:
+    def transform(self, df: DataFrame) -> DataFrame:
         """
             Transform data using transform_steps
         """
-        df = self.transformer.transform(data, self.transform_steps)
-        if isinstance(df, pl.DataFrame):
-            return df
+        df = self.transformer.transform(df, self.transform_steps)
+        return df
 
-    def load(self, transform_data: pl.DataFrame) -> None:
+    def crawl(self, df: DataFrame) -> None:
+        """
+            Crawl data 
+        """
+        df = self.crawler.crawl(df)
+        return df
+
+    def load(self, df: DataFrame) -> None:
         """
             Load data to databricks volume
         """
-        self.loader.load(transform_data)
+        self.loader.load(df)
+        return df
 
     def run(self) -> None:
         data_ = self.extract()
         data_ = self.transform(data_)
+        data_ = self.crawl(data_)
         self.load(data_)

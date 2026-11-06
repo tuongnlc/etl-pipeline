@@ -4,6 +4,6 @@ from typing import Any, Optional
 
 @dataclass
 class CrawlNewspaperUrlJobConfig():
-    extractor: Any
+    crawler: Any
     loader: Any
     transform: Optional[Any] = None

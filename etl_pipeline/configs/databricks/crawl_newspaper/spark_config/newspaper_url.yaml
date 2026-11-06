@@ -1,8 +1,8 @@
 ---
 kind: CrawlNewspaperUrlJobConfig
 spec:
-  extractor:
-    kind: CrawlNewspaperUrlExtractorConfig
+  crawler:
+    kind: CrawlNewspaperUrlCrawlerConfig
     spec:
       link: https://vietstock.vn/chung-khoan.htm
   transform:
@@ -19,6 +19,6 @@ spec:
     spec:
       catalog: market_news_datalake
       schema: newspaper
-      table: newspaper_url
+      table: newspaper
       merge_keys:
-        - url
+        - newspaper_url

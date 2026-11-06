@@ -26,8 +26,11 @@ from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamart
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaLoaderWithSparkConfig
 from etl_pipeline.models.etl.loader.delta_loader_with_spark import DeltaMergeLoaderWithSparkConfig
 from etl_pipeline.models.etl.jobs.qdrant_to_databricks_volume_bronze import QdrantToDatabricksVolumeBronzeConfig
-from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper_url import CrawlNewspaperUrlExtractorConfig
+from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper import CrawlNewspaperUrlCrawlerConfig
+from etl_pipeline.models.etl.extractor.crawler.crawl_newspaper import CrawlNewspaperCrawlerConfig
+from etl_pipeline.models.etl.extractor.delta_extractor_with_spark import DeltaExtractorWithSparkConfig
 from etl_pipeline.models.etl.jobs.crawler.crawl_newspaper_url import CrawlNewspaperUrlJobConfig
+from etl_pipeline.models.etl.jobs.crawler.silver_crawl_newspaper import SilverCrawlNewspaperJobConfig
 
 
 
@@ -50,8 +53,11 @@ CONFIG_PARSER_MAP = {
     DeltaMergeLoaderWithSparkConfig.__name__: DeltaMergeLoaderWithSparkConfig,
     QdrantToDatabricksVolumeBronzeConfig.__name__: QdrantToDatabricksVolumeBronzeConfig,
     CrawlNewspaperUrlJobConfig.__name__: CrawlNewspaperUrlJobConfig,
-    CrawlNewspaperUrlExtractorConfig.__name__: CrawlNewspaperUrlExtractorConfig,
+    CrawlNewspaperUrlCrawlerConfig.__name__: CrawlNewspaperUrlCrawlerConfig,
+    CrawlNewspaperCrawlerConfig.__name__: CrawlNewspaperCrawlerConfig,
     SparkTransformConfig.__name__: SparkTransformConfig,
+    DeltaExtractorWithSparkConfig.__name__: DeltaExtractorWithSparkConfig,
+    SilverCrawlNewspaperJobConfig.__name__: SilverCrawlNewspaperJobConfig,
 }
 
 
@@ -77,12 +83,15 @@ def load_and_parse_config(
     config_str = load_yaml_config_from_path_as_str(config_path) #RETURN CONFIG STRING
 
     jinja_template = Template(config_str) # Use when we need to import library and allow jinja template do parser
+    # execution_date: ngày chạy job, có thể override khi backfill.
+    # Mặc định là ngày hiện tại nếu runtime_args không truyền.
+    execution_date = getattr(runtime_args, "execution_date", None) or datetime.now().date()
     allow_jinja_context = {
         "runtime_args": runtime_args,
         "timedelta": timedelta,
         "str": str,
         "datetime": datetime,
-        # "execution_date": runtime_args.execution_date
+        "execution_date": execution_date,
     }
     rendered_config = jinja_template.render(allow_jinja_context) #string type
 
