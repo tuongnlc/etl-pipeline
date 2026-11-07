@@ -35,10 +35,11 @@ def main():
         if job_config.transform is not None
         else []
     )
-    
-
-    # Crawler được khai báo trong config (spark_config/newspaper.yaml).
-    crawler = CrawlNewspaper(spark=spark)
+        # Crawler được khai báo trong config (spark_config/newspaper.yaml).
+    crawler = CrawlNewspaper(
+        spark=spark,
+        source_link=job_config.crawler.source_link,
+    )
 
     loader = DeltaMergeLoaderWithSpark(
         delta_table_name=job_config.loader.delta_table_name,

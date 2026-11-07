@@ -24,7 +24,8 @@ spec:
               - url    
   crawler:
     kind: CrawlNewspaperCrawlerConfig
-    spec: {}
+    spec:
+      source_link: "https://thoibaotaichinhvietnam.vn/chung-khoan"
   loader:
     kind: DeltaMergeLoaderWithSparkConfig
     spec:

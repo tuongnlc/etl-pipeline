@@ -24,7 +24,8 @@ spec:
               - url    
   crawler:
     kind: CrawlNewspaperCrawlerConfig
-    spec: {}
+    spec:
+      source_link: "https://vietstock.vn/chung-khoan.htm"
   loader:
     kind: DeltaMergeLoaderWithSparkConfig
     spec:

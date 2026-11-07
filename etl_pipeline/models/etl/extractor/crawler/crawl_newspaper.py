@@ -7,5 +7,5 @@ class CrawlNewspaperUrlCrawlerConfig:
 
 @dataclass
 class CrawlNewspaperCrawlerConfig:
-    # CrawlNewspaper nhận danh sách url từ DataFrame của extractor nên không cần tham số cấu hình.
-    pass
+    # URL trang chuyên mục -> ghi vào cột source_link của DataFrame kết quả.
+    source_link: str
