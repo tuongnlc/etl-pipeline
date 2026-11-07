@@ -9,6 +9,7 @@ from pyspark.sql import DataFrame, SparkSession
 class CrawlNewspaper(Crawler):
     def __init__(self, spark: SparkSession, headless: bool = True, **kwargs: Any) -> None:
         self.spark = spark
+        self.source_link = kwargs["source_link"]
 
     def crawl(self, df: DataFrame, **kwargs: Any):
         data_ = []
@@ -30,6 +31,7 @@ class CrawlNewspaper(Crawler):
                 "newspaper_url": url,
                 "publish_date": publish_date,
                 "newspaper_content": newspaper_content,
+                "source_link": self.source_link,
             })
         
         # Build spark dataframe with these data
@@ -39,6 +41,7 @@ class CrawlNewspaper(Crawler):
             StructField("newspaper_url", StringType(), True),
             StructField("publish_date", DateType(), True),
             StructField("newspaper_content", StringType(), True),
+            StructField("source_link", StringType(), True),
         ])
 
         df_crawled = self.spark.createDataFrame(data_, schema=SCHEMA)

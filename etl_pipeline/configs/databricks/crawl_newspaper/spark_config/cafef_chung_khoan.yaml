@@ -24,7 +24,8 @@ spec:
               - url    
   crawler:
     kind: CrawlNewspaperCrawlerConfig
-    spec: {}
+    spec:
+      source_link: "https://cafef.vn/thi-truong-chung-khoan.chn"
   loader:
     kind: DeltaMergeLoaderWithSparkConfig
     spec:
