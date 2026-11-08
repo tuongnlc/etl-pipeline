@@ -52,6 +52,7 @@ class DeltaMergeLoaderWithSpark(DeltaLoaderWithSpark):
         merge_condition = " AND ".join(
             f"target.`{key}` = source.`{key}`" for key in condition_keys
         )
+        
         (
             target.alias("target")
             .merge(df.alias("source"), merge_condition)
