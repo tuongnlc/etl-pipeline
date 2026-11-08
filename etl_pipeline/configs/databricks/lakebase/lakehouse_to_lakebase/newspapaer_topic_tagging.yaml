@@ -1,0 +1,25 @@
+resources:
+  postgres_synced_tables:
+    newspaper_topic_tagging:
+      synced_table_id: lakebase_sync.market_news.newspaper_topic_tagging
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: market_news_datamart.newspaper.newspaper_topic_tagging
+      primary_key_columns:
+        - newspaper_url
+      create_database_objects_if_missing: true
+      scheduling_policy: TRIGGERED
+
+  jobs:
+    newspaper_topic_tagging_sync:
+      name: newspaper_topic_tagging_sync
+      trigger:
+        pause_status: UNPAUSED
+        table_update:
+          table_names:
+            - market_news_datamart.newspaper.newspaper_topic_tagging
+          condition: ANY_UPDATED
+      tasks:
+        - task_key: sync_newspaper_topic_tagging
+          pipeline_task:
+            pipeline_id: 2beba262-7aaf-4ba8-8ebb-c9d2f8feb4b7
