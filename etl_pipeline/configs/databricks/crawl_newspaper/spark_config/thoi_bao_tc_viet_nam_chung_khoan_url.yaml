@@ -9,7 +9,10 @@ spec:
     kind: SparkTransformConfig
     spec:
       transform_steps:
-        # created_date = ngày hôm nay (Jinja render tại thời điểm chạy job).
+        - kind: etl_pipeline.infrastructure.spark.etl.transform.deduplicated.DeduplicatedRows
+          spec:
+            deduplicate_columns:
+              - url
         - kind: etl_pipeline.infrastructure.spark.etl.transform.columns.AddDateColumn
           spec:
             column_name: created_date
