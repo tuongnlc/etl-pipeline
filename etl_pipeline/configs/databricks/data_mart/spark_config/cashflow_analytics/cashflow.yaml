@@ -1,0 +1,137 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Cashflow Analytics
+        CREATE OR REPLACE TABLE finance_datamart.cashflow_analytics.cashflow
+
+        WITH base_data AS (
+            SELECT 
+                ist.year,
+                ist.quarter,
+                ist.stock_id,
+                ist.net_revenue,
+                ist.net_profit_after_corporate_income_tax,
+                ist.corporate_income_tax_expense,
+                ist.interest_expense,
+                cfs.depreciation_of_fixed_assets,
+                cfs.net_cash_flows_from_operating_activities,
+                cfs.cash_paid_for_fixed_assets
+            FROM finance_datalake.finance_data.fs_income_statement_type_one AS ist -- finance_datalake.finance_data.fs_income_statement_type_one
+            LEFT JOIN finance_datalake.finance_data.fs_cash_flow_statement_type_one AS cfs
+                ON ist.stock_id = cfs.stock_id
+              AND ist.year = cfs.year
+              AND ist.quarter = cfs.quarter
+        ),
+
+        calculated_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                net_revenue,
+                net_profit_after_corporate_income_tax,
+                corporate_income_tax_expense,
+                interest_expense,
+                depreciation_of_fixed_assets,
+                -- Tính EBIT
+                (net_profit_after_corporate_income_tax + corporate_income_tax_expense + interest_expense) AS ebit,
+                -- Tính EBITDA
+                (
+                    net_profit_after_corporate_income_tax 
+                    + corporate_income_tax_expense 
+                    + interest_expense 
+                    + COALESCE(depreciation_of_fixed_assets, 0)
+                ) AS ebitda,
+                -- Tính Operating Cash Flow
+                net_cash_flows_from_operating_activities AS ocf,
+                -- Tính Free Cash Flow (Lưu ý: cash_paid_for_fixed_assets thường mang giá trị âm trên BCTC, nên dùng phép cộng)
+                (COALESCE(net_cash_flows_from_operating_activities, 0) + COALESCE(cash_paid_for_fixed_assets, 0)) AS fcff
+            FROM base_data
+        ),
+
+        lagged_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                net_revenue,
+                LAG(net_revenue, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS net_revenue_last_year,
+                net_profit_after_corporate_income_tax,
+                LAG(net_profit_after_corporate_income_tax, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS net_profit_last_year,
+                ebit,
+                LAG(ebit, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS ebit_last_year,
+                ebitda,
+                LAG(ebitda, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS ebitda_last_year,
+                ocf,
+                LAG(ocf, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS ocf_last_year,
+                fcff,
+                LAG(fcff, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS fcff_last_year
+            FROM calculated_data
+        )
+
+        SELECT 
+            year,
+            quarter,
+            stock_id,
+            
+            -- 1. Doanh thu thuần & tăng trưởng YoY (%)
+            net_revenue,
+            net_revenue_last_year,
+            CASE 
+                WHEN net_revenue_last_year > 0 
+                THEN ROUND((net_revenue - net_revenue_last_year) * 100.0 / net_revenue_last_year, 2)
+                ELSE NULL 
+            END AS revenue_growth_yoy_pct,
+            
+            -- 2. Lợi nhuận sau thuế & tăng trưởng YoY (%)
+            net_profit_after_corporate_income_tax,
+            net_profit_last_year,
+            CASE 
+                WHEN net_profit_last_year IS NOT NULL AND net_profit_last_year != 0 
+                THEN ROUND((net_profit_after_corporate_income_tax - net_profit_last_year) * 100.0 / ABS(net_profit_last_year), 2)
+                ELSE NULL 
+            END AS net_profit_growth_yoy_pct,
+
+            -- 3. EBIT & tăng trưởng YoY (%)
+            ebit,
+            ebit_last_year,
+            CASE 
+                WHEN ebit_last_year IS NOT NULL AND ebit_last_year != 0 
+                THEN ROUND((ebit - ebit_last_year) * 100.0 / ABS(ebit_last_year), 2)
+                ELSE NULL 
+            END AS ebit_growth_yoy_pct,
+
+            -- 4. EBITDA & tăng trưởng YoY (%)
+            ebitda,
+            ebitda_last_year,
+            CASE 
+                WHEN ebitda_last_year IS NOT NULL AND ebitda_last_year != 0 
+                THEN ROUND((ebitda - ebitda_last_year) * 100.0 / ABS(ebitda_last_year), 2)
+                ELSE NULL 
+            END AS ebitda_growth_yoy_pct,
+
+            -- 5. Operating Cash Flow (OCF) & tăng trưởng YoY (%)
+            ocf,
+            ocf_last_year,
+            CASE 
+                WHEN ocf_last_year IS NOT NULL AND ocf_last_year != 0 
+                THEN ROUND((ocf - ocf_last_year) * 100.0 / ABS(ocf_last_year), 2)
+                ELSE NULL 
+            END AS ocf_growth_yoy_pct,
+
+            -- 6. Free Cash Flow (FCFF) & tăng trưởng YoY (%)
+            fcff,
+            fcff_last_year,
+            CASE 
+                WHEN fcff_last_year IS NOT NULL AND fcff_last_year != 0 
+                THEN ROUND((fcff - fcff_last_year) * 100.0 / ABS(fcff_last_year), 2)
+                ELSE NULL 
+            END AS fcff_growth_yoy_pct
+
+        FROM lagged_data
+        ORDER BY year DESC, quarter DESC
+    
