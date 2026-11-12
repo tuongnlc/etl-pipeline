@@ -21,4 +21,5 @@ spec:
           net_revenue::numeric
           ), 2) AS operating_margin   
         FROM finance_datalake.finance_data.fs_income_statement_type_one
+        ORDER BY year DESC, quarter DESC
 

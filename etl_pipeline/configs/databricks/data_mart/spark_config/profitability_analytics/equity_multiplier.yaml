@@ -15,4 +15,4 @@ spec:
           total_equity,
           ROUND(total_assets::numeric / total_equity::numeric, 2) AS equity_multiplier 
         FROM finance_datalake.finance_data.fs_balance_sheet_type_one
-    
+        ORDER BY year DESC, quarter DESC

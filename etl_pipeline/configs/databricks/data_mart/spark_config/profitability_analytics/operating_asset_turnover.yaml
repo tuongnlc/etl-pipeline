@@ -73,6 +73,7 @@ spec:
                   2
               ) AS oat_ratio
           FROM final_data_with_previous_assets
+          ORDER BY year DESC, quarter DESC
 
 
 

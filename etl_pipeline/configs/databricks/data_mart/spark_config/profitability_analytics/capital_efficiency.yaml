@@ -15,4 +15,4 @@ spec:
           roe,
           roic
         FROM finance_datalake.finance_data.fs_financial_statistics_overview_type_one
-    
+        ORDER BY year DESC, quarter DESC

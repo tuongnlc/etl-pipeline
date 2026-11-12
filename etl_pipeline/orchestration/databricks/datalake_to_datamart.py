@@ -4,7 +4,6 @@ from etl_pipeline.infrastructure.spark.etl.datamart_builder import DatamartBuild
 from etl_pipeline.jobs.gold_databrick_datamart import GoldDatabrickDatamartJob
 from etl_pipeline.models.etl.jobs.datalake_to_datamart import DataLakeToDatamartConfig
 from etl_pipeline.models.etl.transform.sql_transform import SqlTransformWithSparkConfig
-from etl_pipeline.utils.config_loader import parse_config
 from etl_pipeline.utils.jobargs import etl_job_args_utils
 
 
@@ -24,7 +23,7 @@ def main():
     if job_config.transform is None:
         raise ValueError("transform is required for DataLake to Datamart job")
 
-    transform_config = parse_config(job_config.transform)
+    transform_config = job_config.transform
     if not isinstance(transform_config, SqlTransformWithSparkConfig):
         raise ValueError("transform must be of type SqlTransformWithSparkConfig")
 
