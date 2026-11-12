@@ -39,3 +39,15 @@ resources:
       scheduling_policy: SNAPSHOT
       existing_pipeline_id: cff3e449-3894-4fdd-b963-6cc302cc25bd
 
+    compute_key_ratio:
+      synced_table_id: lakebase_sync.agent_knowledge.compute_key_ratio
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_datalake.finance_data.fs_financial_statistics_overview_type_one
+      primary_key_columns:
+        - stock_id
+        - year
+        - quarter
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: cff3e449-3894-4fdd-b963-6cc302cc25bd
