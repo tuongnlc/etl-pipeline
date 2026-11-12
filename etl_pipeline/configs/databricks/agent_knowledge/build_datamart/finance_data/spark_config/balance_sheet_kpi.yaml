@@ -1,0 +1,40 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        /*
+            Tính toán các chỉ số tài chính liên quan tới bảng cân đối kế toán (balance_sheet).
+            Sử dụng trong financial agent.
+            Các chỉ số tài chính bao gồm.
+            - stock_id: Mã chứng khoán
+            - period: Kỳ báo cáo
+            - currency: Đơn vị tiền tệ
+            - total_assets": Tổng tài sản
+            - total_liabilities": Tổng nơ
+            - owners_equity: Vốn chủ sỡ hữu
+            - cash_and_equivalents": Tiền và tương đương tiền
+            - non_current_liabilities: Nợ dài hạn           
+            - current_assets: Tài sản ngắn hạn
+            - current_liabilities: Nợ ngắn hạn
+            - working_capital: Vốn lưu động
+        */
+
+        CREATE OR REPLACE TABLE finance_agent_knowledge.finance_data.balance_sheet_kpi
+        AS
+        SELECT 
+            year,
+            quarter,
+            stock_id,
+            total_assets,
+            total_liabilities,
+            owners_equity,
+            cash_and_cash_equivalents,
+            non_current_liabilities,
+            current_assets,
+            current_liabilities,
+            (current_assets - current_liabilities) AS working_capital
+        FROM `finance_datalake`.`finance_data`.`fs_balance_sheet_type_one`
+            

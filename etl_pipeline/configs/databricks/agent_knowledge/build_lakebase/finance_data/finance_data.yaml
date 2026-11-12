@@ -1,0 +1,27 @@
+resources:
+  postgres_synced_tables:
+    income_statement_kpi:
+      synced_table_id: lakebase_sync.agent_knowledge.income_statement_kpi
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_agent_knowledge.finance_data.income_statement_kpi
+      primary_key_columns:
+        - stock_id
+        - year
+        - quarter
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: cff3e449-3894-4fdd-b963-6cc302cc25bd
+
+    balance_sheet_kpi:
+      synced_table_id: lakebase_sync.agent_knowledge.balance_sheet_kpi
+      branch: projects/finance-2026/branches/production
+      postgres_database: databricks_postgres
+      source_table_full_name: finance_agent_knowledge.finance_data.balance_sheet_kpi
+      primary_key_columns:
+        - stock_id
+        - year
+        - quarter
+      create_database_objects_if_missing: true
+      scheduling_policy: SNAPSHOT
+      existing_pipeline_id: cff3e449-3894-4fdd-b963-6cc302cc25bd
