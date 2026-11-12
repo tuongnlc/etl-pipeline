@@ -2,6 +2,8 @@ bundle:
   name: etl_pipeline
 
 include:
+  - configs/databricks/agent_knowledge/build_datamart/**/job_config/*.yaml
+  - configs/databricks/agent_knowledge/build_lakebase/**/*.yaml
   - configs/databricks/datalake/job_config/*.yaml
   - configs/databricks/data_mart/job_config/**/*.yaml
   - configs/databricks/data_mart/job_config/*.yaml

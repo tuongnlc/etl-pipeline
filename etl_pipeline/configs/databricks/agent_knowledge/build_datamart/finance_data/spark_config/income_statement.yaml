@@ -1,0 +1,178 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        -- Cashflow Analytics
+        /*
+          Tính toán các chỉ số tài chính liên quan tới báo cáo kết quả hoạt động kinh doanh (income_statement).
+          Sử dụng trong financial agent.
+          Các chỉ số tài chính bao gồm.
+          - stock_id: Mã chứng khoán
+          - period: Kỳ báo cáo
+          - currency: Đơn vị tiền tệ
+          - net_revenue: Doanh thu thuần trong kỳ báo cáo
+          - revenue_ttm: Doanh thu 4 quý gần nhất
+          - gross_profit: Lơi nhuận gộp trong kỳ báo cáo
+          - net_operating_profit: Lợi nhuận thuần từ hoạt động kinh doanh
+          - ebitda: Lợi nhuận trước lãi vay, thuế và khấu hao.
+          - net_income: Lợi nhuận sau thuế hay Lợi nhuận ròng
+          - eps: Lợi nhuận trên mỗi cổ phiếu
+          - revenue_ttm: Doanh thu 4 quý gần nhất
+          - gross_margin_pct: Biên lợi nhuận gộp. Công thức tính: gross_profit / net_revenue
+          - operating_margin_pct: Biên lợi nhuận hoạt động. Công thức: net_operating_profit / net_revenue
+          - net_margin_pct: Biên lợi nhuận ròng. Công thức: net_profit_after_corporate_income_tax / net_revenue
+        */
+
+        CREATE OR REPLACE TABLE finance_agent_knowledge.finance_data.income_statement_kpi
+        AS
+        WITH base_data AS (
+            SELECT 
+                ist.year,
+                ist.quarter,
+                ist.stock_id,
+                ist.net_revenue,
+                ist.gross_profit,
+                ist.net_operating_profit,
+                ist.net_profit_after_corporate_income_tax,
+                ist.corporate_income_tax_expense,
+                ist.interest_expense,
+                cfs.depreciation_of_fixed_assets,
+                ov.eps
+            FROM `finance_datalake`.`finance_data`.`fs_income_statement_type_one` AS ist
+            LEFT JOIN `finance_datalake`.`finance_data`.`fs_cash_flow_statement_type_one` AS cfs 
+                ON ist.stock_id = cfs.stock_id
+              AND ist.year = cfs.year
+              AND ist.quarter = cfs.quarter
+            LEFT JOIN `finance_datalake`.`finance_data`.`fs_financial_statistics_overview_type_one` AS ov
+                ON ist.stock_id = ov.stock_id
+              AND ist.year = ov.year
+              AND ist.quarter = ov.quarter
+        ),
+
+        calculated_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                net_revenue,
+                -- Tính Doanh thu TTM (Cộng dồn 4 quý gần nhất)
+                SUM(net_revenue) OVER (
+                    PARTITION BY stock_id 
+                    ORDER BY year, quarter 
+                    ROWS BETWEEN 3 PRECEDING AND CURRENT ROW
+                ) AS revenue_ttm,
+                gross_profit,
+                net_operating_profit,
+                net_profit_after_corporate_income_tax,
+                eps,
+                -- Tính EBITDA = EBIT + Khấu hao
+                (
+                    net_profit_after_corporate_income_tax 
+                    + corporate_income_tax_expense 
+                    + interest_expense 
+                    + COALESCE(depreciation_of_fixed_assets, 0)
+                ) AS ebitda
+            FROM base_data
+        ),
+
+        lagged_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                net_revenue,
+                LAG(net_revenue, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS net_revenue_last_year,
+                
+                revenue_ttm,
+                
+                gross_profit,
+                LAG(gross_profit, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS gross_profit_last_year,
+                
+                net_operating_profit,
+                LAG(net_operating_profit, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS net_operating_profit_last_year,
+                
+                net_profit_after_corporate_income_tax,
+                
+                eps,
+                
+                ebitda,
+                LAG(ebitda, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS ebitda_last_year
+            FROM calculated_data
+        )
+
+        SELECT 
+            year,
+            quarter,
+            stock_id,
+            CONCAT(year, '_', quarter) AS period,
+            "VND" AS currency,
+            "millions VND" AS unit,
+            -- 1. Doanh thu thuần & tăng trưởng YoY (%)
+            net_revenue,
+            net_revenue_last_year,
+            CASE 
+                WHEN net_revenue_last_year > 0 
+                THEN ROUND((net_revenue - net_revenue_last_year) * 100.0 / net_revenue_last_year, 2)
+                ELSE NULL 
+            END AS revenue_growth_yoy_pct,
+            
+            -- Doanh thu TTM (Trailing Twelve Months)
+            revenue_ttm,
+            
+            -- 2. Lợi nhuận gộp & tăng trưởng YoY (%)
+            gross_profit,
+            gross_profit_last_year,
+            CASE 
+                WHEN gross_profit_last_year IS NOT NULL AND gross_profit_last_year != 0 
+                THEN ROUND((gross_profit - gross_profit_last_year) * 100.0 / ABS(gross_profit_last_year), 2)
+                ELSE NULL 
+            END AS gross_profit_growth_yoy_pct,
+
+            -- Biên lợi nhuận gộp (%)
+            CASE 
+                WHEN net_revenue > 0 
+                THEN ROUND(gross_profit * 100.0 / net_revenue, 2)
+                ELSE NULL 
+            END AS gross_margin_pct,
+
+            -- 3. Lợi nhuận thuần từ HĐKD & tăng trưởng YoY (%)
+            net_operating_profit,
+            net_operating_profit_last_year,
+            CASE 
+                WHEN net_operating_profit_last_year IS NOT NULL AND net_operating_profit_last_year != 0 
+                THEN ROUND((net_operating_profit - net_operating_profit_last_year) * 100.0 / ABS(net_operating_profit_last_year), 2)
+                ELSE NULL 
+            END AS net_operating_profit_growth_yoy_pct,
+
+            -- Biên lợi nhuận hoạt động (%)
+            CASE 
+                WHEN net_revenue > 0 
+                THEN ROUND(net_operating_profit * 100.0 / net_revenue, 2)
+                ELSE NULL 
+            END AS operating_margin_pct,
+
+            -- Biên lợi nhuận ròng (%)
+            CASE 
+                WHEN net_revenue > 0 
+                THEN ROUND(net_profit_after_corporate_income_tax * 100.0 / net_revenue, 2)
+                ELSE NULL 
+            END AS net_margin_pct,
+
+            -- EPS từ bảng overview
+            eps,
+
+            -- 4. EBITDA & tăng trưởng YoY (%)
+            ebitda,
+            ebitda_last_year,
+            CASE 
+                WHEN ebitda_last_year IS NOT NULL AND ebitda_last_year != 0 
+                THEN ROUND((ebitda - ebitda_last_year) * 100.0 / ABS(ebitda_last_year), 2)
+                ELSE NULL 
+            END AS ebitda_growth_yoy_pct
+
+        FROM lagged_data
+        ORDER BY year DESC, quarter DESC;
+            
