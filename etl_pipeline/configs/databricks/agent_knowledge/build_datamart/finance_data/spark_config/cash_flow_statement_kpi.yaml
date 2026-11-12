@@ -1,0 +1,147 @@
+---
+kind: DataLakeToDatamartConfig
+spec:
+  transform:
+    kind: SqlTransformWithSparkConfig
+    spec:
+      sql_query: |
+        /*
+            Tính toán các chỉ số tài chính liên quan tới báo cáo lưu chuyển tiền tệ (cash_flow_statement)
+            Sử dụng trong financial agent.
+            Các chỉ số tài chính bao gồm.
+            - stock_id: Mã chứng khoán
+            - period: Kỳ báo cáo
+            - currency: Đơn vị tiền tệ
+            - ocf: Lưu chuyển tiền thuần từ hoạt động kinh doanh
+            - capex: Chi phí đầu tư tài sản cố định hoặc Chi tiêu vốn
+            - free_cash_flow: Dòng tiền tự do
+            - investing_cf: Dòng tiền từ hoạt động đầu tư
+            - financing_cf: Dòng tiền từ hoạt động tài chính
+            - dividends_paid: Cổ tức, lợi nhuận đã trả cho chủ sở hữu
+            - share_buybacks: Mua lại cổ phần
+        */
+
+        CREATE OR REPLACE TABLE finance_agent_knowledge.finance_data.cash_flow_statement_kpi
+        WITH base_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                net_cash_flows_from_operating_activities AS ocf,
+                cash_paid_for_fixed_assets AS capex,
+                net_cash_flows_from_investing_activities AS investing_cf,
+                net_cash_flows_from_financing_activities AS financing_cf,
+                dividends_paid_to_owners AS dividends_paid,
+                cash_paid_for_share_buybacks AS share_buybacks
+            FROM finance_datalake.finance_data.fs_cash_flow_statement_type_one
+        ),
+
+        calculated_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                ocf,
+                capex,
+                investing_cf,
+                financing_cf,
+                dividends_paid,
+                share_buybacks,
+                -- Tính Free Cash Flow (Do capex mang dấu âm trên BCTC nên dùng phép cộng)
+                (COALESCE(ocf, 0) + COALESCE(capex, 0)) AS free_cash_flow
+            FROM base_data
+        ),
+
+        lagged_data AS (
+            SELECT 
+                year,
+                quarter,
+                stock_id,
+                ocf,
+                LAG(ocf, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS ocf_last_year,
+                capex,
+                LAG(capex, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS capex_last_year,
+                investing_cf,
+                LAG(investing_cf, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS investing_cf_last_year,
+                financing_cf,
+                LAG(financing_cf, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS financing_cf_last_year,
+                dividends_paid,
+                LAG(dividends_paid, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS dividends_paid_last_year,
+                share_buybacks,
+                LAG(share_buybacks, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS share_buybacks_last_year,
+                free_cash_flow,
+                LAG(free_cash_flow, 4) OVER (PARTITION BY stock_id ORDER BY year, quarter) AS fcf_last_year
+            FROM calculated_data
+        )
+
+        SELECT 
+            year,
+            quarter,
+            stock_id,
+            
+            -- 1. Operating Cash Flow (OCF) & YoY (%)
+            ocf,
+            ocf_last_year,
+            CASE 
+                WHEN ocf_last_year IS NOT NULL AND ocf_last_year != 0 
+                THEN ROUND((ocf - ocf_last_year) * 100.0 / ABS(ocf_last_year), 2)
+                ELSE NULL 
+            END AS ocf_growth_yoy_pct,
+
+            -- 2. Capital Expenditure (CapEx) & YoY (%)
+            capex,
+            capex_last_year,
+            CASE 
+                WHEN capex_last_year IS NOT NULL AND capex_last_year != 0 
+                THEN ROUND((ABS(capex) - ABS(capex_last_year)) * 100.0 / ABS(capex_last_year), 2)
+                ELSE NULL 
+            END AS capex_growth_yoy_pct,
+
+            -- 3. Investing Cash Flow & YoY (%)
+            investing_cf,
+            investing_cf_last_year,
+            CASE 
+                WHEN investing_cf_last_year IS NOT NULL AND investing_cf_last_year != 0 
+                THEN ROUND((investing_cf - investing_cf_last_year) * 100.0 / ABS(investing_cf_last_year), 2)
+                ELSE NULL 
+            END AS investing_cf_growth_yoy_pct,
+
+            -- 4. Financing Cash Flow & YoY (%)
+            financing_cf,
+            financing_cf_last_year,
+            CASE 
+                WHEN financing_cf_last_year IS NOT NULL AND financing_cf_last_year != 0 
+                THEN ROUND((financing_cf - financing_cf_last_year) * 100.0 / ABS(financing_cf_last_year), 2)
+                ELSE NULL 
+            END AS financing_cf_growth_yoy_pct,
+
+            -- 5. Dividends Paid to Owners & YoY (%)
+            dividends_paid,
+            dividends_paid_last_year,
+            CASE 
+                WHEN dividends_paid_last_year IS NOT NULL AND dividends_paid_last_year != 0 
+                THEN ROUND((ABS(dividends_paid) - ABS(dividends_paid_last_year)) * 100.0 / ABS(dividends_paid_last_year), 2)
+                ELSE NULL 
+            END AS dividends_paid_growth_yoy_pct,
+
+            -- 6. Share Buybacks & YoY (%)
+            share_buybacks,
+            share_buybacks_last_year,
+            CASE 
+                WHEN share_buybacks_last_year IS NOT NULL AND share_buybacks_last_year != 0 
+                THEN ROUND((ABS(share_buybacks) - ABS(share_buybacks_last_year)) * 100.0 / ABS(share_buybacks_last_year), 2)
+                ELSE NULL 
+            END AS share_buybacks_growth_yoy_pct,
+
+            -- 7. Free Cash Flow (FCF) & YoY (%)
+            free_cash_flow,
+            fcf_last_year,
+            CASE 
+                WHEN fcf_last_year IS NOT NULL AND fcf_last_year != 0 
+                THEN ROUND((free_cash_flow - fcf_last_year) * 100.0 / ABS(fcf_last_year), 2)
+                ELSE NULL 
+            END AS fcf_growth_yoy_pct
+
+        FROM lagged_data
+        ORDER BY year DESC, quarter DESC;
+            
